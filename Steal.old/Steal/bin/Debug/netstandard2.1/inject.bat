@@ -1,0 +1,1 @@
+SMI.exe inject -p "Gorilla Tag" -a Steal.dll -n Steal.Background.Security -c Base -m Init

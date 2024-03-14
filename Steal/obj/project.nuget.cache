@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "OxLIvPkqDcndWs15JJvT6q9mx8UbhPLCPM2KZ7TKJGzOKFEAKlBm8ga/CEIV47eHpfykqmj79YIiWYP9Ro0w/Q==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\kmant\\Documents\\GitHub\\Steal\\Steal\\WristMenu.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problem reading the cache file C:\\Users\\kmant\\Documents\\GitHub\\Steal\\Steal\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
+}
