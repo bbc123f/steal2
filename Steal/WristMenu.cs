@@ -13,21 +13,19 @@ using Photon.Realtime;
 using UnityEngine.Rendering;
 using Steal.Background;
 using System.Linq;
-using static WristMenu.Background.ModHandler;
+using static Steal.Background.ModHandler;
 using Photon.Voice.PUN;
 using System.Collections.Specialized;
 using System.Text;
 using GorillaNetworking;
 using ExitGames.Client.Photon;
 using System.Collections;
-using WristMenu.Background;
 using WristMenu;
 
 namespace Steal
 {
     class MenuPatch : MonoBehaviour
     {
-
         public class Button 
         {
             public string buttonText { get; set; }
@@ -36,9 +34,12 @@ namespace Steal
             public bool ismaster { get; set; }
             public Action onEnable { get; set;  }
             public Action onDisable { get; set; }
+            public bool shouldSettingPC { get; set; }
+            public bool doesHaveMultiplier { get; set; }
+            public Func<float> multiplier { get; set; }
             public Category Page;
 
-            public Button(string lable, Category page, bool isToggle, bool isActive, Action OnClick, Action OnDisable = null, bool IsMaster = false)
+            public Button(string lable, Category page, bool isToggle, bool isActive, Action OnClick, Action OnDisable = null, bool IsMaster = false, bool ShouldPC = true, bool doesMulti = false, Func<float> multiplier2 = null)
             {
                 buttonText = lable;
                 this.isToggle = isToggle;
@@ -47,6 +48,9 @@ namespace Steal
                 ismaster = IsMaster;
                 Page = page;
                 this.onDisable = OnDisable;
+                shouldSettingPC = ShouldPC;
+                doesHaveMultiplier = doesMulti;
+                multiplier = multiplier2;
             }
         }
 
@@ -66,6 +70,7 @@ namespace Steal
         {
             Destroy(menu);
             menu = null;
+            Draw();
         }
         public static void ChangePage(Category page)
         {
@@ -74,7 +79,10 @@ namespace Steal
         }
         public static void ChangeButtonType()
         {
-            currentButtons = currentButtons == PageButtonsType.Default ? PageButtonsType.Side : PageButtonsType.Default;
+            if (currentButtons == PageButtonsType.Default)
+                currentButtons = PageButtonsType.Side;
+            else if (currentButtons == PageButtonsType.Side)
+                currentButtons = PageButtonsType.Default;    
         }
 
         public static void ChangePageType()
@@ -84,8 +92,27 @@ namespace Steal
         public static Category currentPage = Category.Base;
 
         public static bool categorized = true;
-        public static string Compspeedboost = "{Mosa}";
+        public static float speedBoostMultiplier = 1.15f;
+        public static float flightMultiplier = 1.15f;
+        public static float WallWalkMultiplier = 1.15f;
+        public static int currentPlatform = 0;
         static bool _init = false;
+
+        public static float getSpeedBoostMultiplier()
+        {
+            return speedBoostMultiplier;
+        }
+
+        public static float getFlightMultiplier()
+        {
+            return flightMultiplier;
+        }
+
+        public static float getWallWalkMultiplier()
+        {
+            return WallWalkMultiplier;
+        }
+
 
         public static Button[] buttons =
         {
@@ -96,9 +123,6 @@ namespace Steal
             new Button("Overpowered", Category.Base, false, false, ()=>ChangePage(Category.Special)),
             new Button("Settings", Category.Base, false, false, ()=>ChangePage(Category.Settings)),
 
-            new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
-            new Button("Toggle Catagories", Category.Settings, false, false, ()=>ChangePageType()),
-
             new Button("Disconnect", Category.Room, false, false, ()=>SmartDisconnect()),
             new Button("Join Random", Category.Room, false, false, ()=>JoinRandom()),
             new Button("Create Public", Category.Room, false, false, ()=>CreatePublicRoom()),
@@ -107,7 +131,7 @@ namespace Steal
 
             new Button("Super Monkey", Category.Movement, true, false, ()=>SuperMonkey(), null),
             new Button("Platforms", Category.Movement,true, false, ()=>Platforms(), null),
-            new Button("Speed Boost", Category.Movement, true, false, ()=>SpeedBoost(true), ()=>SpeedBoost(false)),
+            new Button("SpeedBoost", Category.Movement, true, false, ()=>SpeedBoost(speedBoostMultiplier, true), ()=>SpeedBoost(speedBoostMultiplier, false)),
             new Button("No Tag Freeze", Category.Movement, true, false, ()=>GorillaLocomotion.Player.Instance.disableMovement = false, null),
             new Button("No Clip", Category.Movement, true, false, ()=>NoClip(), null), 
             new Button("Long Arms", Category.Movement, true, false, ()=>LongArms(), null),
@@ -119,9 +143,9 @@ namespace Steal
             new Button("Spider Monke", Category.Movement, true, false, ()=>SpiderMonke()),
             new Button("Checkpoint", Category.Movement, true, false, ()=>ProcessCheckPoint(true), ()=>ProcessCheckPoint(false)),
 
-            new Button("WallWalk", Category.Movement, true, false, ()=>WallWalk()),
+            new Button("WallWalk", Category.Movement, true, false, ()=>WallWalk(), ()=>ResetGravity()),
             new Button("SpiderClimb", Category.Movement, true, false, ()=>MonkeClimb()),
-            new Button("Comp Speed Boost " + Compspeedboost, Category.Movement, true, false, ()=>CompSpeedBoost()),
+            new Button("Sticky Hands", Category.Movement, true, false, ()=>StickyHands()),
             new Button("BHop", Category.Movement, true, false, ()=>BHop()),
 
             new Button("Tag Gun", Category.Player, true, false, ()=>TagGun(), ()=>CleanUp()),
@@ -145,10 +169,12 @@ namespace Steal
             new Button("Water Gun", Category.Player, true, false, ()=>SplashGun()),
             new Button("Water Sizeable", Category.Player, true, false, ()=>SizeableSplash()),
 
+            new Button("Helicopter Monkey", Category.Player, true, false, ()=>Helicopter(), ()=>ResetRig()),
+
             new Button("ESP", Category.Visual, true, false, ()=>ESP(), ()=>ResetTexure()),
             new Button("Chams", Category.Visual, true, false, ()=>Chams(), ()=>ResetTexure()),
             new Button("Skeleton ESP", Category.Visual, true, false, ()=>BoneESP(), ()=>ResetTexure()),
-            new Button("Box ESP", Category.Visual, true, false, ()=>BoxESP(), ()=>CleanUpBoxESP()),
+            new Button("Box ESP", Category.Visual, true, false, ()=>BoxESP(), ()=>ResetTexure()),
             new Button("Tracers", Category.Visual, true, false, ()=>Tracers(), ()=>ResetTexure()),
             new Button("Beacons", Category.Visual, true, false, ()=>Beacons(), ()=>ResetTexure()),
 
@@ -156,6 +182,8 @@ namespace Steal
             new Button("Name Tags", Category.Visual, true, false, ()=>StartNameTags(), ()=>StopNameTags()),
             new Button("Night Time", Category.Visual, false, false, ()=> BetterDayNightManager.instance.SetTimeOfDay(0)),
             new Button("Day Time", Category.Visual, false, false, ()=> BetterDayNightManager.instance.SetTimeOfDay(1)),
+            new Button("FPS Boost", Category.Visual, false, false, ()=> FPSBoost()),
+            new Button("Horror Game", Category.Visual, false, false, ()=> HorrorGameMod()),
 
             new Button("Auto AntiBan", Category.Special, true, autoAntiBan, null),
             new Button("AntiBan", Category.Special, false, false, ()=>StartAntiBan()), 
@@ -164,14 +192,14 @@ namespace Steal
             new Button("Fraud Identity Spoof", Category.Special, false, false, ()=>ChangeRandomIdentity()),
             new Button("Anti Report", Category.Special, true, true, ()=>AntiReport()),
 
-            new Button("Freeze Game All", Category.Special, false, false, ()=>CrashAll()),
-            new Button("Invis All", Category.Special, false, false, ()=>InvisAll()),
-            new Button("Invis Gun", Category.Special, true, false, ()=>InvisGun()),
-            new Button("Invis On Touch", Category.Special, true, false, ()=>InvisOnTouch()),
+            new Button("Crash All", Category.Special, false, false, ()=>CrashAll()),
+            new Button("Freeze All", Category.Special, false, false, ()=>InvisAll()),
+            new Button("Freeze Gun", Category.Special, true, false, ()=>InvisGun()),
+            new Button("Freeze On Touch", Category.Special, true, false, ()=>InvisOnTouch()),
             new Button("Stop Movement Gun", Category.Special, true, false, ()=>StopMovement(), null, true),
             new Button("Float Gun", Category.Special, true, false, ()=>FloatGun(), null, true),
 
-            new Button("Punch Mod", Category.Special, true, false, null),
+            new Button("Punch Mod", Category.Special, true, false, ()=>PunchMod()),
             new Button("Mat Spam All", Category.Special, true, false, ()=>matSpamAll(), null, true),
             new Button("Mat Spam Gun", Category.Special, true, false, ()=>MatGun(), ()=>CleanUp(), true),
             new Button("Mat Spam On Touch", Category.Special, true, false, ()=>matSpamOnTouch(), null, true),
@@ -201,11 +229,26 @@ namespace Steal
 
             new Button("Name Change All", Category.Special, true, false, ()=>NameAll()),
             new Button("Name Change Gun", Category.Special, true, false, ()=>NameGun(), ()=>CleanUp()),
+            new Button("Sound Spam", Category.Special, true, false, ()=>SoundSpam(), null, true),
+
+            new Button("Change Theme", Category.Settings, false, false, ()=>ChangeTheme(), null, false, false),
+            new Button("Change SpeedBoost ", Category.Settings, false, false, ()=>SwitchSpeed(), null, false, true, true, ()=>getSpeedBoostMultiplier()),
+            new Button("Change FlightSpeed ", Category.Settings, false, false, ()=>SwitchFlight(), null, false, true, true, ()=>getFlightMultiplier()),
+            new Button("Change WallWalk ", Category.Settings, false, false, ()=>SwitchWallWalk(), null, false, true, true, ()=>getWallWalkMultiplier()),
+            new Button("Change Platforms", Category.Settings, false, false, ()=>ChangePlatforms()),
+            new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
+
+            new Button("Toggle Categorys", Category.Settings, false, false, ()=>ChangePageType()),
+            new Button("Toggle PocketWatch", Category.Settings, false, false, ()=>ToggleWatch()),
+            new Button("Toggle Mod List", Category.Settings, false, false, ()=>ToggleList()),
+            new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
+            new Button("No Snitch Utilla", Category.Settings, true, true, null),
+
         };
 
 
 
-
+       
 
         public static int page = 0;
         public static int pageSize = 6;
@@ -216,6 +259,26 @@ namespace Steal
         static GameObject referance = null;
         public static int framePressCooldown = 0;
         public static bool isRoomCodeRun = true;
+
+        public static float multiplierManager(float currentSpeed)
+        {
+            float speed = currentSpeed;
+
+            if (speed == 1.15f)
+                speed = 1.3f;
+            else if (speed == 1.3f)
+                speed = 1.5f;
+            else if (speed == 1.5f)
+                speed = 1.7f;
+            else if (speed == 1.7f)
+                speed = 2f;
+            else if (speed == 2f)
+                speed = 3f;
+            else if (speed == 3f)
+                speed = 1.15f;
+
+            return speed;
+        }
 
         public void OnEvent(EventData ev)
         {
@@ -236,14 +299,15 @@ namespace Steal
         {
             try
             {
-
-                if (!_init && PhotonNetwork.IsConnectedAndReady)
+                if (!_init && PhotonNetwork.IsConnected)
                 {
                     PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
+                    FindButton("Auto AntiBan").Enabled = true;
                     _init = true;
                 }
                 if (PhotonNetwork.InRoom && isRoomCodeRun)
                 {
+                    isRoomCodeRun = false;
                     if (PhotonVoiceNetwork.Instance.Client.LoadBalancingPeer.PeerState == PeerStateValue.Connected)
                     {
                         NameValueCollection nvc = new NameValueCollection
@@ -261,36 +325,38 @@ namespace Steal
                         {
                             ChangeRandomIdentity();
                         }
-                        isRoomCodeRun = false;
                     }
                 }
                 else if (!PhotonNetwork.InRoom && !isRoomCodeRun)
                 {
                     isRoomCodeRun = true;
                 }
-                if (InputHandler.LeftPrimary && menu == null)
+
+                if (InputHandler.LeftPrimary)
                 {
-                    Draw();
-                    if (referance == null)
+                    if (menu == null)
                     {
-                        referance = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                        referance.transform.parent = GorillaTagger.Instance.rightHandTriggerCollider.transform;
-                        referance.transform.localPosition = new Vector3(0f, 0f, 0f);
-                        referance.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+                        Draw();
+                        if (referance == null)
+                        {
+                            referance = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                            referance.transform.parent =GorillaLocomotion.Player.Instance.rightControllerTransform;
+                            referance.transform.localPosition = new Vector3(0f, -0.1f, 0f) * GorillaLocomotion.Player.Instance.scale;
+                            referance.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+                        }
+                    }
+                    else
+                    {
+                        menu.transform.position = GorillaLocomotion.Player.Instance.leftControllerTransform.position;
+                        menu.transform.rotation = GorillaLocomotion.Player.Instance.leftControllerTransform.rotation;
                     }
                 }
-                else if (!InputHandler.LeftPrimary && menu != null)
+                else if (menu != null)
                 {
                     GameObject.Destroy(menu);
                     menu = null;
                     GameObject.Destroy(referance);
                     referance = null;
-                }
-
-                if (InputHandler.LeftPrimary && menu != null)
-                {
-                    menu.transform.position = GorillaLocomotion.Player.Instance.leftControllerTransform.position;
-                    menu.transform.rotation = GorillaLocomotion.Player.Instance.leftControllerTransform.rotation;
                 }
 
                 foreach (Button bt in buttons)
@@ -343,7 +409,7 @@ namespace Steal
                 case 3:
                     return new Color[]
                     {
-                        new Color(0.7f, 0.7f, 0.7f), new Color(0.8f, 0.8f, 0.8f), Color.black // Lite
+                        new Color(0.7f, 0.7f, 0.7f), new Color(0.8f, 0.8f, 0.8f), new Color(0.9f, 0.9f, 0.9f), Color.white // Lite
                     };
 
                 case 4:
@@ -381,12 +447,10 @@ namespace Steal
             newBtn.AddComponent<BtnCollider>().button = new Button(button, Category.Base, false, false, null, null);
             newBtn.GetComponent<Renderer>().material.color = GetTheme(UI.Theme)[1];
 
-
             GameObject titleObj = new GameObject();
             titleObj.transform.parent = canvasObj.transform;
             Text title = titleObj.AddComponent<Text>();
             title.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
-            title.text = button;
             title.color = GetTheme(UI.Theme)[3];
             title.fontSize = 1;
             title.alignment = TextAnchor.MiddleCenter;
@@ -395,13 +459,33 @@ namespace Steal
             RectTransform titleTransform = title.GetComponent<RectTransform>();
             titleTransform.localPosition = Vector3.zero;
             titleTransform.sizeDelta = new Vector2(0.2f, 0.03f);
-            titleTransform.localPosition = button.Contains("<") ? new Vector3(0.064f, 0.0715f, -0.198f) : new Vector3(0.064f, -0.0685f, -0.198f);
-            titleTransform.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
+
+            if (currentButtons == PageButtonsType.Default)
+            {
+                title.text = button;
+                titleTransform.localPosition = button.Contains("<") ? new Vector3(0.064f, 0.0715f, -0.198f) : new Vector3(0.064f, -0.0685f, -0.198f);
+                titleTransform.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
+            }
+            else if (currentButtons == PageButtonsType.Side)
+            {
+                title.text = button.Contains("<") ? "<" : ">";
+                titleTransform.position = new Vector3(0.064f, button.Contains("<") ? 0.186f : -0.186f, 0f);
+                titleTransform.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
+            }
+
+
         }
 
-
-
-
+        public static void ChangeTheme()
+        {
+            UI.Theme = UI.Theme + 1;
+            if (UI.Theme > 4)
+            {
+                UI.Theme = 0;
+            }
+            PlayerPrefs.SetInt("steal_backGround", UI.Theme);
+            MenuPatch.RefreshMenu();
+        }
 
         static void AddBackToStartButton()
         {
@@ -472,7 +556,14 @@ namespace Steal
 
             Text title = titleObj.AddComponent<Text>();
             title.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
-            title.text = button.buttonText;
+            if (button.doesHaveMultiplier)
+            {
+                title.text = button.buttonText + button.multiplier();
+            }
+            else
+            {
+                title.text = button.buttonText;
+            }
             title.fontSize = 1;
             title.color = GetTheme(UI.Theme)[3];
             title.alignment = TextAnchor.MiddleCenter;
@@ -488,82 +579,82 @@ namespace Steal
 
         public static void Draw()
         {
-            menu = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            GameObject.Destroy(menu.GetComponent<Rigidbody>());
-            GameObject.Destroy(menu.GetComponent<BoxCollider>());
-            GameObject.Destroy(menu.GetComponent<Renderer>());
-            menu.transform.localScale = new Vector3(0.1f, 0.3f, 0.4f);
-            menu.name = "menu";
-
-            GameObject background = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            GameObject.Destroy(background.GetComponent<Rigidbody>());
-            GameObject.Destroy(background.GetComponent<BoxCollider>());
-            background.transform.parent = menu.transform;
-            background.transform.rotation = Quaternion.identity;
-            background.transform.localScale = new Vector3(0.1f, 1f, 1.1f);
-            background.name = "menucolor";
-            background.transform.position = new Vector3(0.05f, 0, -0.004f);
-            background.GetComponent<Renderer>().material.color = GetTheme(UI.Theme)[0];
-
-            canvasObj = new GameObject();
-            canvasObj.transform.parent = menu.transform;
-            canvasObj.name = "canvas";
-            Canvas canvas = canvasObj.AddComponent<Canvas>();
-            CanvasScaler canvasScale = canvasObj.AddComponent<CanvasScaler>();
-            canvasObj.AddComponent<GraphicRaycaster>();
-            canvas.renderMode = RenderMode.WorldSpace;
-            canvasScale.dynamicPixelsPerUnit = 1000;
-
-            GameObject titleObj = new GameObject();
-            titleObj.transform.parent = canvasObj.transform;
-            titleObj.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
-            Text title = titleObj.AddComponent<Text>();
-            title.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
-            title.text = "Steal";
-            title.color = GetTheme(UI.Theme)[3];
-            title.fontSize = 1;
-            title.alignment = TextAnchor.MiddleCenter;
-            title.resizeTextForBestFit = true;
-            title.resizeTextMinSize = 0;
-            RectTransform titleTransform = title.GetComponent<RectTransform>();
-            titleTransform.localPosition = Vector3.zero;
-            titleTransform.sizeDelta = new Vector2(0.28f, 0.05f);
-            titleTransform.position = new Vector3(0.06f, 0f, 0.175f);
-            titleTransform.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
-
-            if (categorized)
+            try
             {
-                var PageToDraw = GetButtonInfoByPage(currentPage).Skip(page * pageSize).Take(pageSize).ToArray();
-                
+                menu = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                GameObject.Destroy(menu.GetComponent<Rigidbody>());
+                GameObject.Destroy(menu.GetComponent<BoxCollider>());
+                GameObject.Destroy(menu.GetComponent<Renderer>());
+                menu.transform.localScale = new Vector3(0.1f, 0.3f, 0.4f) * GorillaLocomotion.Player.Instance.scale;
+                menu.name = "menu";
 
-                for (int i = 0; i < PageToDraw.Length; i++)
+                GameObject background = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                GameObject.Destroy(background.GetComponent<Rigidbody>());
+                GameObject.Destroy(background.GetComponent<BoxCollider>());
+                background.transform.parent = menu.transform;
+                background.transform.rotation = Quaternion.identity;
+                background.transform.localScale = new Vector3(0.1f, 1f, 1.1f);
+                background.name = "menucolor";
+                background.transform.position = new Vector3(0.05f, 0, -0.004f);
+                background.GetComponent<Renderer>().material.color = GetTheme(UI.Theme)[0];
+
+                canvasObj = new GameObject();
+                canvasObj.transform.parent = menu.transform;
+                canvasObj.name = "canvas";
+                Canvas canvas = canvasObj.AddComponent<Canvas>();
+                CanvasScaler canvasScale = canvasObj.AddComponent<CanvasScaler>();
+                canvasObj.AddComponent<GraphicRaycaster>();
+                canvas.renderMode = RenderMode.WorldSpace;
+                canvasScale.dynamicPixelsPerUnit = 1000;
+
+                GameObject titleObj = new GameObject();
+                titleObj.transform.parent = canvasObj.transform;
+                titleObj.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+                Text title = titleObj.AddComponent<Text>();
+                title.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
+                title.text = "Steal";
+                title.color = GetTheme(UI.Theme)[3];
+                title.fontSize = 1;
+                title.alignment = TextAnchor.MiddleCenter;
+                title.resizeTextForBestFit = true;
+                title.resizeTextMinSize = 0;
+                RectTransform titleTransform = title.GetComponent<RectTransform>();
+                titleTransform.localPosition = Vector3.zero;
+                titleTransform.sizeDelta = new Vector2(0.28f, 0.05f);
+                titleTransform.position = new Vector3(0.06f, 0f, 0.175f);
+                titleTransform.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
+
+                if (categorized)
                 {
-                    AddButton(i * 0.13f, PageToDraw[i]);
-                }
+                    if (currentPage != Category.Base)
+                    {
+                        AddPageButton(">");
+                        AddPageButton("<");
+                        AddBackToStartButton();
+                    }
 
-                if (currentPage != Category.Base)
+                    var PageToDraw = GetButtonInfoByPage(currentPage).Skip(page * pageSize).Take(pageSize).ToArray();
+                    for (int i = 0; i < PageToDraw.Length; i++)
+                    {
+                        AddButton(i * 0.13f, PageToDraw[i]);
+                    }
+                }
+                else
                 {
                     AddPageButton(">");
                     AddPageButton("<");
-                    AddBackToStartButton();
-                }
-            }
-            else
-            {
-                var pagestuff = buttons.Skip(page * pageSize).Take(pageSize).ToArray();
+                    var UnPageToDraw = buttons.Skip(page * pageSize).Take(pageSize).ToArray();
 
-                for (int i = 0; i < pagestuff.Length; i++)
-                {
-                    if (pagestuff[i].Page != Category.Base)
+                    for (int i = 0; i < UnPageToDraw.Length; i++)
                     {
-                        AddButton(i * 0.13f, pagestuff[i]);
-                    }
+                        if (UnPageToDraw[i].Page != Category.Base)
+                        {
+                            AddButton(i * 0.13f, UnPageToDraw[i]);
+                        }
+                    }               
                 }
-
-                AddPageButton(">");
-                AddPageButton("<");
             }
-
+            catch (Exception e) { Debug.LogException(e); }
         }
 
         public static List<Button> GetButtonInfoByPage(Category page)
@@ -575,6 +666,7 @@ namespace Steal
         public static void Toggle(Button button)
         {
             int totalPages = (buttons.Length + pageSize - 1) / pageSize;
+            int totalCatagoriePages = (GetButtonInfoByPage(currentPage).Count + pageSize - 1) / pageSize;
 
             switch (button.buttonText)
             {
@@ -582,7 +674,7 @@ namespace Steal
                     
                     if (categorized)
                     {
-                        if (GetButtonInfoByPage(button.Page).Count-1 < page || GetButtonInfoByPage(button.Page).Count-1 == page)
+                        if (totalCatagoriePages < page || (totalCatagoriePages-1) == page)
                         {
                             page = 0;
                         }
@@ -593,7 +685,7 @@ namespace Steal
                     }
                     else
                     {
-                        if (page < totalPages - 1)
+                        if (page < totalPages - 1 || (totalPages - 1) == page)
                         {
                             page++;
                         }
@@ -611,7 +703,7 @@ namespace Steal
                     {
                         if (0 > page || page == 0)
                         {
-                            page = GetButtonInfoByPage(button.Page).Count-1;
+                            page = totalPages - 1;
                         }
                         else
                         {
@@ -652,16 +744,23 @@ namespace Steal
 
         public static void ToggleButton(Button button)
         {
-            if (button.ismaster && !PhotonNetwork.LocalPlayer.IsMasterClient)
+            if (button.ismaster && !IsModded())
             {
                 Notif.SendNotification("You're Not Masterclient!");
                 button.Enabled = false;
+                RefreshMenu();
                 return;
             }
 
             if (!button.isToggle)
             {
                 button.onEnable();
+
+                if (button.Page == Category.Settings)
+                    RefreshMenu();
+
+                ModsList.RefreshText();
+
                 return;
             }
 
@@ -674,6 +773,8 @@ namespace Steal
                 }
             }
 
+            ModsList.RefreshText();
+
             RefreshMenu();
         }
 
@@ -684,7 +785,7 @@ namespace Steal
 
             public void Awake()
             {
-                defaultZ = transform.localScale.z;
+                defaultZ = transform.localScale.x;
             }
 
             public void TestTrigger()
@@ -697,7 +798,7 @@ namespace Steal
                 if (collider == null) { return; }
                 if (Time.frameCount >= framePressCooldown + 20 && collider.gameObject.name == MenuPatch.referance.name)
                 {
-                    transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, transform.localScale.z / 2);
+                    transform.localScale = new Vector3(transform.localScale.x / 3, transform.localScale.y, transform.localScale.z);
                     framePressCooldown = Time.frameCount;
                     AssetLoader.Instance.PlayClick();
                     GorillaTagger.Instance.StartVibration(false, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
@@ -713,7 +814,7 @@ namespace Steal
             IEnumerator ResetYValue()
             {
                 yield return new WaitForSeconds(0.65f);
-                transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, defaultZ);
+                transform.localScale = new Vector3(defaultZ, transform.localScale.y, transform.localScale.z);
             }
         }
     }

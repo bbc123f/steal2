@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
-using WristMenu.Background;
+using Steal.Background;
 
 internal class Notif : MonoBehaviour
 {

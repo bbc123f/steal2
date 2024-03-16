@@ -10,47 +10,19 @@
       "Steal/1.0.0": {
         "dependencies": {
           "0Harmony": "2.9.0.0",
-<<<<<<< HEAD
-=======
-          "andywiecko.BurstTriangulator": "0.0.0.0",
-          "Assembly-CSharp-firstpass": "0.0.0.0",
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
           "Assembly-CSharp": "0.0.0.0",
           "AstarPathfindingProject": "0.0.0.0",
           "BepInEx": "5.4.22.0",
           "BepInEx.Harmony": "2.0.0.0",
           "BepInEx.Preloader": "5.4.22.0",
           "Cinemachine": "0.0.0.0",
-<<<<<<< HEAD
           "HarmonyXInterop": "1.0.0.0",
-=======
-          "Facebook.Wit.Conduit": "0.0.0.0",
-          "Facebook.Wit.Dictation": "0.0.0.0",
-          "Facebook.Wit.TTS": "0.0.0.0",
-          "Facebook.Wit.TTS.Samples": "0.0.0.0",
-          "Facebook.WitAI": "0.0.0.0",
-          "FbxBuildTestAssets": "0.0.0.0",
-          "Fusion.Addressables": "0.0.0.0",
-          "Fusion.Common": "1.1.8.0",
-          "Fusion.Realtime": "1.1.8.0",
-          "Fusion.Runtime": "1.1.8.0",
-          "Fusion.Sockets": "1.1.8.0",
-          "geometry3Sharp": "0.0.0.0",
-          "HarmonyXInterop": "1.0.0.0",
-          "LitJson": "0.0.0.0",
-          "MeshBakerCore": "0.0.0.0",
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
           "Mono.Cecil": "0.10.4.0",
           "Mono.Cecil.Mdb": "0.10.4.0",
           "Mono.Cecil.Pdb": "0.10.4.0",
           "Mono.Cecil.Rocks": "0.10.4.0",
           "MonoMod.RuntimeDetour": "22.1.29.1",
           "MonoMod.Utils": "22.1.29.1",
-<<<<<<< HEAD
-=======
-          "NanoSockets": "1.0.0.0",
-          "NavMeshComponents": "0.0.0.0",
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
           "Newtonsoft.Json": "13.0.0.0",
           "Newtonsoft.Json.UnityConverters.Addressables": "0.0.0.0",
           "Newtonsoft.Json.UnityConverters": "0.0.0.0",
@@ -62,11 +34,6 @@
           "Oculus.Spatializer": "0.0.0.0",
           "Oculus.Voice.Demo": "0.0.0.0",
           "Oculus.VR": "0.0.0.0",
-<<<<<<< HEAD
-=======
-          "Pathfinding.ClipperLib": "1.0.0.0",
-          "Pathfinding.Ionic.Zip.Reduced": "1.9.1.9000",
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
           "Photon3Unity3D": "4.1.6.23",
           "PhotonChat": "0.0.0.0",
           "PhotonRealtime": "0.0.0.0",
@@ -189,25 +156,6 @@
           }
         }
       },
-<<<<<<< HEAD
-=======
-      "andywiecko.BurstTriangulator/0.0.0.0": {
-        "runtime": {
-          "andywiecko.BurstTriangulator.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "Assembly-CSharp-firstpass/0.0.0.0": {
-        "runtime": {
-          "Assembly-CSharp-firstpass.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
       "Assembly-CSharp/0.0.0.0": {
         "runtime": {
           "Assembly-CSharp.dll": {
@@ -256,108 +204,6 @@
           }
         }
       },
-<<<<<<< HEAD
-      "HarmonyXInterop/1.0.0.0": {
-=======
-      "Facebook.Wit.Conduit/0.0.0.0": {
-        "runtime": {
-          "Facebook.Wit.Conduit.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "Facebook.Wit.Dictation/0.0.0.0": {
-        "runtime": {
-          "Facebook.Wit.Dictation.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "Facebook.Wit.TTS/0.0.0.0": {
-        "runtime": {
-          "Facebook.Wit.TTS.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "Facebook.Wit.TTS.Samples/0.0.0.0": {
-        "runtime": {
-          "Facebook.Wit.TTS.Samples.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "Facebook.WitAI/0.0.0.0": {
-        "runtime": {
-          "Facebook.WitAI.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "FbxBuildTestAssets/0.0.0.0": {
-        "runtime": {
-          "FbxBuildTestAssets.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "Fusion.Addressables/0.0.0.0": {
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
-        "runtime": {
-          "Fusion.Addressables.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-<<<<<<< HEAD
-=======
-      "Fusion.Common/1.1.8.0": {
-        "runtime": {
-          "Fusion.Common.dll": {
-            "assemblyVersion": "1.1.8.0",
-            "fileVersion": "1.1.8.725"
-          }
-        }
-      },
-      "Fusion.Realtime/1.1.8.0": {
-        "runtime": {
-          "Fusion.Realtime.dll": {
-            "assemblyVersion": "1.1.8.0",
-            "fileVersion": "1.1.8.0"
-          }
-        }
-      },
-      "Fusion.Runtime/1.1.8.0": {
-        "runtime": {
-          "Fusion.Runtime.dll": {
-            "assemblyVersion": "1.1.8.0",
-            "fileVersion": "1.1.8.725"
-          }
-        }
-      },
-      "Fusion.Sockets/1.1.8.0": {
-        "runtime": {
-          "Fusion.Sockets.dll": {
-            "assemblyVersion": "1.1.8.0",
-            "fileVersion": "1.1.8.725"
-          }
-        }
-      },
-      "geometry3Sharp/0.0.0.0": {
-        "runtime": {
-          "geometry3Sharp.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
       "HarmonyXInterop/1.0.0.0": {
         "runtime": {
           "HarmonyXInterop.dll": {
@@ -366,23 +212,6 @@
           }
         }
       },
-      "LitJson/0.0.0.0": {
-        "runtime": {
-          "LitJson.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "MeshBakerCore/0.0.0.0": {
-        "runtime": {
-          "MeshBakerCore.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
       "Mono.Cecil/0.10.4.0": {
         "runtime": {
           "Mono.Cecil.dll": {
@@ -431,25 +260,6 @@
           }
         }
       },
-<<<<<<< HEAD
-=======
-      "NanoSockets/1.0.0.0": {
-        "runtime": {
-          "NanoSockets.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
-        }
-      },
-      "NavMeshComponents/0.0.0.0": {
-        "runtime": {
-          "NavMeshComponents.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
       "Newtonsoft.Json/13.0.0.0": {
         "runtime": {
           "Newtonsoft.Json.dll": {
@@ -538,25 +348,6 @@
           }
         }
       },
-<<<<<<< HEAD
-=======
-      "Pathfinding.ClipperLib/1.0.0.0": {
-        "runtime": {
-          "Pathfinding.ClipperLib.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
-        }
-      },
-      "Pathfinding.Ionic.Zip.Reduced/1.9.1.9000": {
-        "runtime": {
-          "Pathfinding.Ionic.Zip.Reduced.dll": {
-            "assemblyVersion": "1.9.1.9000",
-            "fileVersion": "1.9.1.9000"
-          }
-        }
-      },
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
       "Photon3Unity3D/4.1.6.23": {
         "runtime": {
           "Photon3Unity3D.dll": {
@@ -1429,7 +1220,14 @@
           }
         }
       },
-<<<<<<< HEAD
+      "Sirenix.OdinInspector.Attributes/1.0.0.0": {
+        "runtime": {
+          "Sirenix.OdinInspector.Attributes.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
       "Fusion.Runtime/1.1.8.0": {
         "runtime": {
           "Fusion.Runtime.dll": {
@@ -1451,21 +1249,6 @@
           "Fusion.Realtime.dll": {
             "assemblyVersion": "1.1.8.0",
             "fileVersion": "1.1.8.0"
-=======
-      "Unity.Collections/0.0.0.0": {
-        "runtime": {
-          "Unity.Collections.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "Sirenix.OdinInspector.Attributes/1.0.0.0": {
-        "runtime": {
-          "Sirenix.OdinInspector.Attributes.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
           }
         }
       },
@@ -1477,7 +1260,6 @@
           }
         }
       },
-<<<<<<< HEAD
       "Fusion.Common/1.1.8.0": {
         "runtime": {
           "Fusion.Common.dll": {
@@ -1486,8 +1268,14 @@
           }
         }
       },
-=======
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
+      "Unity.Collections/0.0.0.0": {
+        "runtime": {
+          "Unity.Collections.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
       "VoiceSDK.Dictation.Runtime/0.0.0.0": {
         "runtime": {
           "VoiceSDK.Dictation.Runtime.dll": {
@@ -1496,27 +1284,19 @@
           }
         }
       },
-<<<<<<< HEAD
-      "Unity.Collections/0.0.0.0": {
-        "runtime": {
-          "Unity.Collections.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-=======
-      "Pathfinding.Poly2Tri/1.0.0.0": {
-        "runtime": {
-          "Pathfinding.Poly2Tri.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
-          }
-        }
-      },
       "VoiceSDK.Runtime/0.0.0.0": {
         "runtime": {
           "VoiceSDK.Runtime.dll": {
             "assemblyVersion": "0.0.0.0",
             "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "NanoSockets/1.0.0.0": {
+        "runtime": {
+          "NanoSockets.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
           }
         }
       },
@@ -1541,19 +1321,6 @@
       "serviceable": false,
       "sha512": ""
     },
-<<<<<<< HEAD
-=======
-    "andywiecko.BurstTriangulator/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Assembly-CSharp-firstpass/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
     "Assembly-CSharp/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
@@ -1584,88 +1351,11 @@
       "serviceable": false,
       "sha512": ""
     },
-<<<<<<< HEAD
-    "HarmonyXInterop/1.0.0.0": {
-=======
-    "Facebook.Wit.Conduit/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Facebook.Wit.Dictation/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Facebook.Wit.TTS/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Facebook.Wit.TTS.Samples/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Facebook.WitAI/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "FbxBuildTestAssets/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Fusion.Addressables/0.0.0.0": {
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-<<<<<<< HEAD
-=======
-    "Fusion.Common/1.1.8.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Fusion.Realtime/1.1.8.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Fusion.Runtime/1.1.8.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Fusion.Sockets/1.1.8.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "geometry3Sharp/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
     "HarmonyXInterop/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
-    "LitJson/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "MeshBakerCore/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
     "Mono.Cecil/0.10.4.0": {
       "type": "reference",
       "serviceable": false,
@@ -1696,19 +1386,6 @@
       "serviceable": false,
       "sha512": ""
     },
-<<<<<<< HEAD
-=======
-    "NanoSockets/1.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "NavMeshComponents/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
     "Newtonsoft.Json/13.0.0.0": {
       "type": "reference",
       "serviceable": false,
@@ -1764,19 +1441,6 @@
       "serviceable": false,
       "sha512": ""
     },
-<<<<<<< HEAD
-=======
-    "Pathfinding.ClipperLib/1.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Pathfinding.Ionic.Zip.Reduced/1.9.1.9000": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
     "Photon3Unity3D/4.1.6.23": {
       "type": "reference",
       "serviceable": false,
@@ -2322,25 +1986,22 @@
       "serviceable": false,
       "sha512": ""
     },
-<<<<<<< HEAD
-    "Fusion.Runtime/1.1.8.0": {
-=======
-    "Unity.Collections/0.0.0.0": {
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
+    "Sirenix.OdinInspector.Attributes/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
-<<<<<<< HEAD
+    "Fusion.Runtime/1.1.8.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
     "Fusion.Sockets/1.1.8.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
     "Fusion.Realtime/1.1.8.0": {
-=======
-    "Sirenix.OdinInspector.Attributes/1.0.0.0": {
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
       "type": "reference",
       "serviceable": false,
       "sha512": ""
@@ -2350,29 +2011,27 @@
       "serviceable": false,
       "sha512": ""
     },
-<<<<<<< HEAD
     "Fusion.Common/1.1.8.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
-=======
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
+    "Unity.Collections/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
     "VoiceSDK.Dictation.Runtime/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
-<<<<<<< HEAD
-    "Unity.Collections/0.0.0.0": {
-=======
-    "Pathfinding.Poly2Tri/1.0.0.0": {
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
+    "VoiceSDK.Runtime/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
-    "VoiceSDK.Runtime/0.0.0.0": {
+    "NanoSockets/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

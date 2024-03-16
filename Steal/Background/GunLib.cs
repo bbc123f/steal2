@@ -8,7 +8,7 @@ using static Steal.Background.InputHandler;
 using BepInEx;
 using GorillaLocomotion;
 
-namespace WristMenu.Background
+namespace Steal.Background
 {
     internal class GunLib
     {

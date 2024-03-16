@@ -16,7 +16,9 @@ using System.Text;
 using Steal.Patchers.GorillaNotPatchers;
 using UnityEngine;
 using WristMenu;
-using WristMenu.Background;
+using Steal.Background;
+using UnityEngine.XR;
+using static Steal.MenuPatch;
 
 namespace Steal.Background.Security
 {
@@ -48,14 +50,13 @@ namespace Steal.Background.Security
                     return;
                 }
                 GetAuth.init();
-                if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "login.json")))
+                if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt")))
                 {
                     var data = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt"));
 
                     GetAuth.license2(data);
                     if (GetAuth.response.success)
                     {
-<<<<<<< HEAD
                         if (!GameObject.Find("Steal"))
                         {
                             if (!new WebClient().DownloadString("https://tnuser.com/API/files/killswitch").Contains("="))
@@ -71,7 +72,24 @@ namespace Steal.Background.Security
                                 ms.AddComponent<UI>();
                                 ms.AddComponent<GhostRig>();
                                 ms.AddComponent<ModHandler>();
+                                ms.AddComponent<ModsList>();
+                                ms.AddComponent<PocketWatch>();
+                                ms.AddComponent<ModsListInterface>();
+
+
+                                if (!XRSettings.isDeviceActive)
+                                {
+                                    ms.GetComponent<PocketWatch>().enabled = false;
+                                    ms.GetComponent<ModsListInterface>().enabled = false;
+                                }
+
                                 new Harmony("com.steal.lol").PatchAll();
+
+                                if (File.Exists("steal_error.log"))
+                                {
+                                    File.Delete("steal_error.log");
+                                }
+
                                 ShowConsole.Log("Auth Success!");
                             }
                             else
@@ -92,30 +110,6 @@ namespace Steal.Background.Security
                         ShowConsole.Log(GetAuth.response.message);
                         ExitProcess(0);
                         return;
-=======
-                        var ms = new GameObject("Steal");
-                        ms.AddComponent<AssetLoader>();
-                        ms.AddComponent<ShowConsole>();
-                        ms.AddComponent<Main>();
-                        ms.AddComponent<ModsList>();
-                        ms.AddComponent<ControllerInput>();
-                        ms.AddComponent<StealGUI>();
-                        ms.AddComponent<ControllerInput>();
-                        ms.AddComponent<RPCSUB>();
-                        ms.AddComponent<Notif>();
-                        ms.AddComponent<ModsListInterface>();
-                        ms.AddComponent<Mods.Mods>();
-                        ms.AddComponent<GhostRig>();
-                        ms.AddComponent<PocketWatch>();
-                        ms.AddComponent<Steal.GorillaOS.GorillaOS>();
-                        ms.AddComponent<AntiNot>();
-                        ms.AddComponent<AntiNoot>();
-                        SettingsLib.Init();
-                        //Crasher.helpp();
-                        //Main.AddButtonsToList();
-                        new Harmony("com.steal.lol").PatchAll(Assembly.GetExecutingAssembly());
-                        UnityEngine.Object.DontDestroyOnLoad(ms);
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
                     }
                 }
                 else

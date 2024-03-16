@@ -87,53 +87,8 @@ namespace Steal.Patchers.GorillaNotPatchers
     }
 
 
-    internal class AntiNoot : MonoBehaviourPunCallbacks
-    {
-
-        public override void OnLeftRoom()
-        {
-            AntiNot.antiNot = false;
-            foreach (VRRig rig in GorillaParent.instance.vrrigs)
-            {
-                if (!rig.isMyPlayer)
-                {
-                    Object.Destroy(rig);
-
-                    Object.Destroy(rig.gameObject);
-                }
-
-                GuidedRefHub.UnregisterTarget<VRRig>(rig, true);
-            }
-
-            GorillaNot.instance = AntiNot.gorillanot;
-            base.OnLeftRoom();
-           
-        }
-    }
 
 
-    public class AntiNot : MonoBehaviour
-    {
-        public static bool antiNot = false;
-        
-        public static GorillaNot gorillanot;
-        public void Update()
-        {
-            if (antiNot)
-            {
-                if (GorillaNot.instance != this)
-                {
-                    GorillaNot.instance = this;
-                }
-            }
- 
-        }
-
-        public static implicit operator GorillaNot(AntiNot v)
-        {
-            return null!;
-        }
-    }
     
     [HarmonyPatch(typeof(GorillaNot), "IncrementRPCCall", new Type[] { typeof(PhotonMessageInfo), typeof(string) })]
     public class NoIncrementRPCCall : MonoBehaviour

@@ -1,12 +1,15 @@
 ﻿using GorillaExtensions;
-using HarmonyLib;
-using Photon.Pun;
 using Photon.Realtime;
 using Steal.Patchers.VRRigPatchers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using Steal.Background;
 
-namespace Steal.Background
+namespace Steal.Components
 {
     internal class NameTags : MonoBehaviour
     {
@@ -15,15 +18,14 @@ namespace Steal.Background
 
         Text userName;
 
-        public static PhotonView GetPhotonViewFromRig(VRRig rig)
-        {
-            if (rig == null) return null;
-            return Traverse.Create(rig).Field("photonView").GetValue<PhotonView>();
-        }
-
         void LateUpdate()
         {
-            if (!OnEnable.nameTags || GetComponent<VRRig>().IsNull() || GetComponent<VRRig>().isOfflineVRRig || GetPhotonViewFromRig(GetComponent<VRRig>()).Controller == null)
+            if (!OnEnable.nameTags || GetComponent<VRRig>().IsNull() || GetComponent<VRRig>().isOfflineVRRig || ModHandler.GetPhotonViewFromRig(GetComponent<VRRig>()) == null || ModHandler.GetPhotonViewFromRig(GetComponent<VRRig>()).Owner == null)
+            {
+                Destroy(this);
+                return;
+            }
+            if (userName != null && userName.text != ModHandler.GetPhotonViewFromRig(myRig).Controller.NickName)
             {
                 Destroy(this);
                 return;
@@ -31,7 +33,7 @@ namespace Steal.Background
             if (userName == null)
             {
                 myRig = GetComponent<VRRig>();
-                myPlayer = GetPhotonViewFromRig(myRig).Controller;
+                myPlayer = ModHandler.GetPhotonViewFromRig(myRig).Controller;
 
                 userName = Instantiate(myRig.playerText, myRig.playerText.transform.parent);
 

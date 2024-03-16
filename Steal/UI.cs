@@ -1,5 +1,6 @@
 ﻿using Cinemachine;
 using GorillaNetworking;
+using GorillaTag.GuidedRefs;
 using Photon.Pun;
 using Photon.Realtime;
 using Steal;
@@ -12,27 +13,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
-<<<<<<< HEAD
 using static Steal.MenuPatch;
-=======
-using System.IO;
-using UnityEngine.XR.Interaction.Toolkit.UI;
-using Valve.VR.InteractionSystem;
-using Player = Photon.Realtime.Player;
-using static Steal.Main;
-using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
-using Steal.Patchers;
-using UnityEngine.Animations.Rigging;
-using UnityEngine.Networking;
-
-using UnityEngine.UI;
-using Steal.Mods;
-using UnityEngine.UIElements;
-using GorillaTag.GuidedRefs;
-using static UnityEngine.UI.GridLayoutGroup;
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
 
 namespace WristMenu
 {
@@ -75,6 +56,7 @@ namespace WristMenu
         private void OnEnable()
         {
             Theme = PlayerPrefs.GetInt("steal_backGround", 1);
+
             Application.logMessageReceived += new Application.LogCallback(HandleLog);
         }
 
@@ -93,7 +75,7 @@ namespace WristMenu
 
             if (freecam)
             {
-                //Mods.Mods.Freecam();
+                ModHandler.Freecam();
             }
             //Mods.Mods.FollowPLayer();
         }
@@ -202,7 +184,10 @@ namespace WristMenu
                             GUILayout.Label("Page: " + 1);
                             GUI.contentColor = Color.white;
                         }
-                        ButtonManager.DrawLayoutButton(button, new GUIStyle("button"));
+                        if (button.Page != Category.Settings)
+                         ButtonManager.DrawLayoutButton(button, new GUIStyle("button"));
+
+                       
                         buttonPageThing++;
 
                         if (buttonPageThing == pageSize && buttonthing != GetButtonInfoByPage(currentGUIPage).Count - 1)
@@ -287,30 +272,17 @@ namespace WristMenu
                                 infect.currentInfected.Remove(player);
                             }
 
-                            if (GUILayout.RepeatButton("Lag", bStyle, new GUILayoutOption[] { GUILayout.Width(50f), GUILayout.Height(30f) }))
+                            if (GUILayout.RepeatButton("Freeze", bStyle, new GUILayoutOption[] { GUILayout.Width(50f), GUILayout.Height(30f) }))
                             {
                                 if (player != null && PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Contains("MODDED"))
                                 {
                                     MethodInfo method = typeof(PhotonNetwork).GetMethod("SendDestroyOfPlayer", BindingFlags.Static | BindingFlags.NonPublic);
                                     object obj = method.Invoke(typeof(PhotonNetwork), new object[1] { player.ActorNumber });
                                     method.Invoke(typeof(PhotonNetwork), new object[1] { player.ActorNumber });
-
-                                    GuidedRefHub.UnregisterTarget<VRRig>(GorillaGameManager.instance.FindPlayerVRRig(player), true);
                                 }
                             }
 
-                            if (GUILayout.Button("Follow Player", bStyle, new GUILayoutOption[] { GUILayout.Width(90f), GUILayout.Height(30f) }))
-                            {
-                                ////Mods.Mods.following = !Mods.Mods.following;
-                                //if (!Mods.Mods.following)
-                                //{
-                                    //Mods.Mods.FollowingPlayer = null;
-                                //}
-                                //else
-                                //{
-                                    //Mods.Mods.FollowingPlayer = GorillaGameManager.instance.FindPlayerVRRig(PhotonNetwork.PlayerListOthers[i]);
-                                //}
-                            }
+        
 
 
                             // faggorty
@@ -367,7 +339,7 @@ namespace WristMenu
                     fov = GUILayout.HorizontalSlider(fov, 1f, 179f);
                     ButtonManager.DrawLayoutButtonLegacy("First Person Camera", false, false, true, new GUIStyle("button"), delegate (bool isActive)
                     {
-                        //Mods.Mods.FirstPerson();
+                        ModHandler.FirstPerson();
                     });
                     ButtonManager.DrawLayoutButtonLegacy("Set FOV", false, false, true, new GUIStyle("button"), delegate (bool isActive)
                     {
@@ -488,21 +460,14 @@ namespace WristMenu
                         PlayerPrefs.SetInt("steal_backGround", Theme);
                         MenuPatch.RefreshMenu();
                     }
-                    // foreach (Main.Button button in Main.buttons)
-                    // {
-                    //     if (button.changerThing != null)
-                    //     {
-                    //         string whaat = "1";
-                    //         GUILayout.Label(button.ButtonText + "Changer");
-                    //         GUILayout.TextField(whaat);
-                    //         button.changerThing;
-                    //     }
-                    // }
 
-                    //slider
-                    // you know we have a change theme right? ik its right under i wasnt trying to remake itr lol
-                    //give me a fucking slider :thumbsUp:
-
+                    foreach (Button button4 in GetButtonInfoByPage(Category.Settings))
+                    {
+                        if (button4.shouldSettingPC)
+                        {
+                            ButtonManager.DrawLayoutButton(button4, new GUIStyle("button"));
+                        }
+                    }
 
                     GUILayout.Label("FPS Limit: " + Application.targetFrameRate);
                     Application.targetFrameRate = (int)GUILayout.HorizontalSlider(Application.targetFrameRate, -1, 500);
@@ -1146,14 +1111,17 @@ namespace WristMenu
             private static Texture2D ToggleActive;
             public static void Initialize()
             {
-                WindowBG = CreateTexture(DesignLibrary.windowbackground);
-                TabBar = CreateTexture(new Color32(15, 30, 55, 255));
-                TabNormal = CreateTexture(new Color32(15, 30, 55, 255));
-                TabActive = CreateTexture(new Color32(65, 80, 255, 255));
-                CheatBox = CreateTexture(new Color32(15, 30, 55, 255));
-                CheatBoxLine = CreateTexture(new Color32(65, 80, 255, 255));
-                ToggleNormal = CreateTexture(new Color32(2, 13, 28, 255));
-                ToggleActive = CreateTexture(new Color32(65, 80, 255, 255));
+                if (WindowBG == null)
+                {
+                    WindowBG = CreateTexture(DesignLibrary.windowbackground);
+                    TabBar = CreateTexture(new Color32(15, 30, 55, 255));
+                    TabNormal = CreateTexture(new Color32(15, 30, 55, 255));
+                    TabActive = CreateTexture(new Color32(65, 80, 255, 255));
+                    CheatBox = CreateTexture(new Color32(15, 30, 55, 255));
+                    CheatBoxLine = CreateTexture(new Color32(65, 80, 255, 255));
+                    ToggleNormal = CreateTexture(new Color32(2, 13, 28, 255));
+                    ToggleActive = CreateTexture(new Color32(65, 80, 255, 255));
+                }
             }
             public static void Toggle(Rect rect, ref bool toggle)
             {

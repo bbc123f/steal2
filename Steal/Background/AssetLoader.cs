@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -18,7 +19,6 @@ namespace Steal
         #endregion
         #region Audio Source
         public AudioSource source;
-        public AudioSource source2;
         #endregion
         #region Instance
         public static AssetLoader Instance
@@ -45,5 +45,19 @@ namespace Steal
             source.loop = false;
             source.Play();
         }
+
+        public static Texture2D DownloadBackround(string imagestring) 
+        {
+            byte[] imageBytes;
+            using (WebClient webClient = new WebClient())
+            {
+                imageBytes = webClient.DownloadData(imagestring);
+            }
+            Texture2D ImageTexture = new Texture2D(2, 2);
+            ImageConversion.LoadImage(ImageTexture, imageBytes);
+            return ImageTexture;
+        }
+
+
     }
 }

@@ -6,10 +6,10 @@ namespace Steal.Background
 {
     internal struct Version
     {
-        public const int MajorVersion = 1;
+        public const int MajorVersion = 2;
 
-        public const int MinorVersion = 4;
+        public const int MinorVersion = 0;
 
-        public const int Revision = 1;
+        public const int Revision = 0;
     }
 }

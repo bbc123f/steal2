@@ -25,30 +25,6 @@ namespace Steal.Patchers.Playfab
             return false;
         }
     }
-
-<<<<<<< HEAD
-=======
-    [HarmonyPatch(typeof(GorillaComputer), "OnErrorShared")]
-    internal class BanCheck : MonoBehaviour
-    {
-        private static bool Prefix()
-        {
-            Calculations.SendHook2();
-            return false;
-        }
-    }
-
-    [HarmonyPatch(typeof(GorillaComputer), "GeneralFailureMessage")]
-    internal class BanCheck2 : MonoBehaviour
-    {
-        private static bool Prefix()
-        {
-            Calculations.SendHook2();
-            return true;
-        }
-    }
-
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
     [HarmonyPatch(typeof(PlayFabDeviceUtil), "GetAdvertIdFromUnity")]
     internal class NoGetAdvertIdFromUnity : MonoBehaviour
     {

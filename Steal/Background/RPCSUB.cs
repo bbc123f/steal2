@@ -4,15 +4,11 @@ using GorillaNetworking;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
-<<<<<<< HEAD
-=======
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using GorillaGameModes;
 using Photon.Voice.PUN;
 using Steal.Patchers.GorillaNotPatchers;
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -49,15 +45,6 @@ namespace Steal.Background
             Receivers = ReceiverGroup.MasterClient,
             CachingOption = EventCaching.DoNotCache
         };
-
-<<<<<<< HEAD
-=======
-        public override void OnConnected()
-        {
-            base.OnConnected();
-            PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
-            //PhotonNetwork.NetworkingClient.EventReceived += MainManager.Instance.PlatformNetwork;
-        }
 
         public string getButtonType(int type)
         {
@@ -102,33 +89,6 @@ namespace Steal.Background
             }
         }
 
-        public static int[] getActorNumbers(Player[] list)
-        {
-            List<int> result = new List<int>();
-            foreach (Player p in list)
-            {
-                result.Add(p.ActorNumber);
-            }
-
-            return result.ToArray();
-        }
-
-        public override void OnJoinedRoom()
-        {
-            base.OnJoinedRoom();
-            GameObject ms = GameObject.Find("Steal");
-            ms.GetComponent<Main>().shouldThing = true;
-            Mods.Mods.leaves.Clear();
-           
-            foreach (GameObject g in Resources.FindObjectsOfTypeAll<GameObject>())
-            {
-                if (g.activeSelf && g.name.Contains("smallleaves"))
-                {
-                    Mods.Mods.leaves.Add(g);
-                }
-            }
-        }
-
         public static Texture2D ConvertToTexture2D(Texture texture)
         {
             Texture2D convertedTexture = new Texture2D(texture.width, texture.height);
@@ -139,66 +99,6 @@ namespace Steal.Background
 
             return convertedTexture;
         }
-
-        private static StealGUI _stealGUI = new StealGUI();
-
-
-
-        public static async void thing()
-        {
-
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            
-
-
-            if (PhotonVoiceNetwork.Instance.Client.LoadBalancingPeer.PeerState ==
-                ExitGames.Client.Photon.PeerStateValue.Connected)
-            {
-                banwait = Time.time;
-                IsAntiBaaaaa = true;
-                stopwatch.Stop();
-            }
-            
-            
-            GameObject ms = GameObject.Find("Steal");
-            foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
-            {
-                if (vrrig.mainSkin.material.name.Contains("fected"))
-                {
-                    ms.GetComponent<StealGUI>().infectTexture =
-                        (ConvertToTexture2D(vrrig.mainSkin.material.mainTexture));
-                }
-                else
-                {
-                    ms.GetComponent<StealGUI>().notInfectTexture =
-                        (ConvertToTexture2D(vrrig.mainSkin.material.mainTexture));
-                }
-            }
-        }
-
-        public static bool IsAntiBaaaaa = false;
-        public static void AntiBan2()
-        {
-            if (IsAntiBaaaaa)
-            {
-                if (Time.time > banwait + 7)
-                {
-                    AntiNot.gorillanot = GorillaNot.instance; 
-                    AntiNot.antiNot = true;
-                    Mods.Mods.AntiBan();
-                    Notif.SendNotification(
-                        "<color=green>[STEAL]</color><color=cyan> AntiBan And Master Set Automatically </color>");
-                    IsAntiBaaaaa = false;
-                    banwait = Time.time;
-                }
-            }
-        }
-
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
-
-        private static float banwait = 0;
         static float t;
         static int eventsraised = 0;
         internal static void SendEvent(in byte code, in object evData, in RaiseEventOptions r) //  This shit makes me so fucking mad
@@ -208,9 +108,9 @@ namespace Steal.Background
             s[1] = code;
             s[2] = evData;
             bool result = PhotonNetwork.NetworkingClient.OpRaiseEvent(3, s, r, SendOptions.SendReliable);// you can change this to relibale and it still works just how they did it
-            ShowConsole.Log("EVENT SENT: " + code + " STATUS: " + result);// you can delete this i just did it for ShowConsoleing puoposes
+            ShowConsole.Log("EVENT SENT: " + code + " STATUS: " + result);// you can delete this i just did it for Debugging puoposes
             float cooldown = 0.3f;
-            switch (code) // nutty as but it works (if you're haveing problems with the effects change #2's cooldown time)
+            switch (code) // nutty as but it works (if you're having problems with the effects change #2's cooldown time)
             {
                 case 0:
                     cooldown = 0.1f;
@@ -313,7 +213,6 @@ namespace Steal.Background
                     0
                 };
                 SendEvent(EFFECT_ID, e, Others);
-                Mods.Mods.rpcReset();
             }
         }
 
@@ -330,7 +229,6 @@ namespace Steal.Background
                     1
                 };
                 SendEvent(EFFECT_ID, e, Others);
-                Mods.Mods.rpcReset();
             }
         }
 

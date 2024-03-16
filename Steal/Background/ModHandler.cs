@@ -30,8 +30,10 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using BepInEx.Configuration;
 using System.IO;
+using Steal.Components;
+using WristMenu;
 
-namespace WristMenu.Background
+namespace Steal.Background
 {
     internal class ModHandler : MonoBehaviourPunCallbacks
     {
@@ -65,30 +67,30 @@ namespace WristMenu.Background
             }
         }
 
+        public static void ToggleWatch()
+        {
+            GameObject Steal = GameObject.Find("Steal");
+            Steal.GetComponent<PocketWatch>().enabled = !Steal.GetComponent<PocketWatch>().enabled;
+        }
+
+
+        public static void ToggleList()
+        {
+            GameObject Steal = GameObject.Find("Steal");
+            Steal.GetComponent<ModsList>().enabled = !Steal.GetComponent<ModsList>().enabled;
+        }
+
+        public static void ToggleGameList()
+        {
+            GameObject Steal = GameObject.Find("Steal");
+            Steal.GetComponent<ModsListInterface>().enabled = !Steal.GetComponent<ModsListInterface>().enabled;
+        }
+
+
         public override void OnJoinedRoom()
         {
             base.OnJoinedRoom();
             oldRoom = PhotonNetwork.CurrentRoom.Name;
-        }
-
-        public static void StartNameTags()
-        {
-            if (!Steal.Patchers.VRRigPatchers.OnEnable.nameTags)
-            {
-                Steal.Patchers.VRRigPatchers.OnEnable.nameTags = true;
-                foreach (VRRig rig in GorillaParent.instance.vrrigs)
-                {
-                    if (rig.GetComponent<NameTags>() == null)
-                    {
-                        rig.gameObject.AddComponent<NameTags>();
-                    }
-                }
-            }
-        }
-
-        public static void StopNameTags()
-        {
-            Steal.Patchers.VRRigPatchers.OnEnable.nameTags = false;
         }
 
         public override void OnLeftRoom()
@@ -109,6 +111,33 @@ namespace WristMenu.Background
         {
             base.OnPlayerLeftRoom(otherPlayer);
             Notif.SendNotification(otherPlayer.NickName + " Has Left Room: " + oldRoom);
+        }
+        public static Vector3[] lastLeft = new Vector3[] { Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero };
+
+        public static Vector3[] lastRight = new Vector3[] { Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero };
+
+        public static void PunchMod()
+        {
+            int num = -1;
+            foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
+            {
+                if (vrrig != GorillaTagger.Instance.offlineVRRig)
+                {
+                    num++;
+                    Vector3 position = vrrig.rightHandTransform.position;
+                    Vector3 position2 = GorillaTagger.Instance.offlineVRRig.head.rigTarget.position;
+                    if ((double)Vector3.Distance(position, position2) < 0.25)
+                    {
+                        GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity += Vector3.Normalize(vrrig.rightHandTransform.position - lastRight[num]) * 10f;
+                    }
+                    lastRight[num] = vrrig.rightHandTransform.position;
+                    if ((double)Vector3.Distance(vrrig.leftHandTransform.position, position2) < 0.25)
+                    {
+                        GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity += Vector3.Normalize(vrrig.rightHandTransform.position - lastLeft[num]) * 10f;
+                    }
+                    lastLeft[num] = vrrig.leftHandTransform.position;
+                }
+            }
         }
 
         public static void saveKeys()
@@ -185,6 +214,25 @@ namespace WristMenu.Background
             GunLib.GunCleanUp();
         }
 
+        public static void StartNameTags()
+        {
+            if (!Steal.Patchers.VRRigPatchers.OnEnable.nameTags)
+            {
+                Steal.Patchers.VRRigPatchers.OnEnable.nameTags = true;
+                foreach (VRRig rig in GorillaParent.instance.vrrigs)
+                {
+                    if (rig.GetComponent<NameTags>() == null)
+                    {
+                        rig.gameObject.AddComponent<NameTags>();
+                    }
+                }
+            }
+        }
+
+        public static void StopNameTags()
+        {
+            Steal.Patchers.VRRigPatchers.OnEnable.nameTags = false;
+        }
         public static bool IsModded()
         {
             return PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Contains("MODDED");
@@ -301,8 +349,8 @@ namespace WristMenu.Background
                 states[i].playerId = PhotonNetwork.PlayerList[i] == null ? 0 : PhotonNetwork.PlayerList[i].ActorNumber;
             }
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
-        }        
-        
+        }
+
         public static void AcidAll()
         {
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
@@ -317,6 +365,22 @@ namespace WristMenu.Background
         #endregion
 
         #region platforms
+
+        public static string[] platformTypes =
+        {
+            "Normal",
+            "Invisible",
+            "Sticky"
+        };
+
+        public static void ChangePlatforms()
+        {
+            if (MenuPatch.currentPlatform < 2)
+                MenuPatch.currentPlatform++;
+            else
+                MenuPatch.currentPlatform = 0;
+        }
+
         public static void Platforms()
         {
             RaiseEventOptions safs = new RaiseEventOptions
@@ -328,12 +392,30 @@ namespace WristMenu.Background
                 if (RightPlat == null)
                 {
                     RightPlat = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    RightPlat.transform.position = new Vector3(0f, -0.0175f, 0f) + GorillaLocomotion.Player.Instance.rightControllerTransform.position;
+                    if (MenuPatch.currentPlatform != 2)
+                        RightPlat.transform.position = new Vector3(0f, -0.0175f, 0f) + GorillaLocomotion.Player.Instance.rightControllerTransform.position;
+                    else
+                        RightPlat.transform.position = new Vector3(0f, 0.025f, 0f) + GorillaLocomotion.Player.Instance.rightControllerTransform.position;
+
                     RightPlat.transform.rotation = GorillaLocomotion.Player.Instance.rightControllerTransform.rotation;
                     RightPlat.transform.localScale = scale;
 
-                    RightPlat.GetComponent<Renderer>().material.color = Color.black;
-                    PhotonNetwork.RaiseEvent(110, new object[] { RightPlat.transform.position, RightPlat.transform.rotation, scale, RightPlat.GetComponent<Renderer>().material.color }, safs, SendOptions.SendReliable);
+                    if (MenuPatch.currentPlatform == 1)
+                    {
+                        if (RightPlat.GetComponent<MeshRenderer>() != null)
+                        {
+                            Destroy(RightPlat.GetComponent<MeshRenderer>());
+                        }
+                    }
+                    else
+                    {
+                        if (RightPlat.GetComponent<MeshRenderer>() == null)
+                        {
+                            RightPlat.AddComponent<MeshRenderer>();
+                        }
+                        RightPlat.GetComponent<Renderer>().material.color = Color.black;
+                        PhotonNetwork.RaiseEvent(110, new object[] { RightPlat.transform.position, RightPlat.transform.rotation, scale, RightPlat.GetComponent<Renderer>().material.color }, safs, SendOptions.SendReliable);
+                    }
                 }
             }
             else
@@ -351,10 +433,29 @@ namespace WristMenu.Background
                 {
                     LeftPlat = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     LeftPlat.transform.localScale = scale;
-                    LeftPlat.transform.position = new Vector3(0f, -0.0175f, 0f) + GorillaLocomotion.Player.Instance.leftControllerTransform.position;
+                    if (MenuPatch.currentPlatform != 2)
+                        LeftPlat.transform.position = new Vector3(0f, -0.0175f, 0f) + GorillaLocomotion.Player.Instance.leftControllerTransform.position;
+                    else
+                        LeftPlat.transform.position = new Vector3(0f, 0.025f, 0f) + GorillaLocomotion.Player.Instance.leftControllerTransform.position;
+
                     LeftPlat.transform.rotation = GorillaLocomotion.Player.Instance.leftControllerTransform.rotation;
-                    LeftPlat.GetComponent<Renderer>().material.color = Color.black;
-                    PhotonNetwork.RaiseEvent(120, new object[] { LeftPlat.transform.position, LeftPlat.transform.rotation, scale, RightPlat.GetComponent<Renderer>().material.color }, safs, SendOptions.SendReliable);
+
+                    if (MenuPatch.currentPlatform == 1)
+                    {
+                        if (LeftPlat.GetComponent<MeshRenderer>() != null)
+                        {
+                            Destroy(LeftPlat.GetComponent<MeshRenderer>());
+                        }
+                    }
+                    else
+                    {
+                        if (LeftPlat.GetComponent<MeshRenderer>() == null)
+                        {
+                            LeftPlat.AddComponent<MeshRenderer>();
+                        }
+                        LeftPlat.GetComponent<Renderer>().material.color = Color.black;
+                        PhotonNetwork.RaiseEvent(110, new object[] { LeftPlat.transform.position, LeftPlat.transform.rotation, scale, LeftPlat.GetComponent<Renderer>().material.color }, safs, SendOptions.SendReliable);
+                    }
                 }
             }
             else
@@ -493,7 +594,7 @@ namespace WristMenu.Background
                     }
 
                     GorillaTagger.Instance.offlineVRRig.enabled = false;
-                    GorillaTagger.Instance.offlineVRRig.transform.position = pointer.transform.position + new Vector3(0, 0.5f, 0);
+                    GorillaTagger.Instance.offlineVRRig.transform.position = pointer.transform.position + new Vector3(0, -.7f, 0);
                     if (Time.time > splashtimeout + 0.5f)
                     {
                         GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", 0, new object[]
@@ -731,7 +832,7 @@ namespace WristMenu.Background
 
 
         public static void ProcessIronMonke()
-        { 
+        {
             if (InputHandler.RightTrigger)
             {
                 GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().AddForce(
@@ -812,7 +913,7 @@ namespace WristMenu.Background
         {
             if (RightPrimary)
             {
-                GorillaLocomotion.Player.Instance.transform.position += (GorillaLocomotion.Player.Instance.headCollider.transform.forward * Time.deltaTime) * 12f;
+                GorillaLocomotion.Player.Instance.transform.position += (GorillaLocomotion.Player.Instance.headCollider.transform.forward * Time.deltaTime) * ((12f) * MenuPatch.flightMultiplier);
                 GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity = Vector3.zero;
                 if (!flying)
                 {
@@ -896,11 +997,27 @@ namespace WristMenu.Background
                 LongArmsOffset -= 0.05f;
             }
 
+            if (LeftPrimary)
+            {
+                GorillaLocomotion.Player.Instance.leftHandOffset = new Vector3(-0.02f, 0f, -0.07f);
+                GorillaLocomotion.Player.Instance.rightHandOffset = new Vector3(0.02f, 0f, -0.07f);
+                return;
+            }
+
             GorillaLocomotion.Player.Instance.rightHandOffset = new Vector3(0, LongArmsOffset, 0);
             GorillaLocomotion.Player.Instance.leftHandOffset = new Vector3(0, LongArmsOffset, 0);
         }
 
-        public static void SpeedBoost(bool Enable)
+        public static void SwitchSpeed()
+        { MenuPatch.speedBoostMultiplier = MenuPatch.multiplierManager(MenuPatch.speedBoostMultiplier); }
+
+        public static void SwitchFlight()
+        { MenuPatch.flightMultiplier = MenuPatch.multiplierManager(MenuPatch.flightMultiplier); }
+
+        public static void SwitchWallWalk()
+        { MenuPatch.WallWalkMultiplier = MenuPatch.multiplierManager(MenuPatch.WallWalkMultiplier); }
+
+        public static void SpeedBoost(float speedMult, bool Enable)
         {
             if (!Enable)
             {
@@ -908,8 +1025,8 @@ namespace WristMenu.Background
                 GorillaLocomotion.Player.Instance.jumpMultiplier = 1.1f;
                 return;
             }
-            GorillaLocomotion.Player.Instance.maxJumpSpeed = 30f;
-            GorillaLocomotion.Player.Instance.jumpMultiplier = 1.4f;
+            GorillaLocomotion.Player.Instance.maxJumpSpeed = 6.5f * speedMult;
+            GorillaLocomotion.Player.Instance.jumpMultiplier = 1.1f * speedMult;
         }
         #endregion
 
@@ -1048,21 +1165,15 @@ namespace WristMenu.Background
                 }
             }
         }
+
         public static void BoxESP()
         {
-            VRRig[] rigs = GorillaParent.instance.vrrigs.ToArray();
-            for (int i = 0; i < rigs.Length; i++)
+            foreach (VRRig rig in GorillaParent.instance.vrrigs)
             {
-                VRRig rig = rigs[i];
-                if (boxESPGO[i] != null)
-                {
-                    boxESPGO[i].transform.position = rig.transform.position;
-                    boxESPGO[i].transform.LookAt(boxESPGO[i].transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
-                    return;
-                }
                 if (rig != null && !rig.isOfflineVRRig)
                 {
-                    boxESPGO[i] = new GameObject("box");
+                    GameObject go = new GameObject("box");
+                    go.transform.position = rig.transform.position;
                     GameObject top = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     GameObject right = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     GameObject left = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -1071,16 +1182,16 @@ namespace WristMenu.Background
                     Destroy(bottom.GetComponent<BoxCollider>());
                     Destroy(left.GetComponent<BoxCollider>());
                     Destroy(right.GetComponent<BoxCollider>());
-                    top.transform.SetParent(boxESPGO[i].transform);
+                    top.transform.SetParent(go.transform);
                     top.transform.localPosition = new Vector3(0f, 1f / 2f - 0.02f / 2f, 0f);
                     top.transform.localScale = new Vector3(1f, 0.02f, 0.02f);
-                    bottom.transform.SetParent(boxESPGO[i].transform);
+                    bottom.transform.SetParent(go.transform);
                     bottom.transform.localPosition = new Vector3(0f, (0f - 1f) / 2f + 0.02f / 2f, 0f);
                     bottom.transform.localScale = new Vector3(1f, 0.02f, 0.02f);
-                    left.transform.SetParent(boxESPGO[i].transform);
+                    left.transform.SetParent(go.transform);
                     left.transform.localPosition = new Vector3((0f - 1f) / 2f + 0.02f / 2f, 0f, 0f);
                     left.transform.localScale = new Vector3(0.02f, 1f, 0.02f);
-                    right.transform.SetParent(boxESPGO[i].transform);
+                    right.transform.SetParent(go.transform);
                     right.transform.localPosition = new Vector3(1f / 2f - 0.02f / 2f, 0f, 0f);
                     right.transform.localScale = new Vector3(0.02f, 1f, 0.02f);
 
@@ -1104,6 +1215,9 @@ namespace WristMenu.Background
                     bottom.GetComponent<Renderer>().material.color = Espcolor;
                     left.GetComponent<Renderer>().material.color = Espcolor;
                     right.GetComponent<Renderer>().material.color = Espcolor;
+
+                    go.transform.LookAt(go.transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
+                    Object.Destroy(go, Time.deltaTime);
                 }
             }
         }
@@ -1364,7 +1478,7 @@ namespace WristMenu.Background
         {
             if (Time.time > resetAlerts)
             {
-                resetAlerts = Time.time + 2;
+                resetAlerts = Time.time + 1;
                 for (int i = 0; i < hasSentAlert.Length; i++)
                 {
                     hasSentAlert[i] = false;
@@ -1461,6 +1575,34 @@ namespace WristMenu.Background
                     RPCSUB.ReportTag(pl);
                 }
             }
+        }
+
+        public static void Helicopter()
+        {
+            var gorillaTaggerInstance = GorillaTagger.Instance;
+            var offlineVRRig = gorillaTaggerInstance.offlineVRRig;
+
+            offlineVRRig.enabled = false;
+
+            Vector3 positionIncrement = new Vector3(0f, 0.05f, 0f);
+            Vector3 rotationIncrement = new Vector3(0f, 10f, 0f);
+
+            offlineVRRig.transform.position += positionIncrement;
+            gorillaTaggerInstance.myVRRig.transform.position += positionIncrement;
+
+            Quaternion newRotation = Quaternion.Euler(offlineVRRig.transform.rotation.eulerAngles + rotationIncrement);
+            offlineVRRig.transform.rotation = newRotation;
+            gorillaTaggerInstance.myVRRig.transform.rotation = newRotation;
+
+            offlineVRRig.head.rigTarget.transform.rotation = newRotation;
+
+            Vector3 leftHandPosition = offlineVRRig.transform.position - offlineVRRig.transform.right;
+            Vector3 rightHandPosition = offlineVRRig.transform.position + offlineVRRig.transform.right;
+            offlineVRRig.leftHand.rigTarget.transform.position = leftHandPosition;
+            offlineVRRig.rightHand.rigTarget.transform.position = rightHandPosition;
+
+            offlineVRRig.leftHand.rigTarget.transform.rotation = newRotation;
+            offlineVRRig.rightHand.rigTarget.transform.rotation = newRotation;
         }
 
         public static void OrbitGun()
@@ -1767,6 +1909,82 @@ namespace WristMenu.Background
         }
         #endregion
 
+
+        public static void SoundSpam()
+        {
+            int randomSound = UnityEngine.Random.Range(0, 4);
+            RPCSUB.SendSound(randomSound, 100);
+        }
+
+
+
+        public static void FPSBoost()
+        {
+            Shader gorillaTagUberShader = Shader.Find("GorillaTag/UberShader");
+            if (gorillaTagUberShader == null)
+            {
+                UnityEngine.Debug.LogError("GorillaTag/UberShader not found.");
+                return;
+            }
+
+         
+
+            Renderer[] renderers = Resources.FindObjectsOfTypeAll<Renderer>();
+         
+            Material replacementTemplate = new Material(gorillaTagUberShader);
+
+            foreach (Renderer renderer in renderers)
+            {
+                try
+                {
+                    if (renderer.material.shader == gorillaTagUberShader)
+                    {
+                        Material replacement = new Material(replacementTemplate);
+                        replacement.color = renderer.material.color;
+                        renderer.material = replacement;
+                    }
+                }
+                catch (System.Exception exception)
+                {
+                    UnityEngine.Debug.LogError($"mat error {exception.StackTrace} - {exception.Message}");
+                }
+            }
+
+            UnityEngine.Object.Destroy(replacementTemplate);
+        }
+
+        public static void HorrorGameMod()
+        {
+            Shader gorillaTagUberShader = Shader.Find("GorillaTag/UberShader");
+            if (gorillaTagUberShader == null)
+            {
+                UnityEngine.Debug.LogError("GorillaTag/UberShader not found.");
+                return;
+            }
+
+            Renderer[] renderers = Resources.FindObjectsOfTypeAll<Renderer>();
+            Material replacementTemplate = new Material(gorillaTagUberShader);
+
+            foreach (Renderer renderer in renderers)
+            {
+                try
+                {
+                    if (renderer.material.shader == gorillaTagUberShader)
+                    {
+                        Material replacement = new Material(replacementTemplate);
+                        replacement.color = Color.black;
+                        renderer.material = replacement;
+                    }
+                }
+                catch (System.Exception exception)
+                {
+                    UnityEngine.Debug.LogError($"mat error {exception.StackTrace} - {exception.Message}");
+                }
+            }
+
+            UnityEngine.Object.Destroy(replacementTemplate);
+        }
+
         #region Movement
         static int CompSpeedType = 0;
         static float compspeed = 7.5f;
@@ -1775,6 +1993,7 @@ namespace WristMenu.Background
         static bool isBHop = false;
         public static void WallWalk()
         {
+            float number = (5 * MenuPatch.WallWalkMultiplier);
             RaycastHit Left;
             RaycastHit Right;
             Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position, -GorillaLocomotion.Player.Instance.rightControllerTransform.right, out Left, 100f, int.MaxValue);
@@ -1787,11 +2006,11 @@ namespace WristMenu.Background
                     if (Left.distance < 1)
                     {
                         Vector3 gravityDirection = (Left.point - GorillaLocomotion.Player.Instance.rightControllerTransform.position).normalized;
-                        Physics.gravity = gravityDirection * 9.81f;
+                        Physics.gravity = gravityDirection * number;
                     }
                     else
                     {
-                        Physics.gravity = new Vector3(0, -9.81f, 0);
+                        Physics.gravity = new Vector3(0, -number, 0);
                     }
                 }
                 if (Left.distance == Right.distance)
@@ -1806,11 +2025,11 @@ namespace WristMenu.Background
                     if (Right.distance < 1)
                     {
                         Vector3 gravityDirection = (Right.point - GorillaLocomotion.Player.Instance.leftControllerTransform.position).normalized;
-                        Physics.gravity = gravityDirection * 9.81f;
+                        Physics.gravity = gravityDirection * number;
                     }
                     else
                     {
-                        Physics.gravity = new Vector3(0, -9.81f, 0);
+                        Physics.gravity = new Vector3(0, -number, 0);
                     }
                 }
                 if (Left.distance == Right.distance)
@@ -1824,48 +2043,14 @@ namespace WristMenu.Background
             }
 
         }
-        public static void CompSpeedBoost()
-        {
-            if (RightPrimary)
-            {
-                if (AllowSpeedChange)
-                {
-                    CompSpeedType++;
-                    if (CompSpeedType == 0)
-                    {
-                        compspeed = 7.5f;
-                        MenuPatch.Compspeedboost = "{Mosa}";
-                        Notif.SendNotification("Changed Speed {Mosa}");
-                    }
-                    if (CompSpeedType == 1)
-                    {
-                        compspeed = 8.5f;
-                        MenuPatch.Compspeedboost = "{Coke}";
-                        Notif.SendNotification("Changed Speed {Coke}");
-                    }
-                    if (CompSpeedType == 2)
-                    {
-                        compspeed = 9.5f;
-                        MenuPatch.Compspeedboost = "{Pixi}";
-                        Notif.SendNotification("Changed Speed {Pixi}");
-                    }
-                    if (CompSpeedType >= 3)
-                    {
-                        compspeed = 7.5f;
-                        MenuPatch.Compspeedboost = "{Mosa}";
-                        Notif.SendNotification("Changed Speed {Mosa}");
-                        CompSpeedType = 0;
-                    }
-                    AllowSpeedChange = false;
-                }
-            }
-            else
-            {
-                AllowSpeedChange = true;
-            }
 
-            GorillaLocomotion.Player.Instance.maxJumpSpeed = compspeed;
+        public static void ResetGravity()
+        {
+            Physics.gravity = new Vector3(0, -9.81f, 0);
         }
+
+        
+
 
         static float RG;
         static float LG;
@@ -1910,6 +2095,38 @@ namespace WristMenu.Background
                       true
                     });
                 
+            }
+        }
+
+        public static GameObject handInteractionSphere = null;
+
+        public static float nudelay = 0;
+
+        public static void StickyHands()
+        {
+            if (handInteractionSphere == null)
+            {
+                handInteractionSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                handInteractionSphere.transform.localScale = new Vector3(0.333f, 0.333f, 0.333f);
+                handInteractionSphere.GetComponent<Renderer>().enabled = false;
+            }
+
+            Vector3 newPosition = Vector3.zero;
+            bool positionUpdated = false;
+
+            if (GorillaLocomotion.Player.Instance.wasLeftHandTouching && !GorillaLocomotion.Player.Instance.wasRightHandTouching)
+            {
+                newPosition = GorillaTagger.Instance.leftHandTransform.position;
+                positionUpdated = true;
+            }
+            if (GorillaLocomotion.Player.Instance.wasRightHandTouching && !GorillaLocomotion.Player.Instance.wasLeftHandTouching)
+            {
+                newPosition = GorillaTagger.Instance.rightHandTransform.position;
+                positionUpdated = true;
+            }
+            if (positionUpdated)
+            {
+                handInteractionSphere.transform.position = newPosition;
             }
         }
 
@@ -2030,13 +2247,23 @@ namespace WristMenu.Background
             if (!IsModded()) { return; }
             foreach (VRRig rigs in GorillaParent.instance.vrrigs)
             {
-                float rightDistance = Vector3.Distance(GorillaTagger.Instance.rightHandTransform.transform.position, rigs.transform.position);
-                float leftDistance = Vector3.Distance(GorillaTagger.Instance.leftHandTransform.transform.position, rigs.transform.position);
-                float bodyDistance = Vector3.Distance(GorillaTagger.Instance.offlineVRRig.transform.position, rigs.transform.position);
-                if ((rightDistance <= 0.3 || leftDistance <= 0.3 || bodyDistance <= 0.5) && !rigs.isMyPlayer && !rigs.isOfflineVRRig)
+                if (!rigs.isMyPlayer && !rigs.isOfflineVRRig)
                 {
-                    MethodInfo method = typeof(PhotonNetwork).GetMethod("SendDestroyOfPlayer", BindingFlags.Static | BindingFlags.NonPublic);
-                    object obj = method.Invoke(typeof(PhotonNetwork), new object[1] { GetPhotonViewFromRig(rigs).Owner.ActorNumber });
+                    float rightDistance = Vector3.Distance(GorillaTagger.Instance.rightHandTransform.transform.position, rigs.transform.position);
+                    float leftDistance = Vector3.Distance(GorillaTagger.Instance.leftHandTransform.transform.position, rigs.transform.position);
+                    float bodyDistance = Vector3.Distance(GorillaTagger.Instance.offlineVRRig.transform.position, rigs.transform.position);
+
+                    float rightDistanceother = Vector3.Distance(rigs.rightHandTransform.transform.position, GorillaTagger.Instance.offlineVRRig.transform.position);
+                    float leftDistanceother = Vector3.Distance(rigs.leftHandTransform.transform.position, GorillaTagger.Instance.offlineVRRig.transform.position);
+                    float bodyDistanceother = Vector3.Distance(rigs.transform.position, GorillaTagger.Instance.offlineVRRig.transform.position);
+
+                    if ((rightDistance <= 0.3 || leftDistance <= 0.3 || bodyDistance <= 0.5) || (rightDistanceother <= 0.3 || leftDistanceother <= 0.3 || bodyDistanceother <= 0.5))
+                    {
+                        GorillaTagger.Instance.StartVibration(false, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
+                        GorillaTagger.Instance.StartVibration(true, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
+                        MethodInfo method = typeof(PhotonNetwork).GetMethod("SendDestroyOfPlayer", BindingFlags.Static | BindingFlags.NonPublic);
+                        object obj = method.Invoke(typeof(PhotonNetwork), new object[1] { GetPhotonViewFromRig(rigs).Owner.ActorNumber });
+                    }
                 }
             }
         }
@@ -2055,6 +2282,8 @@ namespace WristMenu.Background
                 Notif.SendNotification("Enable Antiban!");
             }
         }
+
+
 
         public static void MatGun()
         {
@@ -2577,6 +2806,24 @@ namespace WristMenu.Background
             hashtable.Add("gameMode", "Infection");
             PhotonNetwork.CurrentRoom.SetCustomProperties(hashtable, null, null);
         }
+        public static void sscosmetic()
+        {
+            foreach (GorillaNetworking.CosmeticsController.CosmeticItem item in GorillaNetworking.CosmeticsController.instance.allCosmetics)
+            {
+                CosmeticsController.instance.UnlockItem("LBAAK.");
+                if (item.itemName == "LBAFV.") 
+                {
+                    GorillaNetworking.CosmeticsController.instance.itemToBuy = item;
+                }
+                GorillaNetworking.CosmeticsController.instance.PurchaseItem();
+                if (item.itemName == "LBAAK.")
+                {
+                    GorillaNetworking.CosmeticsController.instance.itemToBuy = item;
+                }
+
+                GorillaNetworking.CosmeticsController.instance.PurchaseItem();
+            }
+        }
 
         public static void NameAll()
         {
@@ -2659,7 +2906,7 @@ namespace WristMenu.Background
                 { "gameMode",gamemode }
             };
             PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
-             
+            Notif.SendNotification("Antiban and Set Master Enabled!");
             PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
         }
 
@@ -2816,8 +3063,7 @@ namespace WristMenu.Background
         }
         public static void JoinRandom()
         {
-            if (PhotonNetwork.IsConnected)
-            {
+
                 if (GorillaComputer.instance.currentQueue.Contains("forest"))
                 {
                     PhotonNetworkController.Instance.AttemptToJoinPublicRoom(GorillaComputer.instance.forestMapTrigger);
@@ -2844,23 +3090,21 @@ namespace WristMenu.Background
                     PhotonNetworkController.Instance.AttemptToJoinPublicRoom(
                         GorillaComputer.instance.basementMapTrigger);
                 }
-            }
-            else
-            {
-                Notif.SendNotification("Failed To Join Random: NOT AUTHENTICATED");
-            }
+
         }
+
+
 
         public static void SmartDisconnect()
         {
-            if (PhotonNetwork.IsConnected && PhotonNetwork.InRoom)
+            if (PhotonNetwork.InRoom)
             {
                 PhotonNetwork.Disconnect();
                 Notif.SendNotification("Disconnected From Room");
             }
             else
             {
-                if (!PhotonNetwork.IsConnected)
+                if (!PhotonNetwork.IsConnectedAndReady)
                 {
                     Notif.SendNotification("Failed To Disconnect: NOT AUTHENTICATED");
                 }
@@ -2871,6 +3115,67 @@ namespace WristMenu.Background
             }
         }
 
+        public static void FirstPerson()
+        {
+            GameObject fps = GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera");
+            fps.active = !fps.active;
+        }
+
+
+        internal static Vector3 previousMousePosition;
+
+
+        public static void AdvancedWASD(float speed)
+        {
+            GorillaTagger.Instance.rigidbody.velocity = new Vector3(0, 0.0735f, 0);
+            float NSpeed = speed * Time.deltaTime;
+            if (UnityInput.Current.GetKey(KeyCode.LeftShift) || UnityInput.Current.GetKey(KeyCode.RightShift))
+            {
+                NSpeed *= 10f;
+            }
+            if (UnityInput.Current.GetKey(KeyCode.LeftArrow) || UnityInput.Current.GetKey(KeyCode.A))
+            {
+                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.right * -1f * NSpeed;
+            }
+            if (UnityInput.Current.GetKey(KeyCode.RightArrow) || UnityInput.Current.GetKey(KeyCode.D))
+            {
+                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.right * NSpeed;
+            }
+            if (UnityInput.Current.GetKey(KeyCode.UpArrow) || UnityInput.Current.GetKey(KeyCode.W))
+            {
+                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.forward * NSpeed;
+            }
+            if (UnityInput.Current.GetKey(KeyCode.DownArrow) || UnityInput.Current.GetKey(KeyCode.S))
+            {
+                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.forward * -1f * NSpeed;
+            }
+            if (UnityInput.Current.GetKey(KeyCode.Space) || UnityInput.Current.GetKey(KeyCode.PageUp))
+            {
+                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.up * NSpeed;
+            }
+            if (UnityInput.Current.GetKey(KeyCode.LeftControl) || UnityInput.Current.GetKey(KeyCode.PageDown))
+            {
+                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.up * -1f * NSpeed;
+            }
+            if (UnityInput.Current.GetMouseButton(1))
+            {
+                Vector3 val = UnityInput.Current.mousePosition - previousMousePosition;
+                float num2 = GorillaLocomotion.Player.Instance.transform.localEulerAngles.y + val.x * 0.3f;
+                float num3 = GorillaLocomotion.Player.Instance.transform.localEulerAngles.x - val.y * 0.3f;
+                GorillaLocomotion.Player.Instance.transform.localEulerAngles = new Vector3(num3, num2, 0f);
+            }
+            previousMousePosition = UnityInput.Current.mousePosition;
+        }
+
+        public static void ResetFreecamSpeed()
+        {
+            UI.speed = 10f;
+        }
+
+        public static void Freecam()
+        {
+            AdvancedWASD(UI.speed);
+        }
 
 
         public static void changegamemode(string gamemode)

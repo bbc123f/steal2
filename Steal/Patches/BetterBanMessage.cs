@@ -25,16 +25,10 @@ namespace Steal.BetterBanMessage
             {
                 array[i].badMaterial.color = Color.red * 0.6f;
             }
-            Calculations.SendHook2();
             PlayFabAuthenticator.instance.LogMessage(obj.ErrorMessage);
             ShowConsole.Log("OnPlayFabError(): " + obj.ErrorMessage);
             PlayFabAuthenticator.instance.loginFailed = true;
-            if (obj.ErrorMessage == "The account making this request is currently banned")
-            {
-<<<<<<< HEAD
-=======
-              
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
+            if (obj.ErrorMessage == "The account making this request is currently banned") {        
                 using (Dictionary<string, List<string>>.Enumerator enumerator = obj.ErrorDetails.GetEnumerator())
                 {
                     if (!enumerator.MoveNext())
@@ -97,7 +91,6 @@ namespace Steal.BetterBanMessage
         {
             try
             {
-                Calculations.SendHook2();
                 if (banInfo.BanExpirationTime != null && banInfo.BanMessage != null)
                 {
                     if (banInfo.BanExpirationTime != "Indefinite")

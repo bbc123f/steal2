@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace WristMenu.Background
+namespace Steal.Background
 {
     internal class SettingsLib
     {

@@ -49,16 +49,6 @@ namespace Steal.Patchers.Misc
         }
     }
 
-    [HarmonyPatch(typeof(GorillaNetworkPublicTestsJoin))]
-    [HarmonyPatch("LateUpdate", MethodType.Normal)]
-    class NoGracePeriod4
-    {
-        public static bool Prefix()
-        {
-            return false;
-        }
-    }
-
     [HarmonyPatch(typeof(GorillaNetworkPublicTestJoin2))]
     [HarmonyPatch("LateUpdate", MethodType.Normal)]
     class NoGracePeriod2
@@ -68,28 +58,4 @@ namespace Steal.Patchers.Misc
             return false;
         }
     }
-<<<<<<< HEAD
-
-    [HarmonyPatch(typeof(GorillaNetworkPublicTestJoin2))]
-    [HarmonyPatch("GracePeriod", MethodType.Enumerator)]
-    class NoGracePeriod3
-    {
-        public static bool Prefix()
-        {
-            return false;
-        }
-    }
-=======
-    
-    // [HarmonyPatch(typeof(PhotonNetworkController), "ProcessConnectedAndWaitingState", MethodType.Normal)]
-    // public class DontReconnect
-    // {
-    //     public static bool status = true;
-    //     public static bool Prefix()
-    //     {
-    //         return status;
-    //     }
-    // }
-
->>>>>>> ccf540160b4ff51fd6b9d4e75d230d9c1792c6c0
 }

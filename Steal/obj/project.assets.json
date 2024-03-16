@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\kmant\\Documents\\GitHub\\Steal\\Steal\\WristMenu.csproj",
+      "projectUniqueName": "C:\\Users\\kmant\\Documents\\steal better\\steal2\\Steal\\WristMenu.csproj",
       "projectName": "Steal",
-      "projectPath": "C:\\Users\\kmant\\Documents\\GitHub\\Steal\\Steal\\WristMenu.csproj",
+      "projectPath": "C:\\Users\\kmant\\Documents\\steal better\\steal2\\Steal\\WristMenu.csproj",
       "packagesPath": "C:\\Users\\kmant\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\kmant\\Documents\\GitHub\\Steal\\Steal\\obj\\",
+      "outputPath": "C:\\Users\\kmant\\Documents\\steal better\\steal2\\Steal\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -69,13 +69,5 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "Undefined",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Problem reading the cache file C:\\Users\\kmant\\Documents\\GitHub\\Steal\\Steal\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
-    }
-  ]
+  }
 }
