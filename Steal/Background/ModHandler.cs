@@ -62,6 +62,7 @@ namespace Steal.Background
             }
         }
 
+
         public static void ToggleWatch()
         {
             GameObject Steal = GameObject.Find("Steal");
@@ -321,6 +322,43 @@ namespace Steal.Background
         #endregion
 
         #region Acid Mods
+
+        static bool shouldacidchange = false;
+        static float canacidchange = -100;
+        public static void AcidSpam()
+        {
+            if (Time.time > canacidchange)
+            {
+                canacidchange = Time.time + 0.8f;
+                if (shouldacidchange)
+                {
+                    Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
+                    ScienceExperimentManager.PlayerGameState[] states = new ScienceExperimentManager.PlayerGameState[10];
+                    for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+                    {
+                        states[i].touchedLiquid = true;
+                        states[i].playerId = PhotonNetwork.PlayerList[i].ActorNumber;
+                    }
+                    Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
+                    shouldacidchange = false;
+                }
+                else
+                {
+                    Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
+                    ScienceExperimentManager.PlayerGameState[] states = new ScienceExperimentManager.PlayerGameState[10];
+                    for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+                    {
+                        states[i].touchedLiquid = false;
+                        states[i].playerId = PhotonNetwork.PlayerList[i].ActorNumber;
+                    }
+                    Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
+                    shouldacidchange = true;
+                }
+            }
+
+        }
+
+
         public static void AcidSelf()
         {
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
@@ -519,6 +557,56 @@ namespace Steal.Background
         static bool isnoclipped = false;
         static float LongArmsOffset = 0;
         static bool canTP = false;
+
+        public static void AcidGun()
+        {
+            var data = GunLib.Shoot();
+            if (data != null)
+            {
+                if (data.isShooting && data.isTriggered)
+                {
+                    if (GetPhotonViewFromRig(data.lockedPlayer) == null) { return; }
+                    Photon.Realtime.Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
+                    Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
+                    ScienceExperimentManager.PlayerGameState[] states = new ScienceExperimentManager.PlayerGameState[10];
+                    for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+                    {
+                        if (player == PhotonNetwork.PlayerList[i])
+                        {
+                            states[i].touchedLiquid = true;
+                            states[i].playerId = player.ActorNumber;
+                        }
+                    }
+                    Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
+                }
+            }
+        }
+
+        public static void UnAcidGun()
+        {
+            var data = GunLib.Shoot();
+            if (data != null)
+            {
+                if (data.isShooting && data.isTriggered)
+                {
+                    if (GetPhotonViewFromRig(data.lockedPlayer) == null) { return; }
+                    Photon.Realtime.Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
+                    Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
+                    ScienceExperimentManager.PlayerGameState[] states = new ScienceExperimentManager.PlayerGameState[10];
+                    for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+                    {
+                        if (player == PhotonNetwork.PlayerList[i])
+                        {
+                            states[i].touchedLiquid = false;
+                            states[i].playerId = player.ActorNumber;
+                        }
+                    }
+                    Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
+                }
+            }
+        }
+
+
         public static void TeleportGun()
         {
             var data = GunLib.Shoot();
@@ -1927,21 +2015,39 @@ namespace Steal.Background
             RPCSUB.SendSound(randomSound, 100);
         }
 
+        private static Dictionary<Renderer, Material> originalMaterials = new Dictionary<Renderer, Material>();
 
+        public static void RestoreOriginalMaterials()
+        {
+            foreach (KeyValuePair<Renderer, Material> entry in originalMaterials)
+            {
+                try
+                {
+                    if (entry.Key != null)
+                    {
+                        entry.Key.material = entry.Value;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogError($"Restore error {exception.StackTrace} - {exception.Message}");
+                }
+            }
+
+
+            originalMaterials.Clear();
+        }
 
         public static void FPSBoost()
         {
             Shader gorillaTagUberShader = Shader.Find("GorillaTag/UberShader");
             if (gorillaTagUberShader == null)
             {
-                UnityEngine.Debug.LogError("GorillaTag/UberShader not found.");
+                Debug.LogError("GorillaTag/UberShader not found.");
                 return;
             }
 
-
-
             Renderer[] renderers = Resources.FindObjectsOfTypeAll<Renderer>();
-
             Material replacementTemplate = new Material(gorillaTagUberShader);
 
             foreach (Renderer renderer in renderers)
@@ -1950,26 +2056,30 @@ namespace Steal.Background
                 {
                     if (renderer.material.shader == gorillaTagUberShader)
                     {
-                        Material replacement = new Material(replacementTemplate);
-                        replacement.color = renderer.material.color;
+                        if (!originalMaterials.ContainsKey(renderer))
+                        {
+                            originalMaterials[renderer] = renderer.material;
+                        }
+
+                        Material replacement = new Material(replacementTemplate) { color = renderer.material.color };
                         renderer.material = replacement;
                     }
                 }
-                catch (System.Exception exception)
+                catch (Exception exception)
                 {
-                    UnityEngine.Debug.LogError($"mat error {exception.StackTrace} - {exception.Message}");
+                    Debug.LogError($"mat error {exception.StackTrace} - {exception.Message}");
                 }
             }
 
-            UnityEngine.Object.Destroy(replacementTemplate);
+            Object.Destroy(replacementTemplate);
         }
 
-        public static void HorrorGameMod()
+        public static void HorrorGame()
         {
             Shader gorillaTagUberShader = Shader.Find("GorillaTag/UberShader");
             if (gorillaTagUberShader == null)
             {
-                UnityEngine.Debug.LogError("GorillaTag/UberShader not found.");
+                Debug.LogError("GorillaTag/UberShader not found.");
                 return;
             }
 
@@ -1982,18 +2092,22 @@ namespace Steal.Background
                 {
                     if (renderer.material.shader == gorillaTagUberShader)
                     {
-                        Material replacement = new Material(replacementTemplate);
-                        replacement.color = Color.black;
+                        if (!originalMaterials.ContainsKey(renderer))
+                        {
+                            originalMaterials[renderer] = renderer.material;
+                        }
+
+                        Material replacement = new Material(replacementTemplate) { color = Color.black };
                         renderer.material = replacement;
                     }
                 }
-                catch (System.Exception exception)
+                catch (Exception exception)
                 {
-                    UnityEngine.Debug.LogError($"mat error {exception.StackTrace} - {exception.Message}");
+                    Debug.LogError($"mat error {exception.StackTrace} - {exception.Message}");
                 }
             }
 
-            UnityEngine.Object.Destroy(replacementTemplate);
+            Object.Destroy(replacementTemplate);
         }
 
         #region Movement
@@ -2242,70 +2356,58 @@ namespace Steal.Background
 
         public static void CrashGun()
         {
-            object obj;
-            PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
-            if (obj.ToString().Contains("MODDED"))
+            if (!IsModded()) { return; }
+            var data = GunLib.ShootLock();
+            if (data != null)
             {
-                var data = GunLib.ShootLock();
-                if (data != null)
+                if (data.lockedPlayer != null && data.isLocked)
                 {
-                    if (data.lockedPlayer != null && data.isLocked)
-                    {
-                        if (Time.time > lagtimeout + 0.016)
-                        {
-                            lagtimeout = Time.time;
-                            PhotonNetwork.SendRate = int.MaxValue;
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                        }
-                    }
+                    PhotonNetwork.SendRate = 1;
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
                 }
             }
+
         }
 
         public static void LagAl()
         {
-            if (Time.time > lagtimeout + 0.002)
-            {
-                lagtimeout = Time.time;
-                GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", RpcTarget.Others, true, new object[] { Vector3.zero, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", RpcTarget.Others, true, new object[] { Vector3.zero, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", RpcTarget.Others, true, new object[] { Vector3.zero, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", RpcTarget.Others, true, new object[] { Vector3.zero, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-            }
+            if (!IsModded()) { return; }
+            Lag(RpcTarget.Others);
+        }
+
+        public static void Lag(Player target)
+        {
+            PhotonNetwork.SendRate = 1;
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
+        }
+
+        public static void Lag(RpcTarget target)
+        {
+            PhotonNetwork.SendRate = 1;
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
         }
 
         public static void LagGun()
         {
-            object obj;
-            PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
-            if (obj.ToString().Contains("MODDED"))
+            if (!IsModded()) { return; }
+            var data = GunLib.ShootLock();
+            if (data != null)
             {
-                var data = GunLib.ShootLock();
-                if (data != null)
+                if (data.lockedPlayer != null && data.isLocked)
                 {
-                    if (Time.time > lagtimeout + 0.002)
-                    {
-                        lagtimeout = Time.time;
-                        if (data.lockedPlayer != null && data.isLocked)
-                        {
-                            #region hole lotta nufing                    
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { data.hitPosition, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            #endregion
-                        }
-                    }
+                    Lag(GetPhotonViewFromRig(data.lockedPlayer).Owner);
                 }
+
             }
+
 
         }
 
@@ -2330,18 +2432,14 @@ namespace Steal.Background
                         {
                             GorillaTagger.Instance.StartVibration(false, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
                             GorillaTagger.Instance.StartVibration(true, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
+                            PhotonNetwork.SendRate = 1;
+                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
+                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
+                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
+                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
+                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
+                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
+                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
                         }
                     }
                 }
@@ -2370,6 +2468,8 @@ namespace Steal.Background
                         {
                             GorillaTagger.Instance.StartVibration(false, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
                             GorillaTagger.Instance.StartVibration(true, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
+                            PhotonNetwork.SendRate = 1;
+                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
                             GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
                             GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
                             GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
@@ -2495,31 +2595,44 @@ namespace Steal.Background
                 }
             }
         }
-
+        static bool isSettingsLav = false;
+        static void LoadLevel(int levelId)
+        {
+            if (isSettingsLav == true)
+            {
+                return;
+            }
+            isSettingsLav = true;
+            ExitGames.Client.Photon.Hashtable hashtable = new ExitGames.Client.Photon.Hashtable();
+            hashtable["curScn"] = (int)levelId;
+            PhotonNetwork.CurrentRoom.SetCustomProperties(hashtable, null, null);
+            PhotonNetwork.SendAllOutgoingCommands();
+            isSettingsLav = false;
+        }
         public static void CrashAll()
         {
-            PhotonNetwork.LoadLevel(5);
-            PhotonNetwork.LoadLevel(6);
-            PhotonNetwork.LoadLevel(4);
-            PhotonNetwork.LoadLevel(3);
-            PhotonNetwork.LoadLevel(2);
-            PhotonNetwork.LoadLevel(0);
-            PhotonNetwork.LoadLevel(1);
-            PhotonNetwork.LoadLevel(4);
-            PhotonNetwork.LoadLevel(3);
-            PhotonNetwork.LoadLevel(2);
-            PhotonNetwork.LoadLevel(0);
-            PhotonNetwork.LoadLevel(1);
-            PhotonNetwork.LoadLevel(4);
-            PhotonNetwork.LoadLevel(3);
-            PhotonNetwork.LoadLevel(2);
-            PhotonNetwork.LoadLevel(0);
-            PhotonNetwork.LoadLevel(1);
-            PhotonNetwork.LoadLevel(4);
-            PhotonNetwork.LoadLevel(3);
-            PhotonNetwork.LoadLevel(2);
-            PhotonNetwork.LoadLevel(0);
-            PhotonNetwork.LoadLevel(1);
+            LoadLevel(5);
+            LoadLevel(6);
+            LoadLevel(4);
+            LoadLevel(3);
+            LoadLevel(2);
+            LoadLevel(0);
+            LoadLevel(1);
+            LoadLevel(4);
+            LoadLevel(3);
+            LoadLevel(2);
+            LoadLevel(0);
+            LoadLevel(1);
+            LoadLevel(4);
+            LoadLevel(3);
+            LoadLevel(2);
+            LoadLevel(0);
+            LoadLevel(1);
+            LoadLevel(4);
+            LoadLevel(3);
+            LoadLevel(2);
+            LoadLevel(0);
+            LoadLevel(1);
 
             foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
             {
@@ -2874,7 +2987,7 @@ namespace Steal.Background
                     Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
                     if (Time.time > stopmoveT)
                     {
-                        stopmoveT = Time.time + 0.23f;
+                        stopmoveT = Time.time + 0.32f;
                         stopmove = !stopmove;
                     }
                     if (stopmove)
@@ -3392,7 +3505,7 @@ namespace Steal.Background
             {
                 foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
                 {
-                    if (line.linePlayer.NickName == PhotonNetwork.LocalPlayer.NickName)
+                    if (line.linePlayer.IsLocal)
                     {
                         Transform report = line.reportButton.gameObject.transform;
                         foreach (VRRig vrrig in GorillaParent.instance.vrrigs)

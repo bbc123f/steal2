@@ -1,38 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using HarmonyLib;
-using BepInEx;
-using UnityEngine;
-using System.Reflection;
-using UnityEngine.XR;
+﻿using ExitGames.Client.Photon;
 using Photon.Pun;
-using UnityEngine.UI;
-using System.IO;
-using System.Net;
 using Photon.Realtime;
-using UnityEngine.Rendering;
-using Steal.Background;
-using System.Linq;
-using static Steal.Background.ModHandler;
 using Photon.Voice.PUN;
-using System.Collections.Specialized;
-using System.Text;
-using GorillaNetworking;
-using ExitGames.Client.Photon;
+using Steal.Background;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
 using WristMenu;
+using static Steal.Background.ModHandler;
 
 namespace Steal
 {
     class MenuPatch : MonoBehaviour
     {
-        public class Button 
+        public class Button
         {
             public string buttonText { get; set; }
             public bool isToggle { get; set; }
             public bool Enabled { get; set; }
             public bool ismaster { get; set; }
-            public Action onEnable { get; set;  }
+            public Action onEnable { get; set; }
             public Action onDisable { get; set; }
             public bool shouldSettingPC { get; set; }
             public bool doesHaveMultiplier { get; set; }
@@ -82,7 +73,7 @@ namespace Steal
             if (currentButtons == PageButtonsType.Default)
                 currentButtons = PageButtonsType.Side;
             else if (currentButtons == PageButtonsType.Side)
-                currentButtons = PageButtonsType.Default;    
+                currentButtons = PageButtonsType.Default;
         }
 
         public static void ChangePageType()
@@ -133,7 +124,7 @@ namespace Steal
             new Button("Platforms", Category.Movement,true, false, ()=>Platforms(), null),
             new Button("SpeedBoost", Category.Movement, true, false, ()=>SpeedBoost(speedBoostMultiplier, true), ()=>SpeedBoost(speedBoostMultiplier, false)),
             new Button("No Tag Freeze", Category.Movement, true, false, ()=>GorillaLocomotion.Player.Instance.disableMovement = false, null),
-            new Button("No Clip", Category.Movement, true, false, ()=>NoClip(), null), 
+            new Button("No Clip", Category.Movement, true, false, ()=>NoClip(), null),
             new Button("Long Arms", Category.Movement, true, false, ()=>LongArms(), null),
 
             new Button("Teleport Gun", Category.Movement, true, false, ()=>TeleportGun(), ()=>CleanUp()),
@@ -184,16 +175,18 @@ namespace Steal
             new Button("Night Time", Category.Visual, false, false, ()=> BetterDayNightManager.instance.SetTimeOfDay(0)),
             new Button("Day Time", Category.Visual, false, false, ()=> BetterDayNightManager.instance.SetTimeOfDay(1)),
             new Button("FPS Boost", Category.Visual, false, false, ()=> FPSBoost()),
-            new Button("Horror Game", Category.Visual, false, false, ()=> HorrorGameMod()),
+            new Button("Horror Game", Category.Visual, false, false, ()=> HorrorGame()),
+
+            new Button("Revert FPS/Horror", Category.Visual, false, false, ()=> RestoreOriginalMaterials()),
 
             new Button("Auto AntiBan", Category.Special, true, true, null),
-            new Button("AntiBan", Category.Special, false, false, ()=>StartAntiBan()), 
+            new Button("AntiBan", Category.Special, false, false, ()=>StartAntiBan()),
             new Button("Set Master", Category.Special, false, false, ()=>SetMaster()),
             new Button("Identity Spoof", Category.Special, false, false, ()=>ChangeIdentity()),
             new Button("Fraud Identity Spoof", Category.Special, false, false, ()=>ChangeRandomIdentity()),
             new Button("Anti Report", Category.Special, true, true, ()=>AntiReport()),
 
-            new Button("Crash All", Category.Special, true, false, ()=>CrashAll()),
+            new Button("Crash All", Category.Special, false, false, ()=>CrashAll()),
             new Button("Crash Gun", Category.Special, true, false, ()=>CrashGun()),
             new Button("Crash On Touch", Category.Special, true, false, ()=>CrashOnTouch()),
             new Button("Freeze All", Category.Special, false, false, ()=>InvisAll()),
@@ -233,6 +226,12 @@ namespace Steal
             new Button("Stop Movement Gun", Category.Special, true, false, ()=>StopMovement(), null, true),
             new Button("Float Gun", Category.Special, true, false, ()=>FloatGun(), null, true),
             new Button("Sound Spam", Category.Special, true, false, ()=>SoundSpam(), null, true),
+            new Button("Acid Spam", Category.Special, true, false, ()=>AcidSpam(), null, true),
+
+            new Button("Acid Gun", Category.Special, true, false, ()=>AcidGun(), null, true),
+            new Button("Unacid Gun", Category.Special, true, false, ()=>UnAcidGun(), null, true),
+            new Button("Unacid All", Category.Special, false, false, ()=>UnAcidAll(), null, true),
+            new Button("Unacid Self", Category.Special, false, false, ()=>UnAcidSelf(), null, true),
 
             new Button("Change Theme", Category.Settings, false, false, ()=>ChangeTheme(), null, false, false),
             new Button("Change SpeedBoost ", Category.Settings, false, false, ()=>SwitchSpeed(), null, false, true, true, ()=>getSpeedBoostMultiplier()),
@@ -244,14 +243,12 @@ namespace Steal
             new Button("Toggle Categorys", Category.Settings, false, false, ()=>ChangePageType()),
             new Button("Toggle PocketWatch", Category.Settings, false, false, ()=>ToggleWatch()),
             new Button("Toggle Mod List", Category.Settings, false, false, ()=>ToggleList()),
-            new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
-            new Button("No Snitch Utilla", Category.Settings, true, true, null),
-
+            new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList())
         };
 
 
 
-       
+
 
         public static int page = 0;
         public static int pageSize = 6;
@@ -303,7 +300,7 @@ namespace Steal
         {
             try
             {
-                
+
                 if (!_init && PhotonNetwork.IsConnected)
                 {
                     PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
@@ -332,7 +329,7 @@ namespace Steal
                         if (referance == null)
                         {
                             referance = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                            referance.transform.parent =GorillaLocomotion.Player.Instance.rightControllerTransform;
+                            referance.transform.parent = GorillaLocomotion.Player.Instance.rightControllerTransform;
                             referance.transform.localPosition = new Vector3(0f, -0.1f, 0f) * GorillaLocomotion.Player.Instance.scale;
                             referance.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
                         }
@@ -643,7 +640,7 @@ namespace Steal
                         {
                             AddButton(i * 0.13f, UnPageToDraw[i]);
                         }
-                    }               
+                    }
                 }
             }
             catch (Exception e) { Debug.LogException(e); }
@@ -663,10 +660,10 @@ namespace Steal
             switch (button.buttonText)
             {
                 case ">":
-                    
+
                     if (categorized)
                     {
-                        if (totalCatagoriePages < page || (totalCatagoriePages-1) == page)
+                        if (totalCatagoriePages < page || (totalCatagoriePages - 1) == page)
                         {
                             page = 0;
                         }

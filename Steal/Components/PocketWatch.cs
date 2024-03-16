@@ -76,7 +76,7 @@ namespace Steal.Components
                     }
                 }
 
-                if (InputHandler.LeftJoystick.x < -0.75f && !InputHandler.LeftStickClick)
+                if (InputHandler.LeftJoystick.x < -0.85f && !InputHandler.LeftStickClick)
                 {
                     if (Time.frameCount >= buttonCooldown + 20)
                     {
@@ -87,7 +87,7 @@ namespace Steal.Components
                     }
                 }
 
-                if (InputHandler.LeftJoystick.x > 0.75f && !InputHandler.LeftStickClick)
+                if (InputHandler.LeftJoystick.x > 0.85f && !InputHandler.LeftStickClick)
                 {
                     if (Time.frameCount >= buttonCooldown + 20)
                     {
