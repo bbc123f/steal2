@@ -4,10 +4,10 @@ using Steal.Patchers.VRRigPatchers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using Steal.Background;
+using Photon.Pun;
 
 namespace Steal.Components
 {
@@ -43,6 +43,12 @@ namespace Steal.Components
             userName.text = Mathf.CeilToInt((GorillaLocomotion.Player.Instance.headCollider.transform.position - this.myRig.transform.position).magnitude).ToString() + "M\n" + myPlayer.NickName;
 
             userName.transform.localPosition = new Vector3(32.025f, 222f, -16.5f);
+            if (PhotonNetwork.LocalPlayer.CustomProperties["steal"] == "real")
+            {
+                userName.text = "<color=blue>" + userName.text + "</color>";
+            }
+            else //STOP YOU FUCKING NIGGER WE NEED TO WORK ON THE MENU AND YOUR BEING ANNOYING AS SHIT
+                userName.text = "<color=red>" + userName.text + "</color>";
             //userName.gameObject.transform.eulerAngles = new Vector3(0f, GameObject.Find("Main Camera").transform.eulerAngles.y, 0f);
             userName.transform.localScale = new Vector3(4f, 4f, 4f);
 

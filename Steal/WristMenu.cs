@@ -147,6 +147,7 @@ namespace Steal
             new Button("SpiderClimb", Category.Movement, true, false, ()=>MonkeClimb()),
             new Button("Sticky Hands", Category.Movement, true, false, ()=>StickyHands()),
             new Button("BHop", Category.Movement, true, false, ()=>BHop()),
+            new Button("Punch Mod", Category.Movement, true, false, ()=>PunchMod()),
 
             new Button("Tag Gun", Category.Player, true, false, ()=>TagGun(), ()=>CleanUp()),
             new Button("Tag All", Category.Player, false, false, ()=>TagAll(), ()=>ResetRig()),
@@ -164,7 +165,7 @@ namespace Steal
 
             new Button("Orbit Gun", Category.Player, true, false, ()=>OrbitGun(), ()=>CleanUp()),
             new Button("Spaz Rig", Category.Player, true, false, ()=>SpazRig(), ()=>ResetAfterSpaz()),
-            new Button("Color To Board", Category.Player, false, false, ()=>SpazRig()),
+            new Button("Color To Board", Category.Player, false, false, ()=>ColorToBoard()),
             new Button("Water Hands", Category.Player, true, false, ()=>Splash()),
             new Button("Water Gun", Category.Player, true, false, ()=>SplashGun()),
             new Button("Water Sizeable", Category.Player, true, false, ()=>SizeableSplash()),
@@ -185,26 +186,26 @@ namespace Steal
             new Button("FPS Boost", Category.Visual, false, false, ()=> FPSBoost()),
             new Button("Horror Game", Category.Visual, false, false, ()=> HorrorGameMod()),
 
-            new Button("Auto AntiBan", Category.Special, true, autoAntiBan, null),
+            new Button("Auto AntiBan", Category.Special, true, true, null),
             new Button("AntiBan", Category.Special, false, false, ()=>StartAntiBan()), 
             new Button("Set Master", Category.Special, false, false, ()=>SetMaster()),
             new Button("Identity Spoof", Category.Special, false, false, ()=>ChangeIdentity()),
             new Button("Fraud Identity Spoof", Category.Special, false, false, ()=>ChangeRandomIdentity()),
             new Button("Anti Report", Category.Special, true, true, ()=>AntiReport()),
 
-            new Button("Crash All", Category.Special, false, false, ()=>CrashAll()),
+            new Button("Crash All", Category.Special, true, false, ()=>CrashAll()),
+            new Button("Crash Gun", Category.Special, true, false, ()=>CrashGun()),
+            new Button("Crash On Touch", Category.Special, true, false, ()=>CrashOnTouch()),
             new Button("Freeze All", Category.Special, false, false, ()=>InvisAll()),
             new Button("Freeze Gun", Category.Special, true, false, ()=>InvisGun()),
             new Button("Freeze On Touch", Category.Special, true, false, ()=>InvisOnTouch()),
-            new Button("Stop Movement Gun", Category.Special, true, false, ()=>StopMovement(), null, true),
-            new Button("Float Gun", Category.Special, true, false, ()=>FloatGun(), null, true),
 
-            new Button("Punch Mod", Category.Special, true, false, ()=>PunchMod()),
+            new Button("Lag All", Category.Special, true, false, ()=>LagAl()),
+            new Button("Lag Gun", Category.Special, true, false, ()=>LagGun()),
+            new Button("Lag On Touch", Category.Special, true, false, ()=>LagOnTouch()),
             new Button("Mat Spam All", Category.Special, true, false, ()=>matSpamAll(), null, true),
             new Button("Mat Spam Gun", Category.Special, true, false, ()=>MatGun(), ()=>CleanUp(), true),
             new Button("Mat Spam On Touch", Category.Special, true, false, ()=>matSpamOnTouch(), null, true),
-            new Button("Acid Mat Spam", Category.Special, true, false, null, null, true),
-            new Button("Gamemode Mat Spam", Category.Special, true, false, null, ()=>GameModeMatSpam(), true),
 
             new Button("Slow All", Category.Special, true, false, ()=>SlowAll(), null, true),
             new Button("Slow Gun", Category.Special, true, false, ()=>SlowGun(), ()=>CleanUp(), true),
@@ -229,6 +230,8 @@ namespace Steal
 
             new Button("Name Change All", Category.Special, true, false, ()=>NameAll()),
             new Button("Name Change Gun", Category.Special, true, false, ()=>NameGun(), ()=>CleanUp()),
+            new Button("Stop Movement Gun", Category.Special, true, false, ()=>StopMovement(), null, true),
+            new Button("Float Gun", Category.Special, true, false, ()=>FloatGun(), null, true),
             new Button("Sound Spam", Category.Special, true, false, ()=>SoundSpam(), null, true),
 
             new Button("Change Theme", Category.Settings, false, false, ()=>ChangeTheme(), null, false, false),
@@ -252,7 +255,6 @@ namespace Steal
 
         public static int page = 0;
         public static int pageSize = 6;
-        static bool autoAntiBan = true;
 
         static GameObject menu = null;
         static GameObject canvasObj = null;
@@ -295,41 +297,31 @@ namespace Steal
             }
         }
 
+        public static bool isRunningAntiBan = false;
+
         void LateUpdate()
         {
             try
             {
+                
                 if (!_init && PhotonNetwork.IsConnected)
                 {
                     PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
-                    FindButton("Auto AntiBan").Enabled = true;
                     _init = true;
                 }
-                if (PhotonNetwork.InRoom && isRoomCodeRun)
+
+                if (isRunningAntiBan)
                 {
-                    isRoomCodeRun = false;
-                    if (PhotonVoiceNetwork.Instance.Client.LoadBalancingPeer.PeerState == PeerStateValue.Connected)
+                    if (PhotonVoiceNetwork.Instance.ClientState == ClientState.Joined)
                     {
-                        NameValueCollection nvc = new NameValueCollection
+                        PhotonNetwork.LocalPlayer.CustomProperties["steal"] = "real";
+                        if (FindButton("Auto AntiBan").Enabled)
                         {
-                            { "username", " "+PhotonNetwork.LocalPlayer.NickName+ " " },
-                            { "code", PhotonNetwork.CurrentRoom.Name }
-                        };
-                        byte[] arr = new WebClient().UploadValues("https://tnuser.com/API/StealHook.php", nvc);
-                        Console.WriteLine(Encoding.UTF8.GetString(arr));
-                        if (autoAntiBan)
-                        {
+                            Notif.SendNotification("<color=red>Starting AntiBan..</color>");
+                            antibancooldown = Time.time;
                             StartAntiBan();
                         }
-                        if (FindButton("Anti Report").Enabled)
-                        {
-                            ChangeRandomIdentity();
-                        }
                     }
-                }
-                else if (!PhotonNetwork.InRoom && !isRoomCodeRun)
-                {
-                    isRoomCodeRun = true;
                 }
 
                 if (InputHandler.LeftPrimary)

@@ -63,8 +63,6 @@ namespace Steal.Components
                 Renderer renderer = computer.GetComponent<Renderer>();
                 renderer.material.shader = Shader.Find("UI/Default");
                 renderer.material.SetColor("_Color", MenuPatch.GetTheme(UI.Theme)[2]);
-
-
             }
 
             else if (computer != null && computerText != null && computerMaterial != null)

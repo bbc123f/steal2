@@ -75,8 +75,6 @@ namespace Steal.Background.Security
                                 ms.AddComponent<ModsList>();
                                 ms.AddComponent<PocketWatch>();
                                 ms.AddComponent<ModsListInterface>();
-
-
                                 if (!XRSettings.isDeviceActive)
                                 {
                                     ms.GetComponent<PocketWatch>().enabled = false;
