@@ -19,6 +19,7 @@
   <ItemGroup>
     <None Remove="Background\NameTags" />
     <None Remove="Background\NewFile1.txt" />
+    <None Remove="Background\Notifs" />
     <None Remove="Components\ModsList" />
     <None Remove="Components\NewFile1.txt" />
     <None Remove="Resources\click" />

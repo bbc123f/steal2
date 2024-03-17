@@ -57,7 +57,7 @@ namespace Steal.Components
                 gameObject.transform.GetChild(4).gameObject.SetActive(false);
                 gameObject.transform.GetChild(5).gameObject.SetActive(false);
                 gameObject.transform.GetChild(6).gameObject.SetActive(false);
-                computerText.GetComponent<Text>().text = "Start Menu With RightSticks";
+                computerText.GetComponent<Text>().text = "Start Menu With Right Stick";
                 this.computerMaterial.GetComponent<Image>().material = new Material(GorillaComputer.instance.pressedMaterial);
                 this.computerMaterial.SetActive(true);
                 Renderer renderer = computer.GetComponent<Renderer>();

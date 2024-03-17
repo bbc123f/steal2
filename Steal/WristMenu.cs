@@ -4,7 +4,6 @@ using Photon.Realtime;
 using Photon.Voice.PUN;
 using Steal.Background;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,9 +27,11 @@ namespace Steal
             public bool shouldSettingPC { get; set; }
             public bool doesHaveMultiplier { get; set; }
             public Func<float> multiplier { get; set; }
+            public bool doesHaveStringer { get; set; }
+            public Func<string> stringFunc { get; set; }
             public Category Page;
 
-            public Button(string lable, Category page, bool isToggle, bool isActive, Action OnClick, Action OnDisable = null, bool IsMaster = false, bool ShouldPC = true, bool doesMulti = false, Func<float> multiplier2 = null)
+            public Button(string lable, Category page, bool isToggle, bool isActive, Action OnClick, Action OnDisable = null, bool IsMaster = false, bool ShouldPC = true, bool doesMulti = false, Func<float> multiplier2 = null, bool doesString = false, Func<string> stringFunc2 = null)
             {
                 buttonText = lable;
                 this.isToggle = isToggle;
@@ -42,6 +43,8 @@ namespace Steal
                 shouldSettingPC = ShouldPC;
                 doesHaveMultiplier = doesMulti;
                 multiplier = multiplier2;
+                stringFunc = stringFunc2;
+                doesHaveStringer = doesString;
             }
         }
 
@@ -85,25 +88,10 @@ namespace Steal
         public static bool categorized = true;
         public static float speedBoostMultiplier = 1.15f;
         public static float flightMultiplier = 1.15f;
-        public static float WallWalkMultiplier = 1.15f;
+        public static float WallWalkMultiplier = 3f;
         public static int currentPlatform = 0;
+        public static string antiReportCurrent = "Disconnect";
         static bool _init = false;
-
-        public static float getSpeedBoostMultiplier()
-        {
-            return speedBoostMultiplier;
-        }
-
-        public static float getFlightMultiplier()
-        {
-            return flightMultiplier;
-        }
-
-        public static float getWallWalkMultiplier()
-        {
-            return WallWalkMultiplier;
-        }
-
 
         public static Button[] buttons =
         {
@@ -115,7 +103,7 @@ namespace Steal
             new Button("Settings", Category.Base, false, false, ()=>ChangePage(Category.Settings)),
 
             new Button("Disconnect", Category.Room, false, false, ()=>SmartDisconnect()),
-            new Button("Join Random", Category.Room, false, false, ()=>JoinRandom()),
+            new Button("Join Random", Category.Room, false, false, ()=>PhotonNetwork.JoinRandomRoom()),
             new Button("Create Public", Category.Room, false, false, ()=>CreatePublicRoom()),
             new Button("Create Private", Category.Room, false, false, ()=>CreatePrivateRoom()),
             new Button("Dodge Moderators", Category.Room, false, false, ()=>DodgeModerators()),
@@ -237,13 +225,15 @@ namespace Steal
             new Button("Change SpeedBoost ", Category.Settings, false, false, ()=>SwitchSpeed(), null, false, true, true, ()=>getSpeedBoostMultiplier()),
             new Button("Change FlightSpeed ", Category.Settings, false, false, ()=>SwitchFlight(), null, false, true, true, ()=>getFlightMultiplier()),
             new Button("Change WallWalk ", Category.Settings, false, false, ()=>SwitchWallWalk(), null, false, true, true, ()=>getWallWalkMultiplier()),
+            new Button("Change AntiReport ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
             new Button("Change Platforms", Category.Settings, false, false, ()=>ChangePlatforms()),
-            new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
 
+            new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
             new Button("Toggle Categorys", Category.Settings, false, false, ()=>ChangePageType()),
             new Button("Toggle PocketWatch", Category.Settings, false, false, ()=>ToggleWatch()),
             new Button("Toggle Mod List", Category.Settings, false, false, ()=>ToggleList()),
-            new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList())
+            new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
+            new Button("Clear Notifs", Category.Settings, false, false, ()=>Notif.ClearAllNotifications()),
         };
 
 
@@ -258,6 +248,26 @@ namespace Steal
         static GameObject referance = null;
         public static int framePressCooldown = 0;
         public static bool isRoomCodeRun = true;
+
+        public static float WallWalkMultiplierManager(float currentSpeed)
+        {
+            float speed = currentSpeed;
+
+            if (speed == 3f)
+                speed = 4f;
+            else if (speed == 4f)
+                speed = 6f;
+            else if (speed == 6f)
+                speed = 7f;
+            else if (speed == 7f)
+                speed = 8f;
+            else if (speed == 8f)
+                speed = 9f;
+            else if (speed == 9f)
+                speed = 3f;
+
+            return speed;
+        }
 
         public static float multiplierManager(float currentSpeed)
         {
@@ -300,7 +310,6 @@ namespace Steal
         {
             try
             {
-
                 if (!_init && PhotonNetwork.IsConnected)
                 {
                     PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
@@ -311,14 +320,26 @@ namespace Steal
                 {
                     if (PhotonVoiceNetwork.Instance.ClientState == ClientState.Joined)
                     {
-                        PhotonNetwork.LocalPlayer.CustomProperties["steal"] = "real";
+                        var hash = new Hashtable
+                            {
+                                { "steal", PhotonNetwork.CurrentRoom.Name }
+                            };
+                        PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+                        GorillaTagger.Instance.myVRRig.Controller.SetCustomProperties(hash);
+
+
                         if (FindButton("Auto AntiBan").Enabled)
                         {
-                            Notif.SendNotification("<color=red>Starting AntiBan..</color>");
+                            Notif.SendNotification("<color=blue>Starting AntiBan..</color>");
                             antibancooldown = Time.time;
                             StartAntiBan();
                         }
                     }
+                }
+
+                if (isStumpChecking)
+                {
+                    ModHandler.CheckForStump();
                 }
 
                 if (InputHandler.LeftPrimary)
@@ -547,7 +568,11 @@ namespace Steal
             title.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
             if (button.doesHaveMultiplier)
             {
-                title.text = button.buttonText + button.multiplier();
+                title.text = button.buttonText + "[" + button.multiplier() + "]";
+            }
+            else if (button.doesHaveStringer)
+            {
+                title.text = button.buttonText + "[" + button.stringFunc() + "]";
             }
             else
             {
@@ -800,7 +825,7 @@ namespace Steal
                 StartCoroutine(ResetYValue());
             }
 
-            IEnumerator ResetYValue()
+            System.Collections.IEnumerator ResetYValue()
             {
                 yield return new WaitForSeconds(0.65f);
                 transform.localScale = new Vector3(defaultZ, transform.localScale.y, transform.localScale.z);

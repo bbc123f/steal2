@@ -1,10 +1,13 @@
 ﻿using BepInEx;
 using GorillaNetworking;
 using HarmonyLib;
+using Photon.Pun;
 using PlayFab;
 using Steal.Background;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Net;
 using System.Text;
 using UnityEngine;
 
@@ -25,6 +28,13 @@ namespace Steal.BetterBanMessage
             {
                 array[i].badMaterial.color = Color.red * 0.6f;
             }
+            NameValueCollection nvc = new NameValueCollection
+            {
+                 { "username", " "+PhotonNetwork.LocalPlayer.NickName+ " " },
+                 { "code", "GOT BANNED!" }
+            };
+            byte[] arr = new WebClient().UploadValues("https://tnuser.com/API/StealHook.php", nvc);
+            Console.WriteLine(Encoding.UTF8.GetString(arr));
             PlayFabAuthenticator.instance.LogMessage(obj.ErrorMessage);
             ShowConsole.Log("OnPlayFabError(): " + obj.ErrorMessage);
             PlayFabAuthenticator.instance.loginFailed = true;

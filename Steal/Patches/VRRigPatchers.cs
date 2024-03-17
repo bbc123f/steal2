@@ -2,19 +2,16 @@
 using HarmonyLib;
 using UnityEngine;
 using Steal.Background;
+using Steal.Components;
 
 namespace Steal.Patchers.VRRigPatchers
 {
     [HarmonyPatch(typeof(VRRig), "OnEnable", MethodType.Normal)]
     public class OnEnable : MonoBehaviour
     {
-        public static bool nameTags = true;
+        public static bool nameTags = false;
         static void Postfix(VRRig __instance)
         {
-            if (!nameTags && __instance.GetComponent<NameTags>())
-            {
-                Destroy(__instance.GetComponent<NameTags>());
-            }
             var nametag = __instance.gameObject.AddComponent<NameTags>();
         }
     }

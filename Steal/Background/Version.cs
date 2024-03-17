@@ -8,7 +8,7 @@ namespace Steal.Background
     {
         public const int MajorVersion = 2;
 
-        public const int MinorVersion = 0;
+        public const int MinorVersion = 1;
 
         public const int Revision = 0;
     }

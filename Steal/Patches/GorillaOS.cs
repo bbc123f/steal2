@@ -111,8 +111,10 @@ namespace Steal.GorillaOS
         public void Refresh()
         {
             list = "";
-            BaseUnityPlugin[] arr = GameObject.Find("BepInEx_Manager").GetComponents<BaseUnityPlugin>();
-            Moduals = arr.ToList();
+            if (Moduals == null)
+            {
+                Moduals = UnityEngine.GameObject.FindObjectsOfType<BaseUnityPlugin>().ToList();
+            }
             foreach (BaseUnityPlugin comp in Moduals)
             {
                 if (comp == Moduals.ToArray()[SupportPatch.focusedModual - 1])

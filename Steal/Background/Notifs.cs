@@ -68,7 +68,15 @@ internal class Notif : MonoBehaviour
                 Testtext.font = GameObject.Find("COC Text").GetComponent<Text>().font;
                 Testtext.rectTransform.sizeDelta = new Vector2(260, 70);
                 Testtext.alignment = TextAnchor.LowerLeft;
-                Testtext.rectTransform.localScale = new Vector3(0.01f, 0.01f, 1f);
+                if (!XRSettings.isDeviceActive)
+                {
+                    Testtext.rectTransform.localScale = new Vector3(0.02f, 0.02f, 2f);
+                }
+                else
+                {
+                    Testtext.rectTransform.localScale = new Vector3(0.01f, 0.01f, 1f);
+                }
+
                 Testtext.rectTransform.localPosition = new Vector3(-1.5f, -.9f, -.6f);
                 Testtext.material = AlertText;
                 NotifiText = Testtext;

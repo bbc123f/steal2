@@ -160,7 +160,7 @@ namespace WristMenu
                     int buttonthing = 0;
                     if (currentGUIPage == Category.Room)
                     {
-                        Code = GUILayout.TextField(Code);
+                        Code = GUILayout.TextField(Code.ToUpper());
                         ButtonManager.DrawLayoutButtonLegacy("Join Room", false, false, true, new GUIStyle("button"), delegate (bool isActive)
                         {
                             PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(Code.ToUpper());
@@ -465,6 +465,8 @@ namespace WristMenu
                     {
                         if (button4.shouldSettingPC)
                         {
+
+
                             ButtonManager.DrawLayoutButton(button4, new GUIStyle("button"));
                         }
                     }
@@ -583,10 +585,35 @@ namespace WristMenu
                     GUI.contentColor = DesignLibrary.textcolor;
                 }
 
-                if (GUILayout.Button(button.buttonText, style))
+                if (button.Page == Category.Settings)
                 {
-                    MenuPatch.Toggle(button);
-                    AssetLoader.Instance.PlayClick();
+                    string buttonName = "";
+                    if (button.doesHaveMultiplier)
+                    {
+                        buttonName = button.buttonText + "[" + button.multiplier() + "]";
+                    }
+                    else if (button.doesHaveStringer)
+                    {
+                        buttonName = button.buttonText + "[" + button.stringFunc() + "]";
+                    }
+                    else
+                    {
+                        buttonName = button.buttonText;
+                    }
+
+                    if (GUILayout.Button(buttonName, style))
+                    {
+                        MenuPatch.Toggle(button);
+                        AssetLoader.Instance.PlayClick();
+                    }
+                }
+                else
+                {
+                    if (GUILayout.Button(button.buttonText, style))
+                    {
+                        MenuPatch.Toggle(button);
+                        AssetLoader.Instance.PlayClick();
+                    }
                 }
 
 

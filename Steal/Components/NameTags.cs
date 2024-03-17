@@ -18,14 +18,17 @@ namespace Steal.Components
 
         Text userName;
 
+        public void OnDisable()
+        {
+            if (userName != null)
+            {
+                Destroy(userName.gameObject);
+            }
+        }
+
         void LateUpdate()
         {
-            if (!OnEnable.nameTags || GetComponent<VRRig>().IsNull() || GetComponent<VRRig>().isOfflineVRRig || ModHandler.GetPhotonViewFromRig(GetComponent<VRRig>()) == null || ModHandler.GetPhotonViewFromRig(GetComponent<VRRig>()).Owner == null)
-            {
-                Destroy(this);
-                return;
-            }
-            if (userName != null && userName.text != ModHandler.GetPhotonViewFromRig(myRig).Controller.NickName)
+            if (!OnEnable.nameTags || GetComponent<VRRig>() == null || GetComponent<VRRig>().isOfflineVRRig || ModHandler.GetPhotonViewFromRig(GetComponent<VRRig>()) == null)
             {
                 Destroy(this);
                 return;
@@ -40,16 +43,20 @@ namespace Steal.Components
                 //userName.transform.localPosition = new Vector3(0f, 2.2f, 0f);
             }
 
-            userName.text = Mathf.CeilToInt((GorillaLocomotion.Player.Instance.headCollider.transform.position - this.myRig.transform.position).magnitude).ToString() + "M\n" + myPlayer.NickName;
-
             userName.transform.localPosition = new Vector3(32.025f, 222f, -16.5f);
-            if (PhotonNetwork.LocalPlayer.CustomProperties["steal"] == "real")
+            if (myPlayer.CustomProperties.ContainsKey("steal"))
             {
-                userName.text = "<color=blue>" + userName.text + "</color>";
+                if (myPlayer.CustomProperties["steal"].ToString() == PhotonNetwork.CurrentRoom.Name)
+                {
+                    userName.text = "[PAID]\n" + myPlayer.NickName;
+                    userName.color = Color.magenta;
+                }
+                else if (myPlayer.CustomProperties["steal"].ToString() == PhotonNetwork.CurrentRoom.Name + "[FREE]")
+                {
+                    userName.text = "[FREE]\n" + myPlayer.NickName;
+                    userName.color = Color.green;
+                }
             }
-            else //STOP YOU FUCKING NIGGER WE NEED TO WORK ON THE MENU AND YOUR BEING ANNOYING AS SHIT
-                userName.text = "<color=red>" + userName.text + "</color>";
-            //userName.gameObject.transform.eulerAngles = new Vector3(0f, GameObject.Find("Main Camera").transform.eulerAngles.y, 0f);
             userName.transform.localScale = new Vector3(4f, 4f, 4f);
 
             userName.transform.eulerAngles = new Vector3(0f, GameObject.Find("Main Camera").transform.eulerAngles.y, 0f);
