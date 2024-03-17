@@ -21,13 +21,7 @@ namespace Steal.Components
 
         private GameObject computerMaterial = null;
 
-        private int lastPage = 0;
-
         public static float lastButtonMovement = 0f;
-
-        private int cooldown = 0;
-
-        private bool doneRefresh = false;
 
         private MenuPatch.Button currentButton = MenuPatch.buttons[6];
 
@@ -91,7 +85,7 @@ namespace Steal.Components
                 {
                     if (Time.frameCount >= buttonCooldown + 20)
                     {
-     
+
                         int buttonIndex = MenuPatch.buttons.ToList().FindIndex(b => b.buttonText == currentButton.buttonText);
                         buttonIndex += 1;
                         currentButton = MenuPatch.buttons[buttonIndex];

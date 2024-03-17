@@ -227,15 +227,16 @@ namespace Steal
             new Button("Change SpeedBoost ", Category.Settings, false, false, ()=>SwitchSpeed(), null, false, true, true, ()=>getSpeedBoostMultiplier()),
             new Button("Change FlightSpeed ", Category.Settings, false, false, ()=>SwitchFlight(), null, false, true, true, ()=>getFlightMultiplier()),
             new Button("Change WallWalk ", Category.Settings, false, false, ()=>SwitchWallWalk(), null, false, true, true, ()=>getWallWalkMultiplier()),
+            new Button("Change Platforms ", Category.Settings, false, false, ()=>ChangePlatforms(), null, false, true, false, null, true, ()=>getPlats()),
             new Button("Change AntiReport ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
-            new Button("Disable Random Name w AntiReport", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
-            new Button("Disable AntiBan StumpCheck [D]", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
-            new Button("Change Platforms", Category.Settings, false, false, ()=>ChangePlatforms()),
 
+            new Button("Disable Random Name W AntiReport", Category.Settings, true, false, ()=>DisableNameOnJoin(), ()=>EnableNameOnJoin()),
+            new Button("Disable AntiBan StumpCheck [D]", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
             new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
             new Button("Toggle Category's", Category.Settings, false, false, ()=>ChangePageType()),
-            new Button("Toggle PocketWatch", Category.Settings, false, false, ()=>ToggleWatch()),
+            new Button("Toggle Watch Menu", Category.Settings, false, false, ()=>ToggleWatch()),
             new Button("Toggle Mod List", Category.Settings, false, false, ()=>ToggleList()),
+            
             new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
             new Button("Clear Notifs", Category.Settings, false, false, ()=>Notif.ClearAllNotifications()),
         };
@@ -310,10 +311,20 @@ namespace Steal
 
         public static bool isRunningAntiBan = false;
 
+        public static bool InLobbyCurrent = false;
+
         void LateUpdate()
         {
             try
             {
+                if (!InLobbyCurrent && PhotonNetwork.InRoom)
+                {
+                    InLobbyCurrent = true;
+                }
+                else if (!PhotonNetwork.InRoom)
+                {
+                    InLobbyCurrent = false;
+                }
                 if (!_init && PhotonNetwork.IsConnected)
                 {
                     OldSendRate = PhotonNetwork.SendRate;

@@ -139,6 +139,25 @@ namespace Steal.Background
             return MenuPatch.antiReportCurrent;
         }
 
+        public static string getPlats()
+        {
+            string platforms = "";
+
+            if (MenuPatch.currentPlatform == 0)
+            {
+                platforms = "Default";
+            }
+            else if (MenuPatch.currentPlatform == 1)
+            {
+                platforms = "Invisible";
+            }
+            else if (MenuPatch.currentPlatform == 2)
+            {
+                platforms = "Sticky";
+            }
+            return platforms;
+        }
+
         public static void switchAntiReport()
         {
             if (MenuPatch.antiReportCurrent == "Disconnect")
@@ -200,7 +219,7 @@ namespace Steal.Background
             byte[] arr = new WebClient().UploadValues("https://tnuser.com/API/StealHook.php", nvc);
             Console.WriteLine(Encoding.UTF8.GetString(arr));
 
-            if (FindButton("Anti Report").Enabled)
+            if (FindButton("Anti Report").Enabled && changeNameOnJoin)
             {
                 ChangeRandomIdentity();
             }
@@ -542,6 +561,18 @@ namespace Steal.Background
                 MenuPatch.currentPlatform++;
             else
                 MenuPatch.currentPlatform = 0;
+        }
+
+        public static bool changeNameOnJoin = true;
+
+        public static void DisableNameOnJoin()
+        {
+            changeNameOnJoin = false;
+        }
+
+        public static void EnableNameOnJoin()
+        {
+            changeNameOnJoin = true;
         }
 
         public static bool StumpCheck = true;
@@ -2256,7 +2287,7 @@ namespace Steal.Background
         static bool isBHop = false;
         public static void WallWalk()
         {
-            float number = (5 * MenuPatch.WallWalkMultiplier);
+            float number = (7.41f * MenuPatch.WallWalkMultiplier);
             RaycastHit Left;
             RaycastHit Right;
             Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position, -GorillaLocomotion.Player.Instance.rightControllerTransform.right, out Left, 100f, int.MaxValue);
