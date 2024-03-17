@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using GorillaNetworking;
 using UnityEngine;
 using UnityEngine.UI;
 using WristMenu;
@@ -91,6 +92,7 @@ namespace Steal
         public static float WallWalkMultiplier = 3f;
         public static int currentPlatform = 0;
         public static string antiReportCurrent = "Disconnect";
+        public static int OldSendRate = 0;
         static bool _init = false;
 
         public static Button[] buttons =
@@ -103,16 +105,16 @@ namespace Steal
             new Button("Settings", Category.Base, false, false, ()=>ChangePage(Category.Settings)),
 
             new Button("Disconnect", Category.Room, false, false, ()=>SmartDisconnect()),
-            new Button("Join Random", Category.Room, false, false, ()=>PhotonNetwork.JoinRandomRoom()),
+            new Button("Join Random", Category.Room, false, false, ()=>PhotonNetworkController.Instance.AttemptToJoinPublicRoom(GorillaComputer.instance.forestMapTrigger, false)),
             new Button("Create Public", Category.Room, false, false, ()=>CreatePublicRoom()),
             new Button("Create Private", Category.Room, false, false, ()=>CreatePrivateRoom()),
-            new Button("Dodge Moderators", Category.Room, false, false, ()=>DodgeModerators()),
+            new Button("Dodge Moderators", Category.Room, true, false, ()=>DodgeModerators()),
 
             new Button("Super Monkey", Category.Movement, true, false, ()=>SuperMonkey(), null),
             new Button("Platforms", Category.Movement,true, false, ()=>Platforms(), null),
             new Button("SpeedBoost", Category.Movement, true, false, ()=>SpeedBoost(speedBoostMultiplier, true), ()=>SpeedBoost(speedBoostMultiplier, false)),
             new Button("No Tag Freeze", Category.Movement, true, false, ()=>GorillaLocomotion.Player.Instance.disableMovement = false, null),
-            new Button("No Clip", Category.Movement, true, false, ()=>NoClip(), null),
+            new Button("No Clip", Category.Movement, true, false, ()=>NoClip(), ()=>DisableNoClip()),
             new Button("Long Arms", Category.Movement, true, false, ()=>LongArms(), null),
 
             new Button("Teleport Gun", Category.Movement, true, false, ()=>TeleportGun(), ()=>CleanUp()),
@@ -226,10 +228,12 @@ namespace Steal
             new Button("Change FlightSpeed ", Category.Settings, false, false, ()=>SwitchFlight(), null, false, true, true, ()=>getFlightMultiplier()),
             new Button("Change WallWalk ", Category.Settings, false, false, ()=>SwitchWallWalk(), null, false, true, true, ()=>getWallWalkMultiplier()),
             new Button("Change AntiReport ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
+            new Button("Disable Random Name w AntiReport", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
+            new Button("Disable AntiBan StumpCheck [D]", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
             new Button("Change Platforms", Category.Settings, false, false, ()=>ChangePlatforms()),
 
             new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
-            new Button("Toggle Categorys", Category.Settings, false, false, ()=>ChangePageType()),
+            new Button("Toggle Category's", Category.Settings, false, false, ()=>ChangePageType()),
             new Button("Toggle PocketWatch", Category.Settings, false, false, ()=>ToggleWatch()),
             new Button("Toggle Mod List", Category.Settings, false, false, ()=>ToggleList()),
             new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
@@ -312,6 +316,7 @@ namespace Steal
             {
                 if (!_init && PhotonNetwork.IsConnected)
                 {
+                    OldSendRate = PhotonNetwork.SendRate;
                     PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
                     _init = true;
                 }
@@ -337,9 +342,16 @@ namespace Steal
                     }
                 }
 
-                if (isStumpChecking)
+                if (PhotonNetwork.InRoom)
                 {
-                    ModHandler.CheckForStump();
+                    if (isStumpChecking)
+                    {
+                        ModHandler.CheckForStump();
+                    }
+                }
+                else
+                {
+                    isStumpChecking = false;
                 }
 
                 if (InputHandler.LeftPrimary)

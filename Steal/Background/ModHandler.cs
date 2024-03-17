@@ -82,6 +82,17 @@ namespace Steal.Background
             }
         }
 
+        public static void FloatAll()
+        {
+            foreach (Player p in PhotonNetwork.PlayerListOthers)
+            {
+                VRRig rig = GorillaGameManager.instance.FindPlayerVRRig(p);
+                AngryBeeSwarm.instance.Emerge(rig.rightHandTransform.position, rig.transform.position);
+                AngryBeeSwarm.instance.targetPlayer = p;
+                AngryBeeSwarm.instance.grabbedPlayer = p;
+            }
+        }
+
         public static bool InStumpCheck()
         {
             isStumpChecking = true;
@@ -531,6 +542,17 @@ namespace Steal.Background
                 MenuPatch.currentPlatform++;
             else
                 MenuPatch.currentPlatform = 0;
+        }
+
+        public static bool StumpCheck = true;
+        public static void DisableStumpCheck()
+        {
+            StumpCheck = false;
+        }
+        
+        public static void EnableStumpCheck()
+        {
+            StumpCheck = true;
         }
 
         public static void Platforms()
@@ -1145,7 +1167,7 @@ namespace Steal.Background
 
         public static void NoClip()
         {
-            if (LeftTrigger)
+            if (LeftTrigger || UI.freecam)
             {
                 if (!isnoclipped)
                 {
@@ -1179,6 +1201,21 @@ namespace Steal.Background
                         }
                     }
                     isnoclipped = false;
+                }
+            }
+        }
+
+        public static void DisableNoClip()
+        {
+            MeshCollider[] array = Resources.FindObjectsOfTypeAll<MeshCollider>();
+            if (array != null)
+            {
+                foreach (MeshCollider collider in array)
+                {
+                    if (!collider.enabled)
+                    {
+                        collider.enabled = true;
+                    }
                 }
             }
         }
@@ -3266,7 +3303,7 @@ namespace Steal.Background
         {
             foreach (GorillaNetworking.CosmeticsController.CosmeticItem item in GorillaNetworking.CosmeticsController.instance.allCosmetics)
             {
-                CosmeticsController.instance.UnlockItem("LBAAK.");
+              //  CosmeticsController.instance.UnlockItem("LBAAK.");
                 if (item.itemName == "LBAFV.")
                 {
                     GorillaNetworking.CosmeticsController.instance.itemToBuy = item;
@@ -3331,7 +3368,17 @@ namespace Steal.Background
             {
                 MenuPatch.isRunningAntiBan = false;
                 if (IsModded()) { Notif.SendNotification("<color=blue>AntiBan Already Enabled Or Your Not In A Lobby!</color>"); return; }
-                if (!InStumpCheck()) { Notif.SendNotification("<color=red>A Player is about to leave/In stump!..</color> <color=green>Retrying..</color>"); return; }
+
+                if (StumpCheck)
+                {
+                    if (!InStumpCheck())
+                    {
+                        Notif.SendNotification(
+                            "<color=red>A Player is about to leave/In stump!..</color> <color=green>Retrying..</color>");
+                        return;
+                    }
+                }
+
                 if (antibancooldown > Time.time) { Notif.SendNotification("<color=red>Triggered AntiBan Cooldown!</color>"); return; }
                 if (PhotonVoiceNetwork.Instance.Client.LoadBalancingPeer.PeerState != ExitGames.Client.Photon.PeerStateValue.Connected) { Notif.SendNotification("Voices Have Not Loaded!"); return; }
                 Debug.Log("antiBan");
