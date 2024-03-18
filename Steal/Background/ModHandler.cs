@@ -28,6 +28,7 @@ using WristMenu;
 using WristMenu.Components;
 using static Steal.Background.InputHandler;
 using Object = UnityEngine.Object;
+using Player = Photon.Realtime.Player;
 
 namespace Steal.Background
 {
@@ -88,6 +89,7 @@ namespace Steal.Background
             {
                 VRRig rig = GorillaGameManager.instance.FindPlayerVRRig(p);
                 AngryBeeSwarm.instance.Emerge(rig.rightHandTransform.position, rig.transform.position);
+                //AngryBeeSwarm.instance.beeAnimator.transform.position
                 AngryBeeSwarm.instance.targetPlayer = p;
                 AngryBeeSwarm.instance.grabbedPlayer = p;
             }
@@ -782,6 +784,7 @@ namespace Steal.Background
                 }
             }
         }
+
 
         public static void RopeGun()
         {
@@ -2097,6 +2100,16 @@ namespace Steal.Background
             }
         }
 
+        public static void TagLag()
+        {
+            GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().tagCoolDown = 9999999999;
+        }
+        
+        public static void RevertTagLag()
+        {
+            GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().tagCoolDown = 0;
+        }
+
         public static void TagAll()
         {
             foreach (Photon.Realtime.Player p in PhotonNetwork.PlayerListOthers)
@@ -2285,6 +2298,11 @@ namespace Steal.Background
         static bool AllowSpeedChange = false;
         static bool canBHop = false;
         static bool isBHop = false;
+
+        public static void ZeroGravity()
+        {
+            Physics.gravity = new Vector3(0, 0, 0);
+        }
         public static void WallWalk()
         {
             float number = (7.41f * MenuPatch.WallWalkMultiplier);
@@ -2522,6 +2540,7 @@ namespace Steal.Background
         static bool ltagged = false;
         static float matguntimer = -222f;
         static float lagtimeout;
+        public static float colorFloat = 0f;
 
         public static void CrashGun()
         {
@@ -2531,14 +2550,12 @@ namespace Steal.Background
             {
                 if (data.lockedPlayer != null && data.isLocked)
                 {
-                    PhotonNetwork.SendRate = 1;
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
+                    colorFloat = Mathf.Repeat(colorFloat + Time.deltaTime * 800f, 1f);
+
+                    float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                    float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                    float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { red, green, blue });
                 }
             }
 
@@ -3771,6 +3788,86 @@ namespace Steal.Background
                 var go = PhotonNetwork.InstantiateRoomObject("GameMode", Vector3.zero, Quaternion.identity, 0, new object[1] { 3 });
                 go.GetComponent<GorillaBattleManager>().RandomizeTeams();
             }
+            AntiBan();
+        }
+
+
+        public static void DisableSoundPost()
+        {
+            SoundPostMuteButton sound = new SoundPostMuteButton();
+            SynchedMusicController[] array = sound.musicControllers;
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i].MuteAudio(sound);
+            }
+        }
+
+        
+        public static void ReportGun()
+        {
+            if (!IsModded()) { return; }
+            var data = GunLib.ShootLock();
+            if (data != null)
+            {
+                if (data.lockedPlayer != null)
+                {
+                    Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
+                    foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
+                    {
+                        if (line.linePlayer.NickName == player.NickName)
+                        {
+                            line.reportButton.isOn = true;
+                            line.reportButton.UpdateColor();
+                        }
+                    }
+                    
+                }
+            }
+        }
+        
+        public static void MuteGun()
+        {
+            if (!IsModded()) { return; }
+            var data = GunLib.ShootLock();
+            if (data != null)
+            {
+                if (data.lockedPlayer != null)
+                {
+                    Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
+                    foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
+                    {
+                        if (line.linePlayer.UserId == player.NickName)
+                        {
+                            line.muteButton.isOn = true;
+                            line.muteButton.UpdateColor();
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void AgreeToTOS()
+        {
+            Destroy(GameObject.Find("Miscellaneous Scripts/LegalAgreementCheck"));
+            Destroy(GameObject.Find("Miscellaneous Scripts/LegalAgreementCheck").gameObject);
+        }
+
+        public static void MuteAll()
+        {
+            foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
+            {
+                line.muteButton.isOn = true;
+                line.muteButton.UpdateColor();
+            }
+        }
+        
+        public static void ReportAll()
+        {
+            foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
+            {
+                line.reportButton.isOn = true;
+                line.reportButton.UpdateColor();
+            }
         }
 
         public static void AntiReport()
@@ -3823,7 +3920,6 @@ namespace Steal.Background
                                     else if (MenuPatch.antiReportCurrent == "Crash")
                                     {
                                         if (!IsModded()) { return; }
-                                        PhotonNetwork.SendRate = 1;
                                         GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", owner, true, new object[] { 1f, 1f, 1f });
                                         GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", owner, true, new object[] { 1f, 1f, 1f });
                                         GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", owner, true, new object[] { 1f, 1f, 1f });

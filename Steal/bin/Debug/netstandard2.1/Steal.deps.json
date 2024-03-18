@@ -1268,17 +1268,17 @@
           }
         }
       },
-      "Unity.Collections/0.0.0.0": {
+      "VoiceSDK.Dictation.Runtime/0.0.0.0": {
         "runtime": {
-          "Unity.Collections.dll": {
+          "VoiceSDK.Dictation.Runtime.dll": {
             "assemblyVersion": "0.0.0.0",
             "fileVersion": "0.0.0.0"
           }
         }
       },
-      "VoiceSDK.Dictation.Runtime/0.0.0.0": {
+      "Unity.Collections/0.0.0.0": {
         "runtime": {
-          "VoiceSDK.Dictation.Runtime.dll": {
+          "Unity.Collections.dll": {
             "assemblyVersion": "0.0.0.0",
             "fileVersion": "0.0.0.0"
           }
@@ -2016,12 +2016,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Unity.Collections/0.0.0.0": {
+    "VoiceSDK.Dictation.Runtime/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
-    "VoiceSDK.Dictation.Runtime/0.0.0.0": {
+    "Unity.Collections/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

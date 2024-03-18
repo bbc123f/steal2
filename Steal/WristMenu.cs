@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using GorillaNetworking;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.UI;
 using WristMenu;
 using static Steal.Background.ModHandler;
@@ -91,6 +92,7 @@ namespace Steal
         public static float flightMultiplier = 1.15f;
         public static float WallWalkMultiplier = 3f;
         public static int currentPlatform = 0;
+        public static bool rightHand = false;
         public static string antiReportCurrent = "Disconnect";
         public static int OldSendRate = 0;
         static bool _init = false;
@@ -129,6 +131,7 @@ namespace Steal
             new Button("Sticky Hands", Category.Movement, true, false, ()=>StickyHands()),
             new Button("BHop", Category.Movement, true, false, ()=>BHop()),
             new Button("Punch Mod", Category.Movement, true, false, ()=>PunchMod()),
+            new Button("Anti Gravity", Category.Movement, true, false, ()=>ZeroGravity(), ()=>ResetGravity()),
 
             new Button("Tag Gun", Category.Player, true, false, ()=>TagGun(), ()=>CleanUp()),
             new Button("Tag All", Category.Player, false, false, ()=>TagAll(), ()=>ResetRig()),
@@ -152,7 +155,10 @@ namespace Steal
             new Button("Water Sizeable", Category.Player, true, false, ()=>SizeableSplash()),
 
             new Button("Helicopter Monkey", Category.Player, true, false, ()=>Helicopter(), ()=>ResetRig()),
-
+            new Button("Anti MouthFlap", Category.Player, true, false, null),
+            new Button("Disable Fingers", Category.Player, true, false, null),
+            new Button("Report All", Category.Player, false, false, ()=>ReportAll()),
+            
             new Button("ESP", Category.Visual, true, false, ()=>ESP(), ()=>ResetTexure()),
             new Button("Chams", Category.Visual, true, false, ()=>Chams(), ()=>ResetTexure()),
             new Button("Skeleton ESP", Category.Visual, true, false, ()=>BoneESP(), ()=>ResetTexure()),
@@ -168,6 +174,8 @@ namespace Steal
             new Button("Horror Game", Category.Visual, false, false, ()=> HorrorGame()),
 
             new Button("Revert FPS/Horror", Category.Visual, false, false, ()=> RestoreOriginalMaterials()),
+            new Button("Disable SoundPost", Category.Visual, false, false, ()=> DisableSoundPost()),
+            new Button("Agree To TOS", Category.Visual, false, false, ()=>AgreeToTOS()),
 
             new Button("Auto AntiBan", Category.Special, true, true, null),
             new Button("AntiBan", Category.Special, false, false, ()=>StartAntiBan()),
@@ -176,16 +184,16 @@ namespace Steal
             new Button("Fraud Identity Spoof", Category.Special, false, false, ()=>ChangeRandomIdentity()),
             new Button("Anti Report", Category.Special, true, true, ()=>AntiReport()),
 
-            new Button("Crash All", Category.Special, false, false, ()=>CrashAll()),
-            new Button("Crash Gun", Category.Special, true, false, ()=>CrashGun()),
-            new Button("Crash On Touch", Category.Special, true, false, ()=>CrashOnTouch()),
-            new Button("Freeze All", Category.Special, false, false, ()=>InvisAll()),
-            new Button("Freeze Gun", Category.Special, true, false, ()=>InvisGun()),
-            new Button("Freeze On Touch", Category.Special, true, false, ()=>InvisOnTouch()),
+            new Button("Crash All", Category.Special, false, false, ()=>CrashAll(), null, true),
+            new Button("Crash Gun", Category.Special, true, false, ()=>CrashGun(), null, true),
+            new Button("Crash On Touch", Category.Special, true, false, ()=>CrashOnTouch(), null, true),
+            new Button("Freeze All", Category.Special, false, false, ()=>InvisAll(), null, true),
+            new Button("Freeze Gun", Category.Special, true, false, ()=>InvisGun(), null, true),
+            new Button("Freeze On Touch", Category.Special, true, false, ()=>InvisOnTouch(), null, true),
 
-            new Button("Lag All", Category.Special, true, false, ()=>LagAl()),
-            new Button("Lag Gun", Category.Special, true, false, ()=>LagGun()),
-            new Button("Lag On Touch", Category.Special, true, false, ()=>LagOnTouch()),
+            new Button("Lag All", Category.Special, true, false, ()=>LagAl(), null, true),
+            new Button("Lag Gun", Category.Special, true, false, ()=>LagGun(), null, true),
+            new Button("Lag On Touch", Category.Special, true, false, ()=>LagOnTouch(), null, true),
             new Button("Mat Spam All", Category.Special, true, false, ()=>matSpamAll(), null, true),
             new Button("Mat Spam Gun", Category.Special, true, false, ()=>MatGun(), ()=>CleanUp(), true),
             new Button("Mat Spam On Touch", Category.Special, true, false, ()=>matSpamOnTouch(), null, true),
@@ -219,9 +227,10 @@ namespace Steal
             new Button("Acid Spam", Category.Special, true, false, ()=>AcidSpam(), null, true),
 
             new Button("Acid Gun", Category.Special, true, false, ()=>AcidGun(), null, true),
-            new Button("Unacid Gun", Category.Special, true, false, ()=>UnAcidGun(), null, true),
-            new Button("Unacid All", Category.Special, false, false, ()=>UnAcidAll(), null, true),
-            new Button("Unacid Self", Category.Special, false, false, ()=>UnAcidSelf(), null, true),
+            new Button("UnAcid Gun", Category.Special, true, false, ()=>UnAcidGun(), null, true),
+            new Button("UnAcid All", Category.Special, false, false, ()=>UnAcidAll(), null, true),
+            new Button("UnAcid Self", Category.Special, false, false, ()=>UnAcidSelf(), null, true),
+            new Button("Tag Lag", Category.Special, true, false, ()=>TagLag(), ()=>RevertTagLag(), true),
 
             new Button("Change Theme", Category.Settings, false, false, ()=>ChangeTheme(), null, false, false),
             new Button("Change SpeedBoost ", Category.Settings, false, false, ()=>SwitchSpeed(), null, false, true, true, ()=>getSpeedBoostMultiplier()),
@@ -230,15 +239,17 @@ namespace Steal
             new Button("Change Platforms ", Category.Settings, false, false, ()=>ChangePlatforms(), null, false, true, false, null, true, ()=>getPlats()),
             new Button("Change AntiReport ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
 
+            new Button("Right Hand Menu", Category.Settings, false, rightHand, null),
             new Button("Disable Random Name W AntiReport", Category.Settings, true, false, ()=>DisableNameOnJoin(), ()=>EnableNameOnJoin()),
             new Button("Disable AntiBan StumpCheck [D]", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
             new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
             new Button("Toggle Category's", Category.Settings, false, false, ()=>ChangePageType()),
             new Button("Toggle Watch Menu", Category.Settings, false, false, ()=>ToggleWatch()),
-            new Button("Toggle Mod List", Category.Settings, false, false, ()=>ToggleList()),
             
+            new Button("Toggle Mod List", Category.Settings, false, false, ()=>ToggleList()),
             new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
-            new Button("Clear Notifs", Category.Settings, false, false, ()=>Notif.ClearAllNotifications()),
+            new Button("Disable Notifications", Category.Settings, true, false, ()=>Notif.ClearAllNotifications()),
+            new Button("Clear Notifications", Category.Settings, false, false, ()=>Notif.ClearAllNotifications()),
         };
 
 
@@ -362,6 +373,7 @@ namespace Steal
                 }
                 else
                 {
+                    isRunningAntiBan = false;
                     isStumpChecking = false;
                 }
 
@@ -373,15 +385,35 @@ namespace Steal
                         if (referance == null)
                         {
                             referance = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                            referance.transform.parent = GorillaLocomotion.Player.Instance.rightControllerTransform;
+                            if (!rightHand)
+                            {
+                                referance.transform.parent = GorillaLocomotion.Player.Instance.leftControllerTransform;
+                            }
+                            else
+                            {
+                                referance.transform.parent = GorillaLocomotion.Player.Instance.rightControllerTransform;
+                            }
+
                             referance.transform.localPosition = new Vector3(0f, -0.1f, 0f) * GorillaLocomotion.Player.Instance.scale;
                             referance.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
                         }
                     }
                     else
                     {
-                        menu.transform.position = GorillaLocomotion.Player.Instance.leftControllerTransform.position;
-                        menu.transform.rotation = GorillaLocomotion.Player.Instance.leftControllerTransform.rotation;
+                        if (!rightHand)
+                        {
+                            menu.transform.position =
+                                GorillaLocomotion.Player.Instance.leftControllerTransform.position;
+                            menu.transform.rotation =
+                                GorillaLocomotion.Player.Instance.leftControllerTransform.rotation;
+                        }
+                        else
+                        {
+                            menu.transform.position =
+                                GorillaLocomotion.Player.Instance.rightControllerTransform.position;
+                            menu.transform.rotation =
+                                GorillaLocomotion.Player.Instance.rightControllerTransform.rotation;
+                        }
                     }
                 }
                 else if (menu != null)
@@ -781,7 +813,7 @@ namespace Steal
 
         public static void ToggleButton(Button button)
         {
-            if (button.ismaster && !IsModded())
+            if (button.ismaster && !PhotonNetwork.IsMasterClient)
             {
                 Notif.SendNotification("You're Not Masterclient!");
                 button.Enabled = false;
