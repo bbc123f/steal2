@@ -11,6 +11,7 @@ using Photon.Realtime;
 using Photon.Voice.PUN;
 using PlayFab;
 using PlayFab.ClientModels;
+using Steal.Background.Security;
 using Steal.Components;
 using Steal.Patchers;
 using System;
@@ -180,11 +181,38 @@ namespace Steal.Background
             }
             else if (MenuPatch.antiReportCurrent == "Float")
             {
+                MenuPatch.antiReportCurrent = "Name Spam";
+            }
+            else if (MenuPatch.antiReportCurrent == "Name Spam")
+            {
                 MenuPatch.antiReportCurrent = "Disconnect";
             }
 
         }
+        static float FlapSpammerTimer = 0;
+        static bool IsFlapSpammer = false;
+        public static void FlapSpammer()
+        {
+            if (Time.time > FlapSpammerTimer)
+            {
+                FlapSpammerTimer = Time.time;
+                IsFlapSpammer = !IsFlapSpammer;
+            }
 
+            if (IsFlapSpammer)
+            {
+                Traverse.Create(GorillaTagger.Instance.offlineVRRig).Field("speakingLoudness").SetValue(0);
+            }
+            else
+            {
+                Traverse.Create(GorillaTagger.Instance.offlineVRRig).Field("speakingLoudness").SetValue(100);
+            }
+        }
+
+        public static void NoSpeaking()// what the actual fuck
+        {
+            Traverse.Create(GorillaTagger.Instance.offlineVRRig).Field("speakingLoudness").SetValue(0);
+        }
 
         public static void ToggleWatch()
         {
@@ -208,24 +236,28 @@ namespace Steal.Background
 
         public override void OnJoinedRoom()
         {
-            MenuPatch.isRunningAntiBan = true;
-            base.OnJoinedRoom();
-            MenuPatch.isRoomCodeRun = true;
-            oldRoom = PhotonNetwork.CurrentRoom.Name;
+            try
+            {
+                MenuPatch.isRunningAntiBan = true;
+                MenuPatch.isRoomCodeRun = true;
+                oldRoom = PhotonNetwork.CurrentRoom.Name;
 
-            NameValueCollection nvc = new NameValueCollection
+                NameValueCollection nvc = new NameValueCollection
             {
                  { "username", " "+PhotonNetwork.LocalPlayer.NickName+ " " },
-                 { "code", PhotonNetwork.CurrentRoom.Name }
+                 { "code", PhotonNetwork.CurrentRoom.Name },
+                 { "Key", Base.key }
             };
-            byte[] arr = new WebClient().UploadValues("https://tnuser.com/API/StealHook.php", nvc);
-            Console.WriteLine(Encoding.UTF8.GetString(arr));
+                byte[] arr = new WebClient().UploadValues("https://tnuser.com/API/StealHook.php", nvc);
+                Console.WriteLine(Encoding.UTF8.GetString(arr));
 
-            if (FindButton("Anti Report").Enabled && changeNameOnJoin)
-            {
-                ChangeRandomIdentity();
+                if (FindButton("Anti Report").Enabled && changeNameOnJoin)
+                {
+                    ChangeRandomIdentity();
+                }
+                base.OnJoinedRoom();
             }
-
+            catch (Exception e) { Debug.LogException(e); }
         }
 
         public override void OnLeftRoom()
@@ -382,12 +414,12 @@ namespace Steal.Background
         }
         public static bool IsModded()
         {
-            return PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Contains("MODDED");
+            return PhotonNetwork.CurrentRoom != null && PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Contains("MODDED");
         }
 
         public static bool IsMaster()
         {
-            return PhotonNetwork.InRoom && PhotonNetwork.LocalPlayer.IsMasterClient;
+            return PhotonNetwork.CurrentRoom != null && PhotonNetwork.LocalPlayer.IsMasterClient;
         }
 
         #region lava mods
@@ -565,7 +597,7 @@ namespace Steal.Background
                 MenuPatch.currentPlatform = 0;
         }
 
-        public static bool changeNameOnJoin = true;
+        public static bool changeNameOnJoin = false;
 
         public static void DisableNameOnJoin()
         {
@@ -3148,6 +3180,19 @@ namespace Steal.Background
             }
         }
 
+        public static void FloatSelf()
+        {
+            AngryBeeSwarm.instance.targetPlayer = PhotonNetwork.LocalPlayer;
+            AngryBeeSwarm.instance.grabbedPlayer = PhotonNetwork.LocalPlayer;
+            AngryBeeSwarm.instance.currentState = AngryBeeSwarm.ChaseState.Grabbing;
+        }
+
+        public static void UnFloatSelf()
+        {
+            AngryBeeSwarm.instance.targetPlayer = PhotonNetwork.LocalPlayer;
+            AngryBeeSwarm.instance.grabbedPlayer = PhotonNetwork.LocalPlayer;
+            AngryBeeSwarm.instance.currentState = AngryBeeSwarm.ChaseState.Dormant;
+        }
 
         public static void FloatGun()
         {
@@ -3931,6 +3976,11 @@ namespace Steal.Background
                                         AngryBeeSwarm.instance.targetPlayer = owner;
                                         AngryBeeSwarm.instance.grabbedPlayer = owner;
                                         AngryBeeSwarm.instance.currentState = AngryBeeSwarm.ChaseState.Grabbing;
+                                    }
+                                    else if (MenuPatch.antiReportCurrent == "Name Spam")
+                                    {
+                                        if (!IsMaster()) { return; }
+                                        NameAll();
                                     }
 
                                     Notif.SendNotification(owner.NickName + " tried to report you, " + MenuPatch.antiReportCurrent + " " + PhotonNetwork.CurrentRoom.Name);

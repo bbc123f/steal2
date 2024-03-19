@@ -46,4 +46,5 @@ namespace Steal.Patchers.VRRigPatchers
             return (!ModHandler.FindButton("Anti MouthFlap").Enabled);
         }
     }
+
 }
