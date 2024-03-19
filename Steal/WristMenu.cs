@@ -239,7 +239,7 @@ namespace Steal
             new Button("Change Platforms ", Category.Settings, false, false, ()=>ChangePlatforms(), null, false, true, false, null, true, ()=>getPlats()),
             new Button("Change AntiReport ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
 
-            new Button("Right Hand Menu", Category.Settings, false, rightHand, null),
+            new Button("Right Hand Menu", Category.Settings, true, false, null),
             new Button("Disable Random Name W AntiReport", Category.Settings, true, false, ()=>DisableNameOnJoin(), ()=>EnableNameOnJoin()),
             new Button("Disable AntiBan StumpCheck [D]", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
             new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
@@ -377,21 +377,23 @@ namespace Steal
                     isStumpChecking = false;
                 }
 
-                if (InputHandler.LeftPrimary)
-                {
+                bool rightHand2 = ModHandler.FindButton("Right Hand Menu").Enabled;
+
+                if ((InputHandler.LeftPrimary && !rightHand2) || (InputHandler.RightPrimary && rightHand2))
+                {             
                     if (menu == null)
                     {
                         Draw();
                         if (referance == null)
                         {
                             referance = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                            if (!rightHand)
+                            if (!rightHand2)
                             {
-                                referance.transform.parent = GorillaLocomotion.Player.Instance.leftControllerTransform;
+                                referance.transform.parent = GorillaLocomotion.Player.Instance.rightControllerTransform;
                             }
                             else
                             {
-                                referance.transform.parent = GorillaLocomotion.Player.Instance.rightControllerTransform;
+                                referance.transform.parent = GorillaLocomotion.Player.Instance.leftControllerTransform;
                             }
 
                             referance.transform.localPosition = new Vector3(0f, -0.1f, 0f) * GorillaLocomotion.Player.Instance.scale;
@@ -400,7 +402,7 @@ namespace Steal
                     }
                     else
                     {
-                        if (!rightHand)
+                        if (!rightHand2)
                         {
                             menu.transform.position =
                                 GorillaLocomotion.Player.Instance.leftControllerTransform.position;

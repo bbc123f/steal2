@@ -2556,6 +2556,8 @@ namespace Steal.Background
                     float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
                     float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { red, green, blue });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { red, green, blue });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { red, green, blue });
                 }
             }
 
