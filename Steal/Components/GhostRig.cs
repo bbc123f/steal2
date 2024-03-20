@@ -29,8 +29,8 @@ namespace Steal.Components
             {
                 var rigOB = Instantiate<GameObject>(GorillaTagger.Instance.offlineVRRig.gameObject);
                 ghostRig = rigOB.GetComponent<VRRig>();
-                ghostRig.rightHandPlayer.Stop();
-                ghostRig.leftHandPlayer.Stop();
+                Destroy(ghostRig.rightHandPlayer);
+                Destroy(ghostRig.leftHandPlayer);
                 Destroy(rigOB.GetComponent<Rigidbody>());
                 ghostRig.mainSkin.material.shader = Shader.Find("GUI/Text Shader");
                 ghostRig.mainSkin.material.color = new Color32(255, 255, 255, 40);

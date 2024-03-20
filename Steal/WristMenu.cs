@@ -222,9 +222,10 @@ namespace Steal
             new Button("Name Change Gun", Category.Special, true, false, ()=>NameGun(), ()=>CleanUp()),
             new Button("Stop Movement Gun", Category.Special, true, false, ()=>StopMovement(), null, true),
             new Button("Float Gun", Category.Special, true, false, ()=>FloatGun(), null, true),
+            new Button("Float Self", Category.Special, true, false, ()=>FloatSelf(), ()=>UnFloatSelf(), true),
             new Button("Sound Spam", Category.Special, true, false, ()=>SoundSpam(), null, true),
-            new Button("Acid Spam", Category.Special, true, false, ()=>AcidSpam(), null, true),
 
+            new Button("Acid Spam", Category.Special, true, false, ()=>AcidSpam(), null, true),
             new Button("Acid Gun", Category.Special, true, false, ()=>AcidGun(), null, true),
             new Button("UnAcid Gun", Category.Special, true, false, ()=>UnAcidGun(), null, true),
             new Button("UnAcid All", Category.Special, false, false, ()=>UnAcidAll(), null, true),

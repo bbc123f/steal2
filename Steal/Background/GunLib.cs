@@ -55,14 +55,28 @@ namespace Steal.Background
                 RaycastHit hit;
                 if (XRSettings.isDeviceActive)
                 {
-                    data.isShooting = RightGrip;
-                    data.isTriggered = RightTrigger;
+                    bool rightHand3 = ModHandler.FindButton("Right Hand Menu").Enabled;
+
+                    Transform controller;
+                    if (!rightHand3)
+                    {
+                        controller = GorillaLocomotion.Player.Instance.rightControllerTransform;
+                        data.isShooting = RightGrip;
+                        data.isTriggered = RightTrigger;
+                    }
+                    else
+                    {
+                        controller = GorillaLocomotion.Player.Instance.leftControllerTransform;
+                        data.isShooting = LeftGrip;
+                        data.isTriggered = LeftGrip;
+                    }
+
                     if (data.isShooting)
                     {
                         Renderer pr = pointer != null ? pointer.GetComponent<Renderer>() : null;
                         if (data.lockedPlayer == null && !data.isLocked)
                         {
-                            if (Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position - GorillaLocomotion.Player.Instance.rightControllerTransform.up, -GorillaLocomotion.Player.Instance.rightControllerTransform.up, out hit) && pointer == null)
+                            if (Physics.Raycast(controller.position - controller.up, -controller.up, out hit) && pointer == null)
                             {
                                 pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                                 GameObject.Destroy(pointer.GetComponent<Rigidbody>());
@@ -80,7 +94,7 @@ namespace Steal.Background
                                 lr.startWidth = 0.01f;
                                 lr.material.shader = Shader.Find("GUI/Text Shader");
                             }
-                            lr.SetPosition(0, Player.Instance.rightControllerTransform.position);
+                            lr.SetPosition(0, controller.position);
                             lr.SetPosition(1, hit.point);
                             data.hitPosition = hit.point;
                             pointer.transform.position = hit.point;
@@ -116,7 +130,7 @@ namespace Steal.Background
                         if (data.isTriggered && data.lockedPlayer != null)
                         {
                             data.isLocked = true;
-                            lr.SetPosition(0, Player.Instance.rightControllerTransform.position);
+                            lr.SetPosition(0, controller.position);
                             lr.SetPosition(1, data.lockedPlayer.transform.position);
                             data.hitPosition = data.lockedPlayer.transform.position;
                             pointer.transform.position = data.lockedPlayer.transform.position;
@@ -235,13 +249,25 @@ namespace Steal.Background
             {
                 if (XRSettings.isDeviceActive)
                 {
-                    data.isShooting = RightGrip;
-                    data.isTriggered = RightTrigger;
+                    bool rightHand3 = ModHandler.FindButton("Right Hand Menu").Enabled;
+                    Transform controller;
+                    if (!rightHand3)
+                    {
+                        controller = GorillaLocomotion.Player.Instance.rightControllerTransform;
+                        data.isShooting = RightGrip;
+                        data.isTriggered = RightTrigger;
+                    }
+                    else
+                    {
+                        controller = GorillaLocomotion.Player.Instance.leftControllerTransform;
+                        data.isShooting = LeftGrip;
+                        data.isTriggered = LeftGrip;
+                    }
                     if (data.isShooting)
                     {
                         RaycastHit hit;
                         Renderer pr = pointer != null ? pointer.GetComponent<Renderer>() : null;
-                        if (Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position - GorillaLocomotion.Player.Instance.rightControllerTransform.up, -GorillaLocomotion.Player.Instance.rightControllerTransform.up, out hit) && pointer == null)
+                        if (Physics.Raycast(controller.position - controller.up, -controller.up, out hit) && pointer == null)
                         {
                             pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                             GameObject.Destroy(pointer.GetComponent<Rigidbody>());
@@ -259,7 +285,7 @@ namespace Steal.Background
                             lr.startWidth = 0.01f;
                             lr.material.shader = Shader.Find("GUI/Text Shader");
                         }
-                        lr.SetPosition(0, Player.Instance.rightControllerTransform.position);
+                        lr.SetPosition(0, controller.position);
                         lr.SetPosition(1, hit.point);
                         data.hitPosition = hit.point;
                         pointer.transform.position = hit.point;

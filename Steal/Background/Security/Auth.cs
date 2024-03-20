@@ -27,6 +27,8 @@ namespace Steal.Background.Security
         [DllImport("kernel32.dll")]
         private static extern void ExitProcess(int exitCode);
 
+        public static string key;
+
         public static void Init()
         {
             try
@@ -53,7 +55,7 @@ namespace Steal.Background.Security
                 if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt")))
                 {
                     var data = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt"));
-
+                    key = data;
                     GetAuth.license2(data);
                     if (GetAuth.response.success)
                     {
