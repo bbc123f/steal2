@@ -27,6 +27,15 @@ namespace Steal.Patchers.VRRigPatchers
         }
     }
     
+    [HarmonyPatch(typeof(Debug), "Log", MethodType.Normal)]
+    public class DebugLog : MonoBehaviour
+    {
+        public static bool Prefix()
+        {
+            return (!ModHandler.FindButton("Crash Gun").Enabled);
+        }
+    }
+    
     [HarmonyPatch(typeof(VRRig), "OnDisable", MethodType.Normal)]
     public class OnDisable : MonoBehaviour
     {

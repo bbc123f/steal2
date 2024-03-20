@@ -175,8 +175,7 @@ namespace Steal
 
             new Button("Revert FPS/Horror", Category.Visual, false, false, ()=> RestoreOriginalMaterials()),
             new Button("Disable SoundPost", Category.Visual, false, false, ()=> DisableSoundPost()),
-            new Button("Agree To TOS", Category.Visual, false, false, ()=>AgreeToTOS()),
-
+            
             new Button("Auto AntiBan", Category.Special, true, true, null),
             new Button("AntiBan", Category.Special, false, false, ()=>StartAntiBan()),
             new Button("Set Master", Category.Special, false, false, ()=>SetMaster()),
@@ -240,7 +239,7 @@ namespace Steal
             new Button("Change AntiReport ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
 
             new Button("Right Hand Menu", Category.Settings, true, false, null),
-            new Button("Disable Random Name W AntiReport", Category.Settings, true, false, ()=>DisableNameOnJoin(), ()=>EnableNameOnJoin()),
+            new Button("Random Name W AntiReport", Category.Settings, true, false, ()=>EnableNameOnJoin(), ()=>DisableNameOnJoin()),
             new Button("Disable AntiBan StumpCheck [D]", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
             new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
             new Button("Toggle Category's", Category.Settings, false, false, ()=>ChangePageType()),
@@ -347,14 +346,6 @@ namespace Steal
                 {
                     if (PhotonVoiceNetwork.Instance.ClientState == ClientState.Joined)
                     {
-                        var hash = new Hashtable
-                            {
-                                { "steal", PhotonNetwork.CurrentRoom.Name }
-                            };
-                        PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
-                        GorillaTagger.Instance.myVRRig.Controller.SetCustomProperties(hash);
-
-
                         if (FindButton("Auto AntiBan").Enabled)
                         {
                             Notif.SendNotification("<color=blue>Starting AntiBan..</color>");
@@ -411,6 +402,7 @@ namespace Steal
                         }
                         else
                         {
+                            menu.transform.RotateAround(menu.transform.position, menu.transform.forward, 180f);
                             menu.transform.position =
                                 GorillaLocomotion.Player.Instance.rightControllerTransform.position;
                             menu.transform.rotation =
@@ -436,6 +428,7 @@ namespace Steal
                         }
                     }
                 }
+                
             }
             catch (Exception e)
             {

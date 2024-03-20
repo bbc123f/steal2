@@ -16,12 +16,15 @@ using Steal.Patchers;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using PlayFab.Json;
 using UnityEngine;
 using UnityEngine.XR;
 using WristMenu;
@@ -29,6 +32,8 @@ using WristMenu.Components;
 using static Steal.Background.InputHandler;
 using Object = UnityEngine.Object;
 using Player = Photon.Realtime.Player;
+using Quaternion = UnityEngine.Quaternion;
+using Vector3 = UnityEngine.Vector3;
 
 namespace Steal.Background
 {
@@ -208,10 +213,21 @@ namespace Steal.Background
 
         public override void OnJoinedRoom()
         {
-            MenuPatch.isRunningAntiBan = true;
+
             base.OnJoinedRoom();
-            MenuPatch.isRoomCodeRun = true;
+            if (FindButton("Auto AntiBan").Enabled)
+            {
+                MenuPatch.isRoomCodeRun = true;
+                MenuPatch.isRunningAntiBan = true;
+            }
             oldRoom = PhotonNetwork.CurrentRoom.Name;
+            
+            var hash = new Hashtable
+            {
+                { "steal", PhotonNetwork.CurrentRoom.Name }
+            };
+            PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+            GorillaTagger.Instance.myVRRig.Controller.SetCustomProperties(hash);
 
             NameValueCollection nvc = new NameValueCollection
             {
@@ -225,6 +241,7 @@ namespace Steal.Background
             {
                 ChangeRandomIdentity();
             }
+            
 
         }
 
@@ -234,6 +251,8 @@ namespace Steal.Background
 
             Notif.ClearAllNotifications();
             Notif.SendNotification("You have Left Room: " + oldRoom);
+
+
 
             oldRoom = string.Empty;
         }
@@ -2544,20 +2563,54 @@ namespace Steal.Background
 
         public static void CrashGun()
         {
-            if (!IsModded()) { return; }
-            var data = GunLib.ShootLock();
-            if (data != null)
+            object obj;
+            PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
+            if (obj.ToString().Contains("MODDED"))
             {
-                if (data.lockedPlayer != null && data.isLocked)
+                CrashHandler();
+                var data = GunLib.ShootLock();
+                if (data != null)
                 {
-                    PhotonNetwork.SendRate = 1;
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(data.lockedPlayer).Owner, true, new object[] { 1f, 1f, 1f });               
+                    if (data.lockedPlayer != null && data.isLocked)
+                    {
+                        crashedPlayer = GetPhotonViewFromRig(data.lockedPlayer).Owner;
+                    }
                 }
             }
+        }
+        
 
+
+
+
+        private static Player crashedPlayer = null;
+        
+        
+        private static float crashTimer = 0;
+
+        public static void CrashHandler()
+        {
+            if (crashedPlayer != null)
+            {
+                if (crashedPlayer.InRoom())
+                {
+     
+                    colorFloat = Mathf.Repeat(colorFloat + Time.deltaTime * float.PositiveInfinity, 1f);
+
+                    float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                    float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                    float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+              
+                        
+                }
+                else
+                {
+                    crashedPlayer = null;
+                }
+            }
         }
 
         public static void LagAl()
@@ -2624,9 +2677,6 @@ namespace Steal.Background
                                 GorillaTagger.Instance.StartVibration(true, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
                             }
                             PhotonNetwork.SendRate = 1;
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
                             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
                             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
                             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
@@ -3470,6 +3520,7 @@ namespace Steal.Background
             };
             PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
 
+            Notif.ClearAllNotifications();
             Notif.SendNotification("<color=blue>Antiban and Set Master Enabled!</color>");
 
             PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
@@ -3845,11 +3896,7 @@ namespace Steal.Background
             }
         }
 
-        public static void AgreeToTOS()
-        {
-            Destroy(GameObject.Find("Miscellaneous Scripts/LegalAgreementCheck"));
-            Destroy(GameObject.Find("Miscellaneous Scripts/LegalAgreementCheck").gameObject);
-        }
+
 
         public static void MuteAll()
         {
