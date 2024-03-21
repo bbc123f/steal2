@@ -213,7 +213,7 @@ namespace Steal
             new Button("Rope Down", Category.Special, true, false, ()=>RopeDown()),
             new Button("Rope To Self", Category.Special, true, false, ()=>RopeToSelf()),
             new Button("Rope Gun", Category.Special, true, false, ()=>RopeGun(), ()=>CleanUp()),
-            new Button("Rope Fling", Category.Special, true, false, ()=>FlingOnRope()),
+            new Button("Rope Spaz", Category.Special, true, false, ()=>FlingOnRope()),
             new Button("Rope Freeze", Category.Special, true, false, ()=>RopeFreeze()),
 
             new Button("Name Change All", Category.Special, true, false, ()=>NameAll()),
@@ -468,6 +468,12 @@ namespace Steal
                     return new Color[]
                     {
                         new Color32(59, 59, 59, 255), new Color(0.2f, 0.2f, 0.6f), new Color32(49, 0, 196, 255), Color.white // Blue
+                    };
+
+                case 5:
+                    return new Color[]
+                    {
+                        new Color(36, 36, 31), new Color(255, 153, 51), new Color(205, 0, 0), Color.white // Red
                     };
             }
 

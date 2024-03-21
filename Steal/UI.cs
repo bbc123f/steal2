@@ -452,10 +452,14 @@ namespace WristMenu
                     {
                         GUILayout.Label("Current Theme: Blue");
                     }
+                    if (Theme == 4)
+                    {
+                        GUILayout.Label("Current Theme: Red");
+                    }
                     if (GUILayout.Button("Change Menu Theme"))
                     {
                         Theme = Theme + 1;
-                        if (Theme > 4)
+                        if (Theme > 5)
                         {
                             Theme = 0;
                         }
@@ -920,7 +924,36 @@ namespace WristMenu
                 }
                 if (theme == 5)
                 {
-
+                    button.SetPixel(0, 0, GetTheme(UI.Theme)[2]);//
+                    button.Apply();
+                    buttonhovered.SetPixel(0, 0, GetTheme(UI.Theme)[2]);//
+                    buttonhovered.Apply();
+                    buttonactive.SetPixel(0, 0, new Color(0.2f, 0.2f, 0.6f));//
+                    buttonactive.Apply();
+                    textarea.SetPixel(0, 0, new Color(0.2f, 0.2f, 0.6f));
+                    textarea.Apply();
+                    textareahovered.SetPixel(0, 0, new Color(0.3f, 0.8f, 0.6f));
+                    textareahovered.Apply();
+                    textareaactive.SetPixel(0, 0, new Color(0.4f, 1f, 0.8f));
+                    textareaactive.Apply();
+                    label.SetPixel(0, 0, GetTheme(UI.Theme)[2]);//
+                    label.Apply();
+                    textField.SetPixel(0, 0, new Color(0.4f, 0.4f, 1f));
+                    textField.Apply();
+                    toggle.SetPixel(0, 0, new Color(0.6f, 0.2f, 0.2f));
+                    toggle.Apply();
+                    scrollView.SetPixel(0, 0, GetTheme(UI.Theme)[2]);//
+                    scrollView.Apply();
+                    dropdown.SetPixel(0, 0, new Color(0.4f, 0.2f, 0.6f));
+                    dropdown.Apply();
+                    slider = CreateRoundedTexture(32, new Color(0.8f, 0.4f, 0.6f));
+                    progressBar.SetPixel(0, 0, new Color(0.6f, 0.2f, 0.4f));
+                    progressBar.Apply();
+                    box.SetPixel(0, 0, new Color(0.1f, 0.1f, 0.1f));
+                    box.Apply();
+                    windowbackground = new Color(0.1f, 0.1f, 0.1f);
+                    textcolor = Color.white;
+                    activeTextColor = Color.white;
                 }
             }
 

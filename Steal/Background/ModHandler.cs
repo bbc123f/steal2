@@ -249,10 +249,15 @@ namespace Steal.Background
         {
             base.OnLeftRoom();
 
-            Notif.ClearAllNotifications();
             Notif.SendNotification("You have Left Room: " + oldRoom);
 
-
+            foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
+            {
+                if (vrrig.enabled && !vrrig.isOfflineVRRig)
+                {
+                    vrrig.gameObject.SetActive(false);
+                }
+            }
 
             oldRoom = string.Empty;
         }
@@ -261,6 +266,7 @@ namespace Steal.Background
         {
             base.OnPlayerEnteredRoom(newPlayer);
             Notif.SendNotification(newPlayer.NickName + " Has Joined Room: " + oldRoom);
+
         }
 
         public override void OnPlayerLeftRoom(Player otherPlayer)
@@ -2681,11 +2687,7 @@ namespace Steal.Background
                             {
                                 GorillaTagger.Instance.StartVibration(true, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
                             }
-                            PhotonNetwork.SendRate = 1;
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
+                            crashedPlayer = GetPhotonViewFromRig(rigs).Owner;
                         }
                     }
                 }
@@ -4054,7 +4056,8 @@ namespace Steal.Background
 
         public static void FlingOnRope()
         {
-            SendRopeRPC(new Vector3(0, int.MaxValue, 1));
+            RopeUp();
+            RopeDown();
         }
 
         public static void RopeDown()
