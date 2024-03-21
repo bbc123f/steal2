@@ -134,7 +134,7 @@ namespace Steal
             new Button("Anti Gravity", Category.Movement, true, false, ()=>ZeroGravity(), ()=>ResetGravity()),
 
             new Button("Tag Gun", Category.Player, true, false, ()=>TagGun(), ()=>CleanUp()),
-            new Button("Tag All", Category.Player, false, false, ()=>TagAll(), ()=>ResetRig()),
+            new Button("Tag All", Category.Player, true, false, ()=>TagAll(), ()=>ResetRig()),
             new Button("Tag Aura", Category.Player, true, false, ()=>TagAura(), null),
             new Button("Tag Self", Category.Player, false, false, ()=>TagSelf(), null, true),
             new Button("Anti Tag", Category.Player, true, false, ()=>AntiTag(), ()=>ResetRig()),

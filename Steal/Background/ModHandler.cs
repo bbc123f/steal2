@@ -865,27 +865,31 @@ namespace Steal.Background
             {
                 if (data.isShooting && data.isTriggered)
                 {
+                    var tagger = GorillaTagger.Instance;
+
                     if (GorillaTagger.Instance.offlineVRRig.enabled)
                     {
-                        Steal.Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
+                        Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                     }
-
                     GorillaTagger.Instance.offlineVRRig.enabled = false;
-                    GorillaTagger.Instance.offlineVRRig.transform.position = pointer.transform.position + new Vector3(0, -.7f, 0);
-                    if (Time.time > splashtimeout + 0.5f)
+                    tagger.myVRRig.transform.position = data.hitPosition - new Vector3(0, 1, 0);
+                    tagger.offlineVRRig.transform.position = data.hitPosition - new Vector3(0, 1, 0);
+                    
+                    if (Time.time > splashtimeout + 0.1f)
                     {
                         GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", 0, new object[]
                             {
                             data.hitPosition,
                             UnityEngine.Random.rotation,
-                            400f,
+                            300f,
                             100f,
                             false,
                             true
                             });
                         splashtimeout = Time.time;
-                        GorillaTagger.Instance.offlineVRRig.enabled = false;
+                        GorillaTagger.Instance.offlineVRRig.enabled = true;
                     }
+                    GorillaTagger.Instance.offlineVRRig.enabled = true;
 
                 }
             }
@@ -2732,10 +2736,10 @@ namespace Steal.Background
         public static void InvisGun()
         {
             if (!IsModded()) { return; }
-            var data = GunLib.Shoot();
+            var data = GunLib.ShootLock();
             if (data != null)
             {
-                if (data.lockedPlayer != null && data.isShooting && data.isTriggered)
+                if (data.lockedPlayer != null && data.isLocked)
                 {
                     Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
                     MethodInfo method = typeof(PhotonNetwork).GetMethod("SendDestroyOfPlayer", BindingFlags.Static | BindingFlags.NonPublic);
@@ -3198,6 +3202,19 @@ namespace Steal.Background
             }
         }
 
+        public static void FloatSelf()
+        {
+            AngryBeeSwarm.instance.targetPlayer = PhotonNetwork.LocalPlayer;
+            AngryBeeSwarm.instance.grabbedPlayer = PhotonNetwork.LocalPlayer;
+            AngryBeeSwarm.instance.currentState = AngryBeeSwarm.ChaseState.Grabbing;
+        }
+        
+        public static void UnFloatSelf()
+        {
+            AngryBeeSwarm.instance.targetPlayer = PhotonNetwork.LocalPlayer;
+            AngryBeeSwarm.instance.grabbedPlayer = PhotonNetwork.LocalPlayer;
+            AngryBeeSwarm.instance.currentState = AngryBeeSwarm.ChaseState.Dormant;
+        }
 
         public static void FloatGun()
         {

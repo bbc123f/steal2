@@ -332,6 +332,8 @@ namespace WristMenu
                     {
                         speed = 10;
                     });
+
+                    
                     GUILayout.EndHorizontal();
                     GUILayout.Label($"Camera Settings");
                     GUILayout.Label($"Camera FOV: {(int)GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView}");

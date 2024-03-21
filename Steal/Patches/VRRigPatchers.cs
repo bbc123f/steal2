@@ -26,15 +26,7 @@ namespace Steal.Patchers.VRRigPatchers
             var nametag = __instance.gameObject.AddComponent<NameTags>();
         }
     }
-    
-    [HarmonyPatch(typeof(Debug), "Log", MethodType.Normal)]
-    public class DebugLog : MonoBehaviour
-    {
-        public static bool Prefix()
-        {
-            return (!ModHandler.FindButton("Crash Gun").Enabled);
-        }
-    }
+
     
     [HarmonyPatch(typeof(VRRig), "OnDisable", MethodType.Normal)]
     public class OnDisable : MonoBehaviour
