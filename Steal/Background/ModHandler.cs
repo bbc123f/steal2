@@ -2333,57 +2333,26 @@ namespace Steal.Background
         {
             Physics.gravity = new Vector3(0, 0, 0);
         }
+        
         public static void WallWalk()
         {
-            float number = (MenuPatch.WallWalkMultiplier);
-            RaycastHit Left;
-            RaycastHit Right;
-            Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position, -GorillaLocomotion.Player.Instance.rightControllerTransform.right, out Left, 100f, int.MaxValue);
-            Physics.Raycast(GorillaLocomotion.Player.Instance.leftControllerTransform.position, GorillaLocomotion.Player.Instance.leftControllerTransform.right, out Right, 100f, int.MaxValue);
+            Vector3 gravityMultiplier = default;
+            if ((GorillaLocomotion.Player.Instance.wasLeftHandTouching || GorillaLocomotion.Player.Instance.wasRightHandTouching) && (LeftGrip || RightGrip))
+            {
+                FieldInfo fieldInfo = typeof(GorillaLocomotion.Player).GetField("lastHitInfoHand", BindingFlags.NonPublic | BindingFlags.Instance);
+                RaycastHit ray = (RaycastHit)fieldInfo.GetValue(GorillaLocomotion.Player.Instance);
+                gravityMultiplier = ray.normal;
+            }
 
-            if (RightGrip)
+            if (LeftGrip || RightGrip)
             {
-                if (Left.distance < Right.distance)
-                {
-                    if (Left.distance < 1)
-                    {
-                        Vector3 gravityDirection = (Left.point - GorillaLocomotion.Player.Instance.rightControllerTransform.position).normalized;
-                        Physics.gravity = gravityDirection * number;
-                    }
-                    else
-                    {
-                        Physics.gravity = new Vector3(0, -number, 0);
-                    }
-                }
-                if (Left.distance == Right.distance)
-                {
-                    Physics.gravity = new Vector3(0, -9.81f, 0);
-                }
+                GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.AddForce((gravityMultiplier * -5) * MenuPatch.WallWalkMultiplier, ForceMode.Acceleration);
+                Physics.gravity = new Vector3(0, 0, 0);
             }
-            if (LeftGrip)
-            {
-                if (Left.distance > Right.distance)
-                {
-                    if (Right.distance < 1)
-                    {
-                        Vector3 gravityDirection = (Right.point - GorillaLocomotion.Player.Instance.leftControllerTransform.position).normalized;
-                        Physics.gravity = gravityDirection * number;
-                    }
-                    else
-                    {
-                        Physics.gravity = new Vector3(0, -number, 0);
-                    }
-                }
-                if (Left.distance == Right.distance)
-                {
-                    Physics.gravity = new Vector3(0, -9.81f, 0);
-                }
-            }
-            if (!LeftGrip && !RightGrip)
+            else
             {
                 Physics.gravity = new Vector3(0, -9.81f, 0);
             }
-
         }
 
         public static void ResetGravity()
