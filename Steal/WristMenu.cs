@@ -128,7 +128,6 @@ namespace Steal
 
             new Button("WallWalk", Category.Movement, true, false, ()=>WallWalk(), ()=>ResetGravity()),
             new Button("SpiderClimb", Category.Movement, true, false, ()=>MonkeClimb()),
-            new Button("Sticky Hands", Category.Movement, true, false, ()=>StickyHands()),
             new Button("BHop", Category.Movement, true, false, ()=>BHop()),
             new Button("Punch Mod", Category.Movement, true, false, ()=>PunchMod()),
             new Button("Anti Gravity", Category.Movement, true, false, ()=>ZeroGravity(), ()=>ResetGravity()),
@@ -155,9 +154,8 @@ namespace Steal
             new Button("Water Sizeable", Category.Player, true, false, ()=>SizeableSplash()),
 
             new Button("Helicopter Monkey", Category.Player, true, false, ()=>Helicopter(), ()=>ResetRig()),
-            new Button("Anti MouthFlap", Category.Player, true, false, null),
+            new Button("Anti MouthFlap", Category.Player, true, false, ()=>AntiFlap()),
             new Button("Disable Fingers", Category.Player, true, false, null),
-            new Button("Report All", Category.Player, false, false, ()=>ReportAll()),
             
             new Button("ESP", Category.Visual, true, false, ()=>ESP(), ()=>ResetTexure()),
             new Button("Chams", Category.Visual, true, false, ()=>Chams(), ()=>ResetTexure()),
@@ -198,7 +196,7 @@ namespace Steal
             new Button("Mat Spam On Touch", Category.Special, true, false, ()=>matSpamOnTouch(), null, true),
 
             new Button("Slow All", Category.Special, true, false, ()=>SlowAll(), null, true),
-            new Button("Slow Gun", Category.Special, true, false, ()=>SlowGun(), ()=>CleanUp(), true),
+            new Button("Slow Gun", Category.Special, true, false, ()=>SlowGun(), ()=>CleanUp(), true), 
             new Button("Vibrate All", Category.Special, true, false, ()=>VibrateAll(), null, true),
             new Button("Vibrate Gun", Category.Special, true, false, ()=>VibrateGun(), ()=>CleanUp(), true),
             new Button("Acid All", Category.Special, false, false, ()=>AcidAll(), null, true),
@@ -222,14 +220,7 @@ namespace Steal
             new Button("Name Change Gun", Category.Special, true, false, ()=>NameGun(), ()=>CleanUp()),
             new Button("Stop Movement Gun", Category.Special, true, false, ()=>StopMovement(), null, true),
             new Button("Float Gun", Category.Special, true, false, ()=>FloatGun(), null, true),
-            new Button("Float Self", Category.Special, true, false, ()=>FloatSelf(), ()=>UnFloatSelf(), true),
             new Button("Sound Spam", Category.Special, true, false, ()=>SoundSpam(), null, true),
-
-            new Button("Acid Spam", Category.Special, true, false, ()=>AcidSpam(), null, true),
-            new Button("Acid Gun", Category.Special, true, false, ()=>AcidGun(), null, true),
-            new Button("UnAcid Gun", Category.Special, true, false, ()=>UnAcidGun(), null, true),
-            new Button("UnAcid All", Category.Special, false, false, ()=>UnAcidAll(), null, true),
-            new Button("UnAcid Self", Category.Special, false, false, ()=>UnAcidSelf(), null, true),
             new Button("Tag Lag", Category.Special, true, false, ()=>TagLag(), ()=>RevertTagLag(), true),
 
             new Button("Change Theme", Category.Settings, false, false, ()=>ChangeTheme(), null, false, false),
@@ -243,12 +234,12 @@ namespace Steal
             new Button("Random Name W AntiReport", Category.Settings, true, false, ()=>EnableNameOnJoin(), ()=>DisableNameOnJoin()),
             new Button("Disable AntiBan StumpCheck [D]", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
             new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
-            new Button("Toggle Category's", Category.Settings, false, false, ()=>ChangePageType()),
+            new Button("Toggle Categorys", Category.Settings, false, false, ()=>ChangePageType()),
             new Button("Toggle Watch Menu", Category.Settings, false, false, ()=>ToggleWatch()),
             
             new Button("Toggle Mod List", Category.Settings, false, false, ()=>ToggleList()),
             new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
-            new Button("Disable Notifications", Category.Settings, true, false, ()=>Notif.ClearAllNotifications()),
+            new Button("Disable Notifications", Category.Settings, false, false, ()=>Notif.IsEnabled = !Notif.IsEnabled),
             new Button("Clear Notifications", Category.Settings, false, false, ()=>Notif.ClearAllNotifications()),
         };
 
@@ -839,7 +830,7 @@ namespace Steal
             }
 
             ModsList.RefreshText();
-
+            CleanUp();
             RefreshMenu();
         }
 

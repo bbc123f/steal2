@@ -38,6 +38,11 @@ namespace Steal.Components
                 ghostRig.enabled = false;
             }
             if (ghostRig == null) { return; }
+            if (ghostRig.leftHandPlayer != null && ghostRig.rightHandPlayer != null)
+            {
+                Destroy(ghostRig.rightHandPlayer);
+                Destroy(ghostRig.leftHandPlayer);
+            }
             if (ghostRig.enabled && GorillaTagger.Instance.offlineVRRig.enabled)
             {
                 ghostRig.transform.position = Vector3.zero;

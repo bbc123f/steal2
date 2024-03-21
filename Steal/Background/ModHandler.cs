@@ -364,10 +364,18 @@ namespace Steal.Background
             return null;
         }
 
+        public static void AntiFlap()
+        {
+            Traverse.Create(GorillaTagger.Instance.offlineVRRig).Field("speakingLoudness").SetValue(0);
+        }
+
         public static void CleanUp()
         {
             ResetRig();
             GunLib.GunCleanUp();
+            ResetAfterSpaz();
+            ResetGravity();
+            ResetTexure();
         }
 
         public static void StartNameTags()
@@ -872,25 +880,24 @@ namespace Steal.Background
                         Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                     }
                     GorillaTagger.Instance.offlineVRRig.enabled = false;
-                    tagger.myVRRig.transform.position = data.hitPosition - new Vector3(0, 1, 0);
-                    tagger.offlineVRRig.transform.position = data.hitPosition - new Vector3(0, 1, 0);
-                    
-                    if (Time.time > splashtimeout + 0.1f)
+                    GorillaTagger.Instance.offlineVRRig.transform.position = data.hitPosition - new Vector3(0, 1f, 0);
+                    if (Time.time > splashtimeout)
                     {
-                        GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", 0, new object[]
-                            {
-                            data.hitPosition,
-                            UnityEngine.Random.rotation,
-                            300f,
+                        GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", RpcTarget.All, new object[]
+                        {
+                            data.hitPosition+new Vector3(0, 1, 0),
+                            Quaternion.Euler(new Vector3(UnityEngine.Random.Range(0,360), UnityEngine.Random.Range(0,360), UnityEngine.Random.Range(0,360))),
+                            4f,
                             100f,
-                            false,
-                            true
-                            });
-                        splashtimeout = Time.time;
-                        GorillaTagger.Instance.offlineVRRig.enabled = true;
+                            true,
+                            false
+                        });
+                        splashtimeout = Time.time + 0.1f;
                     }
-                    GorillaTagger.Instance.offlineVRRig.enabled = true;
-
+                }
+                else
+                {
+                    ResetRig();
                 }
             }
         }
@@ -909,6 +916,11 @@ namespace Steal.Background
                         pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
                     }
                     pointer.transform.position = GorillaLocomotion.Player.Instance.rightControllerTransform.position;
+                }
+                else if (!RightGrip && !RightTrigger)
+                {
+                    GameObject.Destroy(pointer);
+                    pointer = null;
                 }
                 if (!InputHandler.RightGrip && InputHandler.RightTrigger)
                 {
@@ -1190,7 +1202,7 @@ namespace Steal.Background
         {
             if (RightPrimary)
             {
-                GorillaLocomotion.Player.Instance.transform.position += (GorillaLocomotion.Player.Instance.headCollider.transform.forward * Time.deltaTime) * ((12f) * MenuPatch.flightMultiplier);
+                GorillaLocomotion.Player.Instance.transform.position += (GorillaLocomotion.Player.Instance.rightControllerTransform.forward * Time.deltaTime) * ((12f) * MenuPatch.flightMultiplier);
                 GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity = Vector3.zero;
                 if (!flying)
                 {
@@ -1442,18 +1454,6 @@ namespace Steal.Background
                     lineRenderer.SetPosition(1, vrrig.transform.position);
                     lineRenderer.material.shader = Shader.Find("GUI/Text Shader");
                     Object.Destroy(lineRenderer, Time.deltaTime);
-                }
-            }
-        }
-        static GameObject[] boxESPGO = new GameObject[10];
-        public static void CleanUpBoxESP()
-        {
-            foreach (var g in boxESPGO)
-            {
-                if (g != null)
-                {
-                    Destroy(g);
-                    boxESPGO[boxESPGO.IndexOfRef(g)] = null;
                 }
             }
         }
@@ -2019,7 +2019,7 @@ namespace Steal.Background
         {
             var isMaster = PhotonNetwork.IsMasterClient;
             var data = GunLib.ShootLock();
-            if (data != null && data.isTriggered && data.isLocked && data.lockedPlayer != null && data.isShooting)
+            if (data != null && data.isTriggered && data.isLocked && data.lockedPlayer != null && data.isShooting && GetPhotonViewFromRig(data.lockedPlayer) != null)
             {
                 saveKeys();
                 if (!isMaster)
@@ -2057,6 +2057,7 @@ namespace Steal.Background
 
                         }
                     }
+                    GorillaTagger.Instance.offlineVRRig.enabled = true;
                 }
                 else
                 {
@@ -2328,7 +2329,7 @@ namespace Steal.Background
         }
         public static void WallWalk()
         {
-            float number = (7.41f * MenuPatch.WallWalkMultiplier);
+            float number = (MenuPatch.WallWalkMultiplier);
             RaycastHit Left;
             RaycastHit Right;
             Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position, -GorillaLocomotion.Player.Instance.rightControllerTransform.right, out Left, 100f, int.MaxValue);
@@ -2575,7 +2576,7 @@ namespace Steal.Background
                 var data = GunLib.ShootLock();
                 if (data != null)
                 {
-                    if (data.lockedPlayer != null && data.isLocked)
+                    if (data.lockedPlayer != null && data.isLocked && GetPhotonViewFromRig(data.lockedPlayer) != null)
                     {
                         crashedPlayer = GetPhotonViewFromRig(data.lockedPlayer).Owner;
                     }
@@ -2643,7 +2644,7 @@ namespace Steal.Background
             var data = GunLib.ShootLock();
             if (data != null)
             {
-                if (data.lockedPlayer != null && data.isLocked)
+                if (data.lockedPlayer != null && data.isLocked && GetPhotonViewFromRig(data.lockedPlayer) != null)
                 {
                     Lag(GetPhotonViewFromRig(data.lockedPlayer).Owner);
                 }
@@ -2697,7 +2698,7 @@ namespace Steal.Background
             if (!IsModded()) { return; }
             foreach (VRRig rigs in GorillaParent.instance.vrrigs)
             {
-                if (!rigs.isMyPlayer && !rigs.isOfflineVRRig)
+                if (!rigs.isMyPlayer && !rigs.isOfflineVRRig && GetPhotonViewFromRig(rigs) != null)
                 {
                     float rightDistance = Vector3.Distance(GorillaTagger.Instance.rightHandTransform.transform.position, rigs.transform.position);
                     float leftDistance = Vector3.Distance(GorillaTagger.Instance.leftHandTransform.transform.position, rigs.transform.position);
@@ -2719,12 +2720,7 @@ namespace Steal.Background
                             {
                                 GorillaTagger.Instance.StartVibration(true, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
                             }
-                            PhotonNetwork.SendRate = 1;
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", GetPhotonViewFromRig(rigs).Owner, true, new object[] { 1f, 1f, 1f });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("PlaySplashEffect", GetPhotonViewFromRig(rigs).Owner, true, new object[] { GorillaTagger.Instance.offlineVRRig.transform.position, Quaternion.Euler(float.MaxValue, float.MaxValue, float.MaxValue), 100f, 100f, true, true, null });
+                            Lag(GetPhotonViewFromRig(rigs).Owner);
 
                         }
                     }
@@ -2739,7 +2735,7 @@ namespace Steal.Background
             var data = GunLib.ShootLock();
             if (data != null)
             {
-                if (data.lockedPlayer != null && data.isLocked)
+                if (data.lockedPlayer != null && data.isLocked && GetPhotonViewFromRig(data.lockedPlayer) != null)
                 {
                     Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
                     MethodInfo method = typeof(PhotonNetwork).GetMethod("SendDestroyOfPlayer", BindingFlags.Static | BindingFlags.NonPublic);
@@ -2753,7 +2749,7 @@ namespace Steal.Background
             if (!IsModded()) { return; }
             foreach (VRRig rigs in GorillaParent.instance.vrrigs)
             {
-                if (!rigs.isMyPlayer && !rigs.isOfflineVRRig)
+                if (!rigs.isMyPlayer && !rigs.isOfflineVRRig && GetPhotonViewFromRig(rigs) != null)
                 {
                     float rightDistance = Vector3.Distance(GorillaTagger.Instance.rightHandTransform.transform.position, rigs.transform.position);
                     float leftDistance = Vector3.Distance(GorillaTagger.Instance.leftHandTransform.transform.position, rigs.transform.position);
@@ -3222,7 +3218,7 @@ namespace Steal.Background
             var data = GunLib.ShootLock();
             if (data != null)
             {
-                if (data.lockedPlayer != null && data.isLocked)
+                if (data.lockedPlayer != null && data.isLocked && GetPhotonViewFromRig(data.lockedPlayer) != null)
                 {
                     Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
                     if (Time.time > floatmoveT)
@@ -3254,7 +3250,7 @@ namespace Steal.Background
             var data = GunLib.ShootLock();
             if (data != null)
             {
-                if (data.lockedPlayer != null && data.isLocked)
+                if (data.lockedPlayer != null && data.isLocked && GetPhotonViewFromRig(data.lockedPlayer) != null)
                 {
                     Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
                     if (Time.time > stopmoveT)
@@ -3285,7 +3281,7 @@ namespace Steal.Background
             {
                 if (data.lockedPlayer != null)
                 {
-                    if (Time.time > Vibrateallcooldown + 0.5)
+                    if (Time.time > Vibrateallcooldown + 0.5 && GetPhotonViewFromRig(data.lockedPlayer) != null)
                     {
                         if (PhotonNetwork.LocalPlayer.IsMasterClient)
                         {
@@ -3305,7 +3301,7 @@ namespace Steal.Background
             {
                 if (data.lockedPlayer != null)
                 {
-                    if (Time.time > slowallcooldown + 0.5)
+                    if (Time.time > slowallcooldown + 0.5 && GetPhotonViewFromRig(data.lockedPlayer) != null)
                     {
                         if (PhotonNetwork.LocalPlayer.IsMasterClient)
                         {
@@ -3343,74 +3339,81 @@ namespace Steal.Background
 
         public static void TrapAllInStump()
         {
-            string orgstr = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString();
-            if (orgstr.TryReplace("forest", "", out string rforest))
+            if (IsModded() && IsMaster())
             {
-                orgstr = rforest;
-            }
-            if (orgstr.TryReplace("canyon", "", out string rcanton))
-            {
-                orgstr = rcanton;
-            }
-            if (orgstr.TryReplace("city", "", out string rcacnton))
-            {
-                orgstr = rcacnton;
-            }
-            if (orgstr.TryReplace("basement", "", out string rbasement))
-            {
-                orgstr = rbasement;
-            }
-            if (orgstr.TryReplace("clouds", "", out string rbacsement))
-            {
-                orgstr = rbacsement;
-            }
-            if (orgstr.TryReplace("mountain", "", out string r1basement))
-            {
-                orgstr = r1basement;
-            }
-            if (orgstr.TryReplace("beach", "", out string r1bdsement))
-            {
-                orgstr = r1bdsement;
-            }
-            if (orgstr.TryReplace("cave", "", out string r1bdsement1))
-            {
-                orgstr = r1bdsement1;
-            }
-            var hash = new Hashtable
+                string orgstr = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString();
+                if (orgstr.TryReplace("forest", "", out string rforest))
+                {
+                    orgstr = rforest;
+                }
+                if (orgstr.TryReplace("canyon", "", out string rcanton))
+                {
+                    orgstr = rcanton;
+                }
+                if (orgstr.TryReplace("city", "", out string rcacnton))
+                {
+                    orgstr = rcacnton;
+                }
+                if (orgstr.TryReplace("basement", "", out string rbasement))
+                {
+                    orgstr = rbasement;
+                }
+                if (orgstr.TryReplace("clouds", "", out string rbacsement))
+                {
+                    orgstr = rbacsement;
+                }
+                if (orgstr.TryReplace("mountain", "", out string r1basement))
+                {
+                    orgstr = r1basement;
+                }
+                if (orgstr.TryReplace("beach", "", out string r1bdsement))
+                {
+                    orgstr = r1bdsement;
+                }
+                if (orgstr.TryReplace("cave", "", out string r1bdsement1))
+                {
+                    orgstr = r1bdsement1;
+                }
+                var hash = new Hashtable
                 {
                     { "gameMode", orgstr }
                 };
-            PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
-            PhotonNetwork.CurrentRoom.LoadBalancingClient.OpSetCustomPropertiesOfRoom(hash);
+                PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
+                PhotonNetwork.CurrentRoom.LoadBalancingClient.OpSetCustomPropertiesOfRoom(hash);
+            }
         }
 
-        static Hashtable oldTriggers;
+        static string oldTriggers;
 
         public static void DisableNetworkTriggers()
         {
-            string[] maps =
+            if (IsMaster() && IsModded())
             {
+                string[] maps =
+                {
                 "beach", "city", "basement", "clouds", "forest", "mountains", "canyon", "cave"
             };
-            string orgstr = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString();
-            for (int i = 0; i < maps.Length; i++)
-            {
-                orgstr.AddIfNot(maps[i], out string res);
-                orgstr = res;
-            }
-            var hash = new Hashtable
+                string orgstr = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString();
+                for (int i = 0; i < maps.Length; i++)
+                {
+                    orgstr.AddIfNot(maps[i], out string res);
+                    orgstr = res;
+                }
+                var hash = new Hashtable
                 {
                     { "gameMode", orgstr }
                 };
-            oldTriggers = PhotonNetwork.CurrentRoom.CustomProperties;
-            PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
-            PhotonNetwork.CurrentRoom.LoadBalancingClient.OpSetCustomPropertiesOfRoom(hash);
+                oldTriggers = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString();
+                PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
+                PhotonNetwork.CurrentRoom.LoadBalancingClient.OpSetCustomPropertiesOfRoom(hash);
+            }
         }
 
         public static void EnableNetworkTriggers()
         {
-            PhotonNetwork.CurrentRoom.SetCustomProperties(oldTriggers);
-            PhotonNetwork.CurrentRoom.LoadBalancingClient.OpSetCustomPropertiesOfRoom(oldTriggers);
+            var hash = new Hashtable { { "gameMode", oldTriggers } };
+            PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
+            PhotonNetwork.CurrentRoom.LoadBalancingClient.OpSetCustomPropertiesOfRoom(hash);
         }
 
         public static void sscosmetic()
@@ -3457,7 +3460,7 @@ namespace Steal.Background
             var data = GunLib.ShootLock();
             if (data != null)
             {
-                if (data.lockedPlayer != null)
+                if (data.lockedPlayer != null && GetPhotonViewFromRig(data.lockedPlayer) != null)
                 {
                     if (Time.time > boardTimer)
                     {
@@ -3753,7 +3756,10 @@ namespace Steal.Background
         public static void FirstPerson()
         {
             GameObject fps = GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera");
-            fps.active = !fps.active;
+            if (fps)
+            {
+                fps.SetActive(!fps.activeSelf);
+            }
         }
 
 
@@ -3762,7 +3768,7 @@ namespace Steal.Background
 
         public static void AdvancedWASD(float speed)
         {
-            GorillaTagger.Instance.rigidbody.velocity = new Vector3(0, 0.0735f, 0);
+            GorillaTagger.Instance.rigidbody.useGravity = false;
             float NSpeed = speed * Time.deltaTime;
             if (UnityInput.Current.GetKey(KeyCode.LeftShift) || UnityInput.Current.GetKey(KeyCode.RightShift))
             {
@@ -3876,7 +3882,7 @@ namespace Steal.Background
             var data = GunLib.ShootLock();
             if (data != null)
             {
-                if (data.lockedPlayer != null)
+                if (data.lockedPlayer != null && GetPhotonViewFromRig(data.lockedPlayer) != null)
                 {
                     Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
                     foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
@@ -3898,7 +3904,7 @@ namespace Steal.Background
             var data = GunLib.ShootLock();
             if (data != null)
             {
-                if (data.lockedPlayer != null)
+                if (data.lockedPlayer != null && GetPhotonViewFromRig(data.lockedPlayer) != null)
                 {
                     Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
                     foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
@@ -3944,7 +3950,7 @@ namespace Steal.Background
                         Transform report = line.reportButton.gameObject.transform;
                         foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
                         {
-                            if (vrrig != GorillaTagger.Instance.offlineVRRig)
+                            if (vrrig != GorillaTagger.Instance.offlineVRRig && GetPhotonViewFromRig(vrrig) != null)
                             {
                                 var owner = GetPhotonViewFromRig(vrrig).Owner;
                                 float D1 = Vector3.Distance(vrrig.rightHandTransform.position, report.position);
@@ -4020,9 +4026,10 @@ namespace Steal.Background
             if (Time.time > ropetimeout + 0.1f)
             {
                 ropetimeout = Time.time;
-                foreach (GorillaRopeSwing rope in UnityEngine.Object.FindObjectsOfType<GorillaRopeSwing>())
+                var ropes = Traverse.Create(RopeSwingManager.instance).Field("ropes").GetValue<Dictionary<int, GorillaRopeSwing>>();
+                foreach (var rope in ropes)
                 {
-                    RopeSwingManager.instance.photonView.RPC("SetVelocity", RpcTarget.All, rope.ropeId, 4, velocity, true, null);
+                    RopeSwingManager.instance.photonView.RPC("SetVelocity", RpcTarget.All, rope.Key, 1, velocity, true, null);
                 }
             }
         }
@@ -4032,9 +4039,10 @@ namespace Steal.Background
             if (Time.time > ropetimeout + 0.1f)
             {
                 ropetimeout = Time.time;
-                foreach (GorillaRopeSwing rope in UnityEngine.Object.FindObjectsOfType<GorillaRopeSwing>())
+                var ropes = Traverse.Create(RopeSwingManager.instance).Field("ropes").GetValue<Dictionary<int, GorillaRopeSwing>>();
+                foreach (var rope in ropes)
                 {
-                    RopeSwingManager.instance.photonView.RPC("SetVelocity", RpcTarget.All, rope.ropeId, 4, Vector3.zero, true, null);
+                    RopeSwingManager.instance.photonView.RPC("SetVelocity", RpcTarget.All, rope.Key, 1, Vector3.zero, true, null);
                 }
             }
         }
@@ -4059,17 +4067,18 @@ namespace Steal.Background
             if (Time.time > ropetimeout + 0.1f)
             {
                 ropetimeout = Time.time;
-                foreach (GorillaRopeSwing rope in Object.FindObjectsOfType<GorillaRopeSwing>())
+                var ropes = Traverse.Create(RopeSwingManager.instance).Field("ropes").GetValue<Dictionary<int, GorillaRopeSwing>>();
+                foreach (var rope in ropes)
                 {
                     Vector3 targetPosition = GorillaLocomotion.Player.Instance.transform.position;
-                    Vector3 ropeToCursor = targetPosition - rope.transform.position;
+                    Vector3 ropeToCursor = targetPosition - rope.Value.transform.position;
                     float distanceToCursor = ropeToCursor.magnitude;
                     float speed = 9999;
                     float t = Mathf.Clamp01(speed / distanceToCursor);
 
-                    Vector3 newPosition = rope.transform.position + ropeToCursor.normalized * distanceToCursor * t;
-                    Vector3 velocity = (newPosition - rope.transform.position).normalized * speed;
-                    RopeSwingManager.instance.photonView.RPC("SetVelocity", RpcTarget.All, rope.ropeId, 4, velocity, true, null);
+                    Vector3 newPosition = rope.Value.transform.position + ropeToCursor.normalized * distanceToCursor * t;
+                    Vector3 velocity = (newPosition - rope.Value.transform.position).normalized * speed;
+                    RopeSwingManager.instance.photonView.RPC("SetVelocity", RpcTarget.All, rope.Key, 1, velocity, true, null);
                 }
             }
         }
