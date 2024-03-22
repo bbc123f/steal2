@@ -379,7 +379,6 @@ namespace Steal.Background
         {
             ResetRig();
             GunLib.GunCleanUp();
-            ResetAfterSpaz();
             ResetGravity();
             ResetTexure();
         }
@@ -1325,7 +1324,9 @@ namespace Steal.Background
         { MenuPatch.flightMultiplier = MenuPatch.multiplierManager(MenuPatch.flightMultiplier); }
 
         public static void SwitchWallWalk()
-        { MenuPatch.WallWalkMultiplier = MenuPatch.WallWalkMultiplierManager(MenuPatch.WallWalkMultiplier); }
+        { MenuPatch.WallWalkMultiplier = MenuPatch.multiplierManager(MenuPatch.WallWalkMultiplier); }
+
+
 
         public static void SpeedBoost(float speedMult, bool Enable)
         {
@@ -2488,6 +2489,7 @@ namespace Steal.Background
                 GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.velocity = GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.velocity * 1.013f;
             }
         }
+
         public static void BHop()
         {
             if (RightSecondary)
@@ -2540,13 +2542,10 @@ namespace Steal.Background
         static float matguntimer = -222f;
         static float lagtimeout;
         public static float colorFloat = 0f;
-
+        
         public static void CrashGun()
         {
-            object obj;
-            PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
-            if (obj.ToString().Contains("MODDED"))
-            {
+            if (!IsModded()) { return; }
                 CrashHandler();
                 var data = GunLib.ShootLock();
                 if (data != null)
@@ -2554,18 +2553,46 @@ namespace Steal.Background
                     if (data.lockedPlayer != null && data.isLocked && GetPhotonViewFromRig(data.lockedPlayer) != null)
                     {
                         crashedPlayer = GetPhotonViewFromRig(data.lockedPlayer).Owner;
+                        crashPlayerPosition = data.lockedPlayer.transform.position;
                     }
+                }
+        }
+
+        public static void PrintHandPositionGun()
+        {
+            var data = GunLib.ShootLock();
+            if (data != null)
+            {
+                if (data.lockedPlayer != null && data.isLocked && GetPhotonViewFromRig(data.lockedPlayer) != null)
+                {
+                    Debug.Log("RIGHTHAND: " + GetRelativePosition(data.lockedPlayer.rightHandTransform, data.lockedPlayer.headMesh.transform)) ;
+                    Debug.Log("LEFTHAND: " + GetRelativePosition(data.lockedPlayer.leftHandTransform, data.lockedPlayer.headMesh.transform));
                 }
             }
         }
-        
 
+        public static void OculusAntiReport()
+        {
+            foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
+            {
+                Vector3 RightHand = GetRelativePosition(vrrig.rightHandTransform, vrrig.headMesh.transform);
+                Vector3 LeftHand = GetRelativePosition(vrrig.leftHandTransform, vrrig.headMesh.transform);
+                if ((RightHand == new Vector3(0.12f, -0.07f, -0.30f) && (LeftHand == new Vector3(-0.22f, -0.14f, -0.03f))
+                {
 
+                }
+            }
+        }
 
+        static Vector3 GetRelativePosition(Transform objectA, Transform objectB)
+        {
+            return objectA.position - objectB.position;
+        }
 
         private static Player crashedPlayer = null;
-        
-        
+
+        private static Vector3 crashPlayerPosition = Vector3.zero;
+
         private static float crashTimer = 0;
 
         public static void CrashHandler()
@@ -2574,7 +2601,6 @@ namespace Steal.Background
             {
                 if (crashedPlayer.InRoom())
                 {
-     
                     colorFloat = Mathf.Repeat(colorFloat + Time.deltaTime * float.PositiveInfinity, 1f);
 
                     float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
@@ -2583,9 +2609,21 @@ namespace Steal.Background
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-              
-                        
-                }
+                    if (XRSettings.isDeviceActive)
+                    {
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                        if (crashPlayerPosition != GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position)
+                        {
+                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                            crashPlayerPosition = GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position;
+                        }
+                    }
+
+                    }
                 else
                 {
                     crashedPlayer = null;
@@ -2632,6 +2670,7 @@ namespace Steal.Background
         public static void CrashOnTouch()
         {
             if (!IsModded()) { return; }
+            CrashHandler();
             foreach (VRRig rigs in GorillaParent.instance.vrrigs)
             {
                 if (!rigs.isMyPlayer && !rigs.isOfflineVRRig)
@@ -2657,6 +2696,7 @@ namespace Steal.Background
                                 GorillaTagger.Instance.StartVibration(true, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
                             }
                             crashedPlayer = GetPhotonViewFromRig(rigs).Owner;
+                            crashPlayerPosition = rigs.transform.position;
                         }
                     }
                 }
@@ -2820,7 +2860,7 @@ namespace Steal.Background
             }
         }
         static bool isSettingsLav = false;
-        static void LoadLevel(int levelId)
+        static void Leveno(int levelId)
         {
             if (isSettingsLav == true)
             {
@@ -2835,28 +2875,28 @@ namespace Steal.Background
         }
         public static void CrashAll()
         {
-            LoadLevel(5);
-            LoadLevel(6);
-            LoadLevel(4);
-            LoadLevel(3);
-            LoadLevel(2);
-            LoadLevel(0);
-            LoadLevel(1);
-            LoadLevel(4);
-            LoadLevel(3);
-            LoadLevel(2);
-            LoadLevel(0);
-            LoadLevel(1);
-            LoadLevel(4);
-            LoadLevel(3);
-            LoadLevel(2);
-            LoadLevel(0);
-            LoadLevel(1);
-            LoadLevel(4);
-            LoadLevel(3);
-            LoadLevel(2);
-            LoadLevel(0);
-            LoadLevel(1);
+            Leveno(5);
+            Leveno(6);
+            Leveno(4);
+            Leveno(3);
+            Leveno(2);
+            Leveno(0);
+            Leveno(1);
+            Leveno(4);
+            Leveno(3);
+            Leveno(2);
+            Leveno(0);
+            Leveno(1);
+            Leveno(4);
+            Leveno(3);
+            Leveno(2);
+            Leveno(0);
+            Leveno(1);
+            Leveno(4);
+            Leveno(3);
+            Leveno(2);
+            Leveno(0);
+            Leveno(1);
 
             foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
             {
@@ -3740,6 +3780,7 @@ namespace Steal.Background
         public static void AdvancedWASD(float speed)
         {
             GorillaTagger.Instance.rigidbody.useGravity = false;
+            GorillaTagger.Instance.rigidbody.velocity = Vector3.zero;
             float NSpeed = speed * Time.deltaTime;
             if (UnityInput.Current.GetKey(KeyCode.LeftShift) || UnityInput.Current.GetKey(KeyCode.RightShift))
             {
