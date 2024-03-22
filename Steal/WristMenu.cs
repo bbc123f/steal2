@@ -343,7 +343,7 @@ namespace Steal
                     {
                         if (FindButton("Auto AntiBan").Enabled)
                         {
-                            Notif.SendNotification("<color=blue>Starting AntiBan..</color>");
+                            Notif.SendNotification("Starting AntiBan..", Color.blue);
                             antibancooldown = Time.time;
                             StartAntiBan();
                         }
@@ -863,13 +863,13 @@ namespace Steal
 
         public static void ToggleButton(Button button)
         {
-            // if (button.ismaster && !PhotonNetwork.IsMasterClient)
-            // {
-            //     Notif.SendNotification("You're Not Masterclient!");
-            //     button.Enabled = false;
-            //     RefreshMenu();
-            //     return;
-            // }
+            if (button.ismaster && !PhotonNetwork.IsMasterClient)
+            {
+                Notif.SendNotification("You're Not Masterclient!", Color.red);
+                button.Enabled = false;
+                RefreshMenu();
+                return;
+            }
 
             if (!button.isToggle)
             {

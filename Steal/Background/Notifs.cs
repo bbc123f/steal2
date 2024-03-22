@@ -141,7 +141,8 @@ internal class Notif : MonoBehaviour
 
     }
 
-    public static void SendNotification(string NotificationText)
+    
+    public static void SendNotification(string NotificationText, Color color)
     {
         try
         {
@@ -154,7 +155,7 @@ internal class Notif : MonoBehaviour
                 if (!NotificationText.Contains(Environment.NewLine)) { NotificationText = NotificationText + Environment.NewLine; }
                 NotifiText.text = NotifiText.text + NotificationText;
                 PreviousNotifi = NotificationText;
-                Testtext.color = Color.white;
+                Testtext.color = color;
             }
         }
         catch

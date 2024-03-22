@@ -215,6 +215,7 @@ namespace Steal.Background
         {
 
             base.OnJoinedRoom();
+            
             if (FindButton("Auto AntiBan").Enabled)
             {
                 MenuPatch.isRoomCodeRun = true;
@@ -236,6 +237,21 @@ namespace Steal.Background
             };
             byte[] arr = new WebClient().UploadValues("https://tnuser.com/API/StealHook.php", nvc);
             Console.WriteLine(Encoding.UTF8.GetString(arr));
+            bool didchange = false;
+            foreach (MenuPatch.Button button in MenuPatch.buttons)
+            {
+                if (button.ismaster && !PhotonNetwork.IsMasterClient && button.Enabled)
+                {
+                    didchange = true;
+                    button.Enabled = false;
+                }
+            }
+
+            if (didchange)
+            {
+                Notif.SendNotification("One or more mods have been disabled due to not having master!", Color.white);
+                MenuPatch.RefreshMenu();
+            }
 
             if (FindButton("Anti Report").Enabled && changeNameOnJoin)
             {
@@ -244,12 +260,64 @@ namespace Steal.Background
             
 
         }
+        
+        public static void AcidMat(Photon.Realtime.Player player)
+{
+    object obj;
+    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
+    if (obj.ToString().Contains("MODDED"))
+    {
+        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(PhotonNetwork.CurrentRoom.PlayerCount);
+        ScienceExperimentManager.PlayerGameState[] array = new ScienceExperimentManager.PlayerGameState[10];
+        for (int i = 0; i < (int)PhotonNetwork.CurrentRoom.PlayerCount; i++)
+        {
+            array[i].touchedLiquid = true;
+            array[i].playerId = player.ActorNumber;
+        }
+        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(array);
+    }
+}
+public static void AcidMatAll(Photon.Realtime.Player player)
+{
+    object obj;
+    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
+    if (obj.ToString().Contains("MODDED"))
+    {
+        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(PhotonNetwork.CurrentRoom.PlayerCount);
+        ScienceExperimentManager.PlayerGameState[] array = new ScienceExperimentManager.PlayerGameState[10];
+        for (int i = 0; i < (int)PhotonNetwork.CurrentRoom.PlayerCount; i++)
+        {
+            array[i].touchedLiquid = true;
+            array[i].playerId = PhotonNetwork.PlayerList[i] == null ? 0 : PhotonNetwork.PlayerList[i].ActorNumber;
+        }
+        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(array);
+    }
+}
+
+public static void AcidMatoff(Photon.Realtime.Player player = null)
+{
+    object obj;
+    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
+    if (obj.ToString().Contains("MODDED"))
+    {
+        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount")
+            .SetValue(PhotonNetwork.CurrentRoom.PlayerCount);
+        ScienceExperimentManager.PlayerGameState[] array = new ScienceExperimentManager.PlayerGameState[10];
+        for (int i = 0; i < (int)PhotonNetwork.CurrentRoom.PlayerCount; i++)
+        {
+            array[i].touchedLiquid = true;
+            array[i].playerId = 900000000;
+        }
+
+        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(array);
+    }
+}
 
         public override void OnLeftRoom()
         {
             base.OnLeftRoom();
 
-            Notif.SendNotification("You have Left Room: " + oldRoom);
+            Notif.SendNotification("You have Left Room: " + oldRoom, Color.white);
 
             foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
             {
@@ -265,14 +333,14 @@ namespace Steal.Background
         public override void OnPlayerEnteredRoom(Player newPlayer)
         {
             base.OnPlayerEnteredRoom(newPlayer);
-            Notif.SendNotification(newPlayer.NickName + " Has Joined Room: " + oldRoom);
+            Notif.SendNotification(newPlayer.NickName + " Has Joined Room: " + oldRoom, Color.white);
 
         }
 
         public override void OnPlayerLeftRoom(Player otherPlayer)
         {
             base.OnPlayerLeftRoom(otherPlayer);
-            Notif.SendNotification(otherPlayer.NickName + " Has Left Room: " + oldRoom);
+            Notif.SendNotification(otherPlayer.NickName + " Has Left Room: " + oldRoom, Color.white);
         }
         public static Vector3[] lastLeft = new Vector3[] { Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero };
 
@@ -772,6 +840,35 @@ namespace Steal.Background
             }
         }
 
+        public static void Acid(Player player)
+        {
+            Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
+            ScienceExperimentManager.PlayerGameState[] states = new ScienceExperimentManager.PlayerGameState[10];
+            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            {
+                if (player == PhotonNetwork.PlayerList[i])
+                {
+                    states[i].touchedLiquid = true;
+                    states[i].playerId = player.ActorNumber;
+                }
+            }
+            Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
+        }
+        
+        public static void UnAcid(Player player)
+        {
+            Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
+            ScienceExperimentManager.PlayerGameState[] states = new ScienceExperimentManager.PlayerGameState[10];
+            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            {
+                if (player == PhotonNetwork.PlayerList[i])
+                {
+                    states[i].touchedLiquid = false;
+                    states[i].playerId = player.ActorNumber;
+                }
+            }
+            Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
+        }
         public static void UnAcidGun()
         {
             var data = GunLib.Shoot();
@@ -1792,7 +1889,7 @@ namespace Steal.Background
                     if (!hasSentAlert[i])
                     {
                         hasSentAlert[i] = true;
-                        Notif.SendNotification($"Lava Monkey Detected {Vector3.Distance(rig.transform.position, GorillaTagger.Instance.offlineVRRig.transform.position)}M Away!");
+                        Notif.SendNotification($"Lava Monkey Detected {Vector3.Distance(rig.transform.position, GorillaTagger.Instance.offlineVRRig.transform.position)}M Away!", Color.red);
                     }
                 }
                 else
@@ -2563,26 +2660,13 @@ namespace Steal.Background
             var data = GunLib.ShootLock();
             if (data != null)
             {
-                if (data.lockedPlayer != null && data.isLocked && GetPhotonViewFromRig(data.lockedPlayer) != null)
+                if (data.lockedPlayer != null && data.isLocked)
                 {
-                    Debug.Log("RIGHTHAND: " + GetRelativePosition(data.lockedPlayer.rightHandTransform, data.lockedPlayer.headMesh.transform)) ;
-                    Debug.Log("LEFTHAND: " + GetRelativePosition(data.lockedPlayer.leftHandTransform, data.lockedPlayer.headMesh.transform));
+                    Debug.Log("RIGHTHAND: " + GetRelativePosition(data.lockedPlayer.rightHandTransform, data.lockedPlayer.leftHandTransform)) ;
                 }
             }
         }
-
-        public static void OculusAntiReport()
-        {
-            foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
-            {
-                Vector3 RightHand = GetRelativePosition(vrrig.rightHandTransform, vrrig.headMesh.transform);
-                Vector3 LeftHand = GetRelativePosition(vrrig.leftHandTransform, vrrig.headMesh.transform);
-                if ((RightHand == new Vector3(0.12f, -0.07f, -0.30f) && (LeftHand == new Vector3(-0.22f, -0.14f, -0.03f))
-                {
-
-                }
-            }
-        }
+        
 
         static Vector3 GetRelativePosition(Transform objectA, Transform objectB)
         {
@@ -2590,10 +2674,41 @@ namespace Steal.Background
         }
 
         private static Player crashedPlayer = null;
+        
+        private static Player[] crashedPlayers = null;
 
         private static Vector3 crashPlayerPosition = Vector3.zero;
 
         private static float crashTimer = 0;
+
+        public static void MoveCrashHandler()
+        {
+            if (crashedPlayer != null)
+            {
+                if (crashedPlayer.InRoom())
+                {
+                    colorFloat = Mathf.Repeat(colorFloat + Time.deltaTime * float.PositiveInfinity, 1f);
+
+                    float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                    float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                    float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+                    if (crashPlayerPosition != GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position)
+                    {
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                        crashPlayerPosition = GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position;
+                    }
+
+                }
+                else
+                {
+                    crashedPlayer = null;
+                }
+            }
+        }
 
         public static void CrashHandler()
         {
@@ -2798,7 +2913,7 @@ namespace Steal.Background
             }
             else
             {
-                Notif.SendNotification("Enable Antiban!");
+                Notif.SendNotification("Enable Antiban!", Color.red);
             }
         }
 
@@ -2859,6 +2974,89 @@ namespace Steal.Background
                 }
             }
         }
+
+        public void Mat(Player player)
+        {
+            if (Time.time > a + 0.081f)
+            {
+                GorillaTagManager gtagmanager =
+                    GameObject.Find("Gorilla Tag Manager").GetComponent<GorillaTagManager>();
+                if (!gtagmanager.currentInfected
+                        .Contains(player))
+                {
+                    //orange
+                    gtagmanager.isCurrentlyTag = false;
+                    gtagmanager.ChangeCurrentIt(null, true);
+                    gtagmanager.currentIt = null;
+                    gtagmanager.AddInfectedPlayer(player);
+                    gtagmanager.currentInfected.Add(player);
+                    AcidMatoff();
+                }
+                else
+                {
+                    if (gtagmanager.GetComponent<GorillaTagManager>().currentInfected
+                        .Contains(player))
+                    {
+                        //green
+                        gtagmanager.GetComponent<GorillaTagManager>().currentInfected
+                            .Remove(player);
+                        gtagmanager.GetComponent<GorillaTagManager>().currentInfected.Clear();
+                        SoundSpam();
+                        AcidMat(player);
+                    }
+                }
+
+                gtagmanager.isCurrentlyTag = true;
+                gtagmanager.ChangeCurrentIt(player, true);
+                gtagmanager.currentIt = player;
+                a = Time.time;
+            }
+        }
+        
+        static int ewenum = 0;
+
+        private static GorillaTagManager manager = null;
+        public static void MatAllInf()
+        {
+            if (manager == null)
+            {
+                manager = GameObject.Find("Gorilla Tag Manager").GetComponent<GorillaTagManager>();
+            }
+            SoundSpam();
+            if (Time.time > a + 0.084f)
+            {
+                foreach (var player in PhotonNetwork.PlayerListOthers)
+                {
+                    if (ewenum == 0) 
+                    {
+                        UnAcidAll();
+                        manager.currentInfected.Add(player);
+                    }
+                    else if (ewenum == 1)
+                    {
+                        AcidAll();
+                    }
+                    else if (ewenum == 2)
+                    {
+                        manager.currentInfected.Remove(player);
+                    }
+                }
+
+                if (ewenum != 2)
+                {
+                    ewenum++;
+                }
+                else
+                {
+                    ewenum = 0;
+                }
+
+                a = Time.time;
+            }
+        }
+
+        private static float a = 0;
+
         static bool isSettingsLav = false;
         static void Leveno(int levelId)
         {
@@ -2867,7 +3065,7 @@ namespace Steal.Background
                 return;
             }
             isSettingsLav = true;
-            ExitGames.Client.Photon.Hashtable hashtable = new ExitGames.Client.Photon.Hashtable();
+            Hashtable hashtable = new ExitGames.Client.Photon.Hashtable();
             hashtable["curScn"] = (int)levelId;
             PhotonNetwork.CurrentRoom.SetCustomProperties(hashtable, null, null);
             PhotonNetwork.SendAllOutgoingCommands();
@@ -2911,7 +3109,12 @@ namespace Steal.Background
         {
             if (!IsMaster()) { return; }
             saveKeys();
-            if (Time.time > mattimer)
+            if (GetGameMode().Contains("INFECTION"))
+            {
+                MatAllInf();
+                return;
+            }
+            else if (Time.time > mattimer)
             {
                 if (ltagged)
                 {
@@ -3123,12 +3326,12 @@ namespace Steal.Background
                 }
                 else
                 {
-                    Notif.SendNotification("You are already masterclient!");
+                    Notif.SendNotification("You are already masterclient!", Color.red);
                 }
             }
             else
             {
-                Notif.SendNotification("Enable AntiBan!!");
+                Notif.SendNotification("Enable AntiBan!!", Color.red);
             }
         }
 
@@ -3495,20 +3698,20 @@ namespace Steal.Background
             try
             {
                 MenuPatch.isRunningAntiBan = false;
-                if (IsModded()) { Notif.SendNotification("<color=blue>AntiBan Already Enabled Or Your Not In A Lobby!</color>"); return; }
+                if (IsModded()) { Notif.SendNotification("<color=blue>AntiBan Already Enabled Or Your Not In A Lobby!</color>", Color.white); return; }
 
                 if (StumpCheck)
                 {
                     if (!InStumpCheck())
                     {
                         Notif.SendNotification(
-                            "<color=red>A Player is about to leave/In stump!..</color> <color=green>Retrying..</color>");
+                            "<color=red>A Player is about to leave/In stump!..</color> <color=green>Retrying..</color>", Color.white);
                         return;
                     }
                 }
 
-                if (antibancooldown > Time.time) { Notif.SendNotification("<color=red>Triggered AntiBan Cooldown!</color>"); return; }
-                if (PhotonVoiceNetwork.Instance.Client.LoadBalancingPeer.PeerState != ExitGames.Client.Photon.PeerStateValue.Connected) { Notif.SendNotification("Voices Have Not Loaded!"); return; }
+                if (antibancooldown > Time.time) { Notif.SendNotification("<color=red>Triggered AntiBan Cooldown!</color>", Color.red); return; }
+                if (PhotonVoiceNetwork.Instance.Client.LoadBalancingPeer.PeerState != ExitGames.Client.Photon.PeerStateValue.Connected) { Notif.SendNotification("Voices Have Not Loaded!", Color.white); return; }
                 Debug.Log("antiBan");
                 antibancooldown = Time.time + 4f;
                 AntiBan();
@@ -3552,7 +3755,7 @@ namespace Steal.Background
             PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
 
             Notif.ClearAllNotifications();
-            Notif.SendNotification("<color=blue>Antiban and Set Master Enabled!</color>");
+            Notif.SendNotification("<color=blue>Antiban and Set Master Enabled!</color>", Color.blue);
 
             PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
 
@@ -3620,7 +3823,7 @@ namespace Steal.Background
 
             if (anyMatch)
             {
-                Notif.SendNotification("<color=red>[AUTODODGE]</color> Moderator Found Disconnected Successfully");
+                Notif.SendNotification("AUTODODGE]</color> Moderator Found Disconnected Successfully", Color.red);
                 PhotonNetwork.Disconnect();
             }
         }
@@ -3749,11 +3952,11 @@ namespace Steal.Background
             if (PhotonNetwork.InRoom)
             {
                 PhotonNetwork.Disconnect();
-                Notif.SendNotification("Disconnected From Room");
+                Notif.SendNotification("Disconnected From Room", Color.white);
             }
             else
             {  
-                Notif.SendNotification("Failed To Disconnect: NOT IN ROOM");
+                Notif.SendNotification("Failed To Disconnect: NOT IN ROOM", Color.red);
             }
         }
 
@@ -3948,6 +4151,7 @@ namespace Steal.Background
         {
             try
             {
+                MoveCrashHandler();
                 foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
                 {
                     if (line.linePlayer.IsLocal)
@@ -3955,6 +4159,7 @@ namespace Steal.Background
                         Transform report = line.reportButton.gameObject.transform;
                         foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
                         {
+                            
                             if (vrrig != GorillaTagger.Instance.offlineVRRig && GetPhotonViewFromRig(vrrig) != null)
                             {
                                 var owner = GetPhotonViewFromRig(vrrig).Owner;
@@ -3965,18 +4170,18 @@ namespace Steal.Background
 
                                 if (MenuPatch.antiReportCurrent == "Float")
                                 {
-                                    threshold = 3;
+                                    threshold = 6;
                                 }
                                 else if (MenuPatch.antiReportCurrent == "Crash")
                                 {
-                                    threshold = 1;
+                                    threshold = 6;
                                 }
                                 else
                                 {
                                     threshold = 0.35f;
                                 }
 
-                                if (D1 < threshold || D2 < threshold)
+                                if (D1 < threshold || D2 < threshold || (IsVectorNear(vrrig.rightHandTransform.position, vrrig.leftHandTransform.position, .03f)))
                                 {
                                     if (MenuPatch.antiReportCurrent == "Disconnect")
                                         PhotonNetwork.Disconnect();
@@ -3994,11 +4199,9 @@ namespace Steal.Background
                                     else if (MenuPatch.antiReportCurrent == "Crash")
                                     {
                                         if (!IsModded()) { return; }
-                                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", owner, true, new object[] { 1f, 1f, 1f });
-                                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", owner, true, new object[] { 1f, 1f, 1f });
-                                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", owner, true, new object[] { 1f, 1f, 1f });
-                                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", owner, true, new object[] { 1f, 1f, 1f });
-                                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", owner, true, new object[] { 1f, 1f, 1f });
+                                        crashedPlayer = GetPhotonViewFromRig(vrrig).Owner;
+                                        crashPlayerPosition = vrrig.transform.position;
+                                        NameAll();
                                     }
                                     else if (MenuPatch.antiReportCurrent == "Float")
                                     {
@@ -4008,7 +4211,7 @@ namespace Steal.Background
                                         AngryBeeSwarm.instance.currentState = AngryBeeSwarm.ChaseState.Grabbing;
                                     }
 
-                                    Notif.SendNotification(owner.NickName + " tried to report you, " + MenuPatch.antiReportCurrent + " " + PhotonNetwork.CurrentRoom.Name);
+                                    Notif.SendNotification(owner.NickName + " tried to report you, " + MenuPatch.antiReportCurrent + " " + PhotonNetwork.CurrentRoom.Name, Color.red);
                                    
                                 }
                             }

@@ -74,7 +74,7 @@ namespace Steal.Background
                 string customdata = "";
                 customdata = $"{arr[4].ToString()} was reported by the anticheat for {arr[5].ToString()}";
                 ShowConsole.Log(customdata);
-                Notif.SendNotification($"{arr[4].ToString()} was reported by the anticheat for {arr[5].ToString()}");
+                Notif.SendNotification($"{arr[4].ToString()} was reported by the anticheat for {arr[5].ToString()}", Color.red);
             }
 
             if (ev.Code == 50)
@@ -85,7 +85,7 @@ namespace Steal.Background
                     $"{arr[2].ToString()} was reported by {arr[3].ToString()} for {getButtonType(int.Parse(arr[3].ToString()))}";
                 ShowConsole.Log(customdata);
                 Notif.SendNotification(
-                    $"{arr[2].ToString()} was reported by {arr[3].ToString()} for {getButtonType(int.Parse(arr[3].ToString()))}");
+                    $"{arr[2].ToString()} was reported by {arr[3].ToString()} for {getButtonType(int.Parse(arr[3].ToString()))}", Color.red);
             }
         }
 
