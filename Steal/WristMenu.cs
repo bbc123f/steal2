@@ -806,13 +806,13 @@ namespace Steal
 
         public static void ToggleButton(Button button)
         {
-            if (button.ismaster && !PhotonNetwork.IsMasterClient)
-            {
-                Notif.SendNotification("You're Not Masterclient!");
-                button.Enabled = false;
-                RefreshMenu();
-                return;
-            }
+            // if (button.ismaster && !PhotonNetwork.IsMasterClient)
+            // {
+            //     Notif.SendNotification("You're Not Masterclient!");
+            //     button.Enabled = false;
+            //     RefreshMenu();
+            //     return;
+            // }
 
             if (!button.isToggle)
             {

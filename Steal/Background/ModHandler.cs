@@ -3712,15 +3712,8 @@ namespace Steal.Background
                 Notif.SendNotification("Disconnected From Room");
             }
             else
-            {
-                if (!PhotonNetwork.IsConnectedAndReady)
-                {
-                    Notif.SendNotification("Failed To Disconnect: NOT AUTHENTICATED");
-                }
-                else if (!PhotonNetwork.InRoom)
-                {
-                    Notif.SendNotification("Failed To Disconnect: NOT IN ROOM");
-                }
+            {  
+                Notif.SendNotification("Failed To Disconnect: NOT IN ROOM");
             }
         }
 
