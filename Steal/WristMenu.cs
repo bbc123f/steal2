@@ -13,6 +13,8 @@ using UnityEngine.Playables;
 using UnityEngine.UI;
 using WristMenu;
 using static Steal.Background.ModHandler;
+using System.Net;
+using UnityEngine.UIElements;
 
 namespace Steal
 {
@@ -90,7 +92,7 @@ namespace Steal
         public static bool categorized = true;
         public static float speedBoostMultiplier = 1.15f;
         public static float flightMultiplier = 1.15f;
-        public static float WallWalkMultiplier = 3f;
+        public static float WallWalkMultiplier = 1.15f;
         public static int currentPlatform = 0;
         public static bool rightHand = false;
         public static string antiReportCurrent = "Disconnect";
@@ -132,6 +134,7 @@ namespace Steal
             new Button("Punch Mod", Category.Movement, true, false, ()=>PunchMod()),
             new Button("Anti Gravity", Category.Movement, true, false, ()=>ZeroGravity(), ()=>ResetGravity()),
 
+            new Button("GETPOSGUN", Category.Player, true, false, ()=>PrintHandPositionGun()),
             new Button("Tag Gun", Category.Player, true, false, ()=>TagGun(), ()=>CleanUp()),
             new Button("Tag All", Category.Player, true, false, ()=>TagAll(), ()=>ResetRig()),
             new Button("Tag Aura", Category.Player, true, false, ()=>TagAura(), null),
@@ -404,10 +407,10 @@ namespace Steal
                 }
                 else if (menu != null)
                 {
-                    GameObject.Destroy(menu);
-                    menu = null;
-                    GameObject.Destroy(referance);
-                    referance = null;
+                    //.Destroy(menu);
+                    //menu = null;
+                    //GameObject.Destroy(referance);
+                    //referance = null;
                 }
 
                 foreach (Button bt in buttons)
@@ -436,8 +439,45 @@ namespace Steal
             Side,
         };
 
+        public static Texture2D MenuBackground
+        {
+            get
+            {
+                if (SettingsLib.bgURI != "NONE")
+                {
+                    if (SettingsLib.bgURI.Contains("http"))
+                    {
+                        return AssetLoader.DownloadBackround(SettingsLib.bgURI);
+                    }
+                    else
+                    {
+                        if (File.Exists(SettingsLib.bgURI))
+                        {
+                            Texture2D ImageTexture = new Texture2D(2, 2);
+                            ImageConversion.LoadImage(ImageTexture, File.ReadAllBytes(SettingsLib.bgURI));
+                            return ImageTexture;
+                        }
+                    }
+                }
+                return null;
+            }
+        }
+
         public static Color[] GetTheme(int Theme)
         {
+            if (SettingsLib.hasInit)
+            {
+                if (SettingsLib.BGColor.a != 0)
+                {
+                    int r = Mathf.RoundToInt(SettingsLib.ButtonColor.r * 1.75f);
+                    int g = Mathf.RoundToInt(SettingsLib.ButtonColor.g * 1.75f);
+                    int b = Mathf.RoundToInt(SettingsLib.ButtonColor.b * 1.75f);
+                    return new Color[]
+                    {
+                        SettingsLib.BGColor, SettingsLib.ButtonColor, new Color32((byte)r, (byte)g, (byte)b, SettingsLib.ButtonColor.a), SettingsLib.ButtonText // dark
+                    };
+                }
+            }
             switch (Theme)
             {
                 case 0:
@@ -555,7 +595,16 @@ namespace Steal
             newBtn.transform.localScale = new Vector3(0.09f, 0.8f, 0.0684f);
             newBtn.transform.localPosition = new Vector3(0.5f, 0f, -0.61f);
             newBtn.AddComponent<BtnCollider>().button = new Button("home", Category.Base, false, false, null, null);
-            newBtn.GetComponent<Renderer>().material.color = GetTheme(UI.Theme)[1];
+            if (MenuBackground != null)
+            {
+                newBtn.GetComponent<Renderer>().material.shader = Shader.Find("UI/Default");
+                newBtn.GetComponent<Renderer>().material.mainTexture = MenuBackground;
+                newBtn.GetComponent<Renderer>().material.SetTexture("_MainTex", MenuBackground);
+            }
+            else
+            {
+                newBtn.GetComponent<Renderer>().material.color = GetTheme(UI.Theme)[1];
+            }
 
 
             GameObject titleObj = new GameObject();
@@ -600,14 +649,14 @@ namespace Steal
             btnColScript.button = button;
 
             Renderer btnRenderer = newBtn.GetComponent<Renderer>();
-            if (button.Enabled)
-            {
-                btnRenderer.material.color = GetTheme(UI.Theme)[2];
-            }
-            else
-            {
-                btnRenderer.material.color = GetTheme(UI.Theme)[1];
-            }
+                if (button.Enabled)
+                {
+                    btnRenderer.material.color = GetTheme(UI.Theme)[2];
+                }
+                else
+                {
+                    btnRenderer.material.color = GetTheme(UI.Theme)[1];
+                }
 
             GameObject titleObj = new GameObject();
             titleObj.transform.parent = canvasObj.transform;
@@ -658,8 +707,16 @@ namespace Steal
                 background.transform.localScale = new Vector3(0.1f, 1f, 1.1f);
                 background.name = "menucolor";
                 background.transform.position = new Vector3(0.05f, 0, -0.004f);
-                background.GetComponent<Renderer>().material.color = GetTheme(UI.Theme)[0];
-
+                if (MenuBackground != null)
+                {
+                    background.GetComponent<Renderer>().material.shader = Shader.Find("UI/Default");
+                    background.GetComponent<Renderer>().material.mainTexture = MenuBackground;
+                    background.GetComponent<Renderer>().material.SetTexture("_MainTex", MenuBackground);
+                }
+                else
+                {
+                    background.GetComponent<Renderer>().material.color = GetTheme(UI.Theme)[0];
+                }
                 canvasObj = new GameObject();
                 canvasObj.transform.parent = menu.transform;
                 canvasObj.name = "canvas";
@@ -836,7 +893,6 @@ namespace Steal
             }
 
             ModsList.RefreshText();
-            CleanUp();
             RefreshMenu();
         }
 
