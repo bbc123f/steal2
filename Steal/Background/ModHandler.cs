@@ -491,69 +491,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         }
 
         #region lava mods
-        public static void RiseLava()
-        {
-            try
-            {
-                InfectionLavaController controller = InfectionLavaController.Instance;
-                System.Type type = controller.GetType();
+       
 
-                FieldInfo fieldInfo = type.GetField("reliableState", BindingFlags.NonPublic | BindingFlags.Instance);
-
-                object reliableState = fieldInfo.GetValue(controller);
-
-                FieldInfo stateFieldInfo = reliableState.GetType().GetField("state");
-                stateFieldInfo.SetValue(reliableState, InfectionLavaController.RisingLavaState.Full);
-
-                FieldInfo stateFieldInfo2 = reliableState.GetType().GetField("stateStartTime");
-                stateFieldInfo2.SetValue(reliableState, PhotonNetwork.Time);
-
-                fieldInfo.SetValue(controller, reliableState);
-            }
-            catch { }
-        }
-
-        public static void DrainLava()
-        {
-            try
-            {
-                InfectionLavaController controller = InfectionLavaController.Instance;
-                System.Type type = controller.GetType();
-
-                FieldInfo fieldInfo = type.GetField("reliableState", BindingFlags.NonPublic | BindingFlags.Instance);
-
-                object reliableState = fieldInfo.GetValue(controller);
-
-                FieldInfo stateFieldInfo = reliableState.GetType().GetField("state");
-                stateFieldInfo.SetValue(reliableState, InfectionLavaController.RisingLavaState.Drained);
-
-                FieldInfo stateFieldInfo2 = reliableState.GetType().GetField("stateStartTime");
-                stateFieldInfo2.SetValue(reliableState, PhotonNetwork.Time);
-
-                fieldInfo.SetValue(controller, reliableState);
-            }
-            catch { }
-        }
-
-        static float LavaTimer;
-        static bool canchangelava;
-        public static void SpazLava()
-        {
-            if (Time.time > LavaTimer)
-            {
-                if (canchangelava)
-                {
-                    RiseLava();
-                    canchangelava = false;
-                }
-                else
-                {
-                    DrainLava();
-                    canchangelava = true;
-                }
-                LavaTimer = Time.time + 0.08f;
-            }
-        }
         #endregion
 
         #region Acid Mods

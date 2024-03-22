@@ -407,10 +407,10 @@ namespace Steal
                 }
                 else if (menu != null)
                 {
-                    //.Destroy(menu);
-                    //menu = null;
-                    //GameObject.Destroy(referance);
-                    //referance = null;
+                    Destroy(menu);
+                    menu = null;
+                    GameObject.Destroy(referance);
+                    referance = null;
                 }
 
                 foreach (Button bt in buttons)
@@ -707,7 +707,7 @@ namespace Steal
                 background.transform.localScale = new Vector3(0.1f, 1f, 1.1f);
                 background.name = "menucolor";
                 background.transform.position = new Vector3(0.05f, 0, -0.004f);
-                if (MenuBackground != null)
+                if (false)
                 {
                     background.GetComponent<Renderer>().material.shader = Shader.Find("UI/Default");
                     background.GetComponent<Renderer>().material.mainTexture = MenuBackground;
