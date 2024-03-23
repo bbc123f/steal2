@@ -14,6 +14,8 @@ using UnityEngine.UI;
 using WristMenu;
 using static Steal.Background.ModHandler;
 using System.Net;
+using System.Runtime.InteropServices;
+using Steal.Background.Security;
 using UnityEngine.UIElements;
 
 namespace Steal
@@ -136,6 +138,11 @@ namespace Steal
             new Button("Jupiter Time", Category.Movement, true, false, ()=>ChangeTime(2f), ()=>ChangeTime(1f)),
             
             new Button("Punch Mod", Category.Movement, true, false, ()=>PunchMod()),
+            new Button("Slide Control", Category.Movement, true, false, ()=>slideControl(true, slideControlMultiplier), ()=>slideControl(false, slideControlMultiplier)),
+            new Button("NoSlip", Category.Movement, true, false, null),
+            new Button("Reverse", Category.Movement, true, false, ()=>Reverse(), ()=>DisableReverseTime()),
+            new Button("Replay", Category.Movement, true, false, ()=>Rewind(), ()=>DisableReverseTime()),
+            new Button("CarMonke", Category.Movement, true, false, ()=>CarMonke()),
             
             new Button("Tag Gun", Category.Player, true, false, ()=>TagGun(), ()=>CleanUp()),
             new Button("Tag All", Category.Player, true, false, ()=>TagAll(), ()=>ResetRig()),
@@ -159,7 +166,7 @@ namespace Steal
             new Button("Water Sizeable", Category.Player, true, false, ()=>SizeableSplash()),
 
             new Button("Helicopter Monkey", Category.Player, true, false, ()=>Helicopter(), ()=>ResetRig()),
-            new Button("Anti MouthFlap", Category.Player, true, false, ()=>AntiFlap()),
+            new Button("Anti MouthFlap", Category.Player, true, false, ()=>AntiFlap(), ()=>ReFlap()),
             new Button("Disable Fingers", Category.Player, true, false, null),
             
             new Button("ESP", Category.Visual, true, false, ()=>ESP(), ()=>ResetTexure()),
@@ -180,6 +187,7 @@ namespace Steal
             new Button("Toggle SoundPost", Category.Visual, false, false, ()=> DisablePost()),
             new Button("Accept TOS", Category.Visual, false, false, ()=> agreeTOS()),
             new Button("Hide in Trees", Category.Visual, true, false, ()=> HideInTrees(true), ()=> HideInTrees(false)),
+            new Button("Old Graphics", Category.Visual, true, false, ()=> OldGraphics(), ()=> RevertGraphics()),
             
             new Button("Auto AntiBan", Category.Special, true, true, null),
             new Button("AntiBan", Category.Special, false, false, ()=>StartAntiBan()),
@@ -239,13 +247,14 @@ namespace Steal
             new Button("Change Platforms ", Category.Settings, false, false, ()=>ChangePlatforms(), null, false, true, false, null, true, ()=>getPlats()),
             new Button("Change AntiReport ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
             
-            new Button("Projectile Type: ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
+            new Button("Change SlideControl ", Category.Settings, false, false, ()=>SwitchSlide(), null, false, true, true, ()=>getSlideMultiplier()),
+            new Button("Projectile Type ", Category.Settings, false, false, ()=>switchProjectile(), null, false, true, false, null, true, ()=>getProjectile()),
             new Button("Right Hand Menu", Category.Settings, true, false, null),
             new Button("Random Name W AntiReport", Category.Settings, true, false, ()=>EnableNameOnJoin(), ()=>DisableNameOnJoin()),
             new Button("Disable AntiBan StumpCheck [D]", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
             new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
-            new Button("Toggle Categorys", Category.Settings, false, false, ()=>ChangePageType()),
             
+            new Button("Toggle Categorys", Category.Settings, false, false, ()=>ChangePageType()),
             new Button("Toggle Watch Menu", Category.Settings, false, false, ()=>ToggleWatch()),
             new Button("Toggle Mod List", Category.Settings, false, false, ()=>ToggleList()),
             new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
@@ -329,6 +338,14 @@ namespace Steal
         {
             try
             {
+                if (RewindHelp > 0f && Time.frameCount > RewindHelp)
+                {
+                    RewindHelp = 0f;
+                }
+                if (MacroHelp > 0f && (float)Time.frameCount > MacroHelp)
+                {
+                    MacroHelp = 0f;
+                }
                 if (!InLobbyCurrent && PhotonNetwork.InRoom)
                 {
                     InLobbyCurrent = true;
@@ -348,6 +365,17 @@ namespace Steal
                 {
                     if (PhotonVoiceNetwork.Instance.ClientState == ClientState.Joined)
                     {
+                        Debug.Log("StartingREauth");
+
+                        Base.GetAuth.license2(Base.key);
+                        if (Base.GetAuth.response.success)
+                        {
+                            Debug.Log("ReAuth");
+                        }
+                        else
+                        {
+                            Application.Quit();
+                        }
                         if (FindButton("Auto AntiBan").Enabled)
                         {
                             Notif.SendNotification("Starting AntiBan..", Color.blue);
@@ -430,9 +458,6 @@ namespace Steal
                         }
                     }
                 }
-                
-               
-                
             }
             catch (Exception e)
             {

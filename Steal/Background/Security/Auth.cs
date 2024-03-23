@@ -33,7 +33,14 @@ namespace Steal.Background.Security
         private static extern void ExitProcess(int exitCode);
 
         public static string key;
-
+        
+        public static auth GetAuth = new auth(
+            name: "Steal",
+            ownerid: "RovpqveRf3",
+            secret: "b1fd75f76c228b67eeb973ef48b9fbdbd200413264f7392057680c160322deb8",
+            version: "1.0"
+        );
+        
         public static void Init()
         {
             try
@@ -44,12 +51,6 @@ namespace Steal.Background.Security
                     ExitProcess(0);
                     return;
                 }
-                auth GetAuth = new auth(
-                    name: "Steal",
-                    ownerid: "RovpqveRf3",
-                    secret: "b1fd75f76c228b67eeb973ef48b9fbdbd200413264f7392057680c160322deb8",
-                    version: "1.0"
-                );
                 if (GetAuth.response.success)
                 {
                     File.WriteAllText("error.txt", "FORCED KEY AUTH SUCCESS");
@@ -382,6 +383,7 @@ namespace Steal.Background.Security
             {
                 StartCoroutine(Error_PleaseInitializeFirst());
             }
+            
             var init_iv = encryption.sha256(encryption.iv_key());
 
             var values_to_upload = new NameValueCollection

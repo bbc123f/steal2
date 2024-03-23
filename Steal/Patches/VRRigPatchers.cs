@@ -1,4 +1,5 @@
 ﻿using System;
+using GorillaLocomotion;
 using HarmonyLib;
 using UnityEngine;
 using Steal.Background;
@@ -14,6 +15,20 @@ namespace Steal.Patchers.VRRigPatchers
         public static bool Prefix()
         {
             return (!ModHandler.FindButton("Disable Fingers").Enabled);
+        }
+    }
+    
+    [HarmonyPatch(typeof(Player), "GetSlidePercentage", MethodType.Normal)]
+    public class SlidePatch
+    {
+        static void Postfix(Player __instance, ref float __result)
+        {
+            try
+            {
+                if (ModHandler.FindButton("NoSlip").Enabled)
+                    __result = 0;
+            }
+            catch {}
         }
     }
     

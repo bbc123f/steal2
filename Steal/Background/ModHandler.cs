@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using PlayFab.Json;
+using Steal.Background.Security;
 using UnityEngine;
 using UnityEngine.XR;
 using WristMenu;
@@ -34,6 +35,7 @@ using Object = UnityEngine.Object;
 using Player = Photon.Realtime.Player;
 using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
+using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Steal.Background
@@ -146,10 +148,221 @@ namespace Steal.Background
             return MenuPatch.WallWalkMultiplier;
         }
 
+        public static float getSlideMultiplier()
+        {
+            return slideControlMultiplier;
+        }
+        
         public static string getAntiReport()
         {
             return MenuPatch.antiReportCurrent;
         }
+        
+        public static string getProjectile()
+        {
+            return projectileString;
+        }
+
+        public static List<Vector3> positions = new List<Vector3>();
+
+        public static float RewindHelp = 0f;
+        
+        public static void Reverse()
+        {
+            if (LeftGrip)
+            {
+                for (int i = positions.Count - 1; i >= 0; i--)
+                {
+                    if (RewindHelp == 0f)
+                    {
+                        GorillaLocomotion.Player.Instance.transform.position = positions[i];
+                        positions.RemoveAt(i);
+                        RewindHelp = Time.deltaTime + 1f;
+                    }
+                }
+            }
+            else if (RightGrip)
+            {
+                positions.Add(GorillaLocomotion.Player.Instance.transform.position);
+            }
+        }
+        
+        private static bool clipped = false;
+        
+        public static List<Vector3> Macro = new List<Vector3>();
+
+        public static float MacroHelp = 0f;
+        
+        private static Vector3 head_direction;
+        
+        private static Vector3 roll_direction;
+
+        private static Vector2 left_joystick;
+        
+        private static bool Start = false;
+        
+        private static float multiplier = 1f;
+        
+        private static float speed = 0f;
+        
+        private static float maxs = 10f;
+        
+        private static float acceleration = 5f;
+        
+        private static float distance = 0.35f;
+
+        public static bool oldGraphiks = false;
+        public static void OldGraphics()
+        {
+            if (!oldGraphiks)
+            {
+                foreach (Renderer renderer in Resources.FindObjectsOfTypeAll<Renderer>())
+                {
+                    if (renderer.sharedMaterial != null && renderer.sharedMaterial.mainTexture != null)
+                    {
+                        string objectName = renderer.sharedMaterial.mainTexture.name;
+                        string materialName = renderer.sharedMaterial.name;
+                        renderer.sharedMaterial.mainTexture.filterMode = FilterMode.Bilinear;
+
+
+                        renderer.sharedMaterial.mainTexture.name = objectName;
+                        renderer.sharedMaterial.name = materialName;
+                    }
+                }
+                
+                oldGraphiks = true;
+            }
+        }
+        
+        public static void RevertGraphics()
+        {
+            foreach (Renderer renderer in Resources.FindObjectsOfTypeAll<Renderer>())
+            {
+                if (renderer.sharedMaterial != null && renderer.sharedMaterial.mainTexture != null)
+                {
+                    // Assuming you want to revert the filter mode to Point for a more pixelated look
+                    renderer.sharedMaterial.mainTexture.filterMode = FilterMode.Point;
+
+                    // The objectName and materialName assignments are not needed for reversing the filter mode change
+                    // but if there were other changes made to names or properties, you'd reverse those here
+                }
+            }
+
+            oldGraphiks = false;
+        }
+
+
+        public static void CarMonke()
+        {
+            if (!Start)
+            {
+                multiplier = 3f;
+                Start = true;
+            }
+
+            left_joystick = LeftJoystick;
+            
+            RaycastHit raycastHit;
+            Physics.Raycast(global::GorillaLocomotion.Player.Instance.bodyCollider.transform.position, Vector3.down, out raycastHit, 100f, layers);
+            head_direction = global::GorillaLocomotion.Player.Instance.headCollider.transform.forward;
+            roll_direction = Vector3.ProjectOnPlane(head_direction, raycastHit.normal);
+            if (left_joystick.y != 0f)
+            {
+                if (left_joystick.y < 0f)
+                {
+                    if (speed > -maxs)
+                    {
+                        speed -= acceleration * Math.Abs(left_joystick.y) *
+                                           Time.deltaTime;
+                    }
+                }
+                else if (speed < maxs)
+                {
+                    speed += acceleration * Math.Abs(left_joystick.y) * Time.deltaTime;
+                }
+            }
+            else if (speed < 0f)
+            {
+                speed += acceleration * Time.deltaTime * 0.5f;
+            }
+            else if (speed > 0f)
+            {
+                speed -= acceleration * Time.deltaTime * 0.5f;
+            }
+
+            if (speed > maxs)
+            {
+                speed = maxs;
+            }
+
+            if (speed < -maxs)
+            {
+                speed = -maxs;
+            }
+
+            if (speed != 0f && raycastHit.distance < distance)
+            {
+                GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.velocity =
+                    roll_direction.normalized * speed * multiplier;
+            }
+
+            if (GorillaLocomotion.Player.Instance.IsHandTouching(true) ||
+                GorillaLocomotion.Player.Instance.IsHandTouching(false))
+            {
+                speed *= 0.75f;
+            }
+        }
+
+        public static void Rewind()
+        {
+            MeshCollider[] array = Resources.FindObjectsOfTypeAll<MeshCollider>();
+            if (LeftGrip)
+            {
+                Macro.Add(global::GorillaLocomotion.Player.Instance.transform.position);
+            }
+
+            if (RightGrip)
+            {
+                global::GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity = false;
+                if (!clipped)
+                {
+                    foreach (MeshCollider meshCollider in array)
+                    {
+                        meshCollider.transform.localScale = meshCollider.transform.localScale / 10000f;
+                    }
+                }
+                clipped = true;
+                for (int k = 0; k < Macro.Count; k++)
+                {
+                    if (MacroHelp == 0f)
+                    {
+                        global::GorillaLocomotion.Player.Instance.transform.position = Macro[k];
+                        Macro.RemoveAt(k);
+                        MacroHelp = Time.deltaTime + 1f;
+                    }
+                }
+            }
+            else
+            {
+                global::GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity = true;
+            }
+            if (clipped && !RightGrip)
+            {
+                foreach (MeshCollider meshCollider2 in array)
+                {
+                    meshCollider2.transform.localScale = meshCollider2.transform.localScale * 10000f;
+                }
+                clipped = false;
+            }
+        }
+        
+        public static void DisableReverseTime()
+        {
+            positions.Clear();
+            Macro.Clear();
+        }
+        
+        
 
         public static string getPlats()
         {
@@ -195,28 +408,17 @@ namespace Steal.Background
             }
 
         }
-        
+
+        public static string projectileString = "Balloon";
         public static void switchProjectile()
         {
-            if (MenuPatch.antiReportCurrent == "Snowball")
+            if (projectileString == "Snowball")
             {
-                MenuPatch.antiReportCurrent = "Balloon";
+                projectileString = "Balloon";
             }
-            else if (MenuPatch.antiReportCurrent == "Rejoin")
+            else if (projectileString == "Balloon")
             {
-                MenuPatch.antiReportCurrent = "JoinRandom";
-            }
-            else if (MenuPatch.antiReportCurrent == "JoinRandom")
-            {
-                MenuPatch.antiReportCurrent = "Crash";
-            }
-            else if (MenuPatch.antiReportCurrent == "Crash")
-            {
-                MenuPatch.antiReportCurrent = "Float";
-            }
-            else if (MenuPatch.antiReportCurrent == "Float")
-            {
-                MenuPatch.antiReportCurrent = "Disconnect";
+                projectileString = "Snowball";
             }
 
         }
@@ -339,13 +541,6 @@ namespace Steal.Background
                 Notif.SendNotification("One or more mods have been disabled due to not having master!", Color.white);
                 MenuPatch.RefreshMenu();
             }
-            
-            if (FindButton("Anti Report").Enabled && changeNameOnJoin)
-            {
-                ChangeRandomIdentity();
-            }
-
-
         }
 
         public static void AcidMat(Photon.Realtime.Player player)
@@ -561,8 +756,15 @@ namespace Steal.Background
         public static void AntiFlap()
         {
             Traverse.Create(GorillaTagger.Instance.offlineVRRig).Field("speakingLoudness").SetValue(0);
+            GorillaTagger.Instance.offlineVRRig.GetComponent<GorillaMouthFlap>().enabled = false;
         }
 
+        public static void ReFlap()
+        {
+            GorillaTagger.Instance.offlineVRRig.GetComponent<GorillaMouthFlap>().enabled = true;
+        }
+
+        
         public static void CleanUp()
         {
             ResetRig();
@@ -1583,6 +1785,10 @@ namespace Steal.Background
             MenuPatch.WallWalkMultiplier = MenuPatch.multiplierManager(MenuPatch.WallWalkMultiplier);
         }
 
+        public static void SwitchSlide()
+        {
+            slideControlMultiplier = MenuPatch.multiplierManager(slideControlMultiplier);
+        }
 
 
         public static void SpeedBoost(float speedMult, bool Enable)
@@ -3093,7 +3299,6 @@ namespace Steal.Background
                     float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                     if (XRSettings.isDeviceActive && (Mathf.RoundToInt(1f / UI.deltaTime) < 100))
                     {
                         if (crashPlayerPosition != GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position)
@@ -3102,6 +3307,10 @@ namespace Steal.Background
                             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                             crashPlayerPosition = GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position;
                         }
+                    }
+                    else if ((Mathf.RoundToInt(1f / UI.deltaTime) < 100))
+                    {
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                     }
 
                 }
@@ -3439,14 +3648,30 @@ namespace Steal.Background
         }
         public static void CrashAll()
         {
-            SoundSpam();
             float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
             float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
             float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
+            if ((Mathf.RoundToInt(1f / UI.deltaTime) < 100))
+            {
+                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
+                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
+            }
+        }
+
+        public static float slideControlMultiplier = 1.15f;
+        public static void slideControl(bool enable, float control)
+        {
+            if (enable)
+            {
+                GorillaLocomotion.Player.Instance.slideControl = control;
+            }
+            else
+            {
+                GorillaLocomotion.Player.Instance.slideControl = 0.00425f;
+            }
         }
 
         public static void matSpamAll()
