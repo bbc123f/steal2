@@ -131,10 +131,12 @@ namespace Steal
             new Button("WallWalk", Category.Movement, true, false, ()=>WallWalk(), ()=>ResetGravity()),
             new Button("SpiderClimb", Category.Movement, true, false, ()=>MonkeClimb()),
             new Button("BHop", Category.Movement, true, false, ()=>BHop()),
-            new Button("Punch Mod", Category.Movement, true, false, ()=>PunchMod()),
             new Button("Anti Gravity", Category.Movement, true, false, ()=>ZeroGravity(), ()=>ResetGravity()),
-
-            new Button("GETPOSGUN", Category.Player, true, false, ()=>PrintHandPositionGun()),
+            new Button("Moon Time", Category.Movement, true, false, ()=>ChangeTime(.25f), ()=>ChangeTime(1f)),
+            new Button("Jupiter Time", Category.Movement, true, false, ()=>ChangeTime(2f), ()=>ChangeTime(1f)),
+            
+            new Button("Punch Mod", Category.Movement, true, false, ()=>PunchMod()),
+            
             new Button("Tag Gun", Category.Player, true, false, ()=>TagGun(), ()=>CleanUp()),
             new Button("Tag All", Category.Player, true, false, ()=>TagAll(), ()=>ResetRig()),
             new Button("Tag Aura", Category.Player, true, false, ()=>TagAura(), null),
@@ -175,7 +177,9 @@ namespace Steal
             new Button("Horror Game", Category.Visual, false, false, ()=> HorrorGame()),
 
             new Button("Revert FPS/Horror", Category.Visual, false, false, ()=> RestoreOriginalMaterials()),
-            new Button("Disable SoundPost", Category.Visual, false, false, ()=> DisableSoundPost()),
+            new Button("Toggle SoundPost", Category.Visual, false, false, ()=> DisablePost()),
+            new Button("Accept TOS", Category.Visual, false, false, ()=> agreeTOS()),
+            new Button("Hide in Trees", Category.Visual, true, false, ()=> HideInTrees(true), ()=> HideInTrees(false)),
             
             new Button("Auto AntiBan", Category.Special, true, true, null),
             new Button("AntiBan", Category.Special, false, false, ()=>StartAntiBan()),
@@ -184,12 +188,12 @@ namespace Steal
             new Button("Fraud Identity Spoof", Category.Special, false, false, ()=>ChangeRandomIdentity()),
             new Button("Anti Report", Category.Special, true, true, ()=>AntiReport()),
 
-            new Button("Crash All", Category.Special, false, false, ()=>CrashAll(), null, true),
+            new Button("Crash All", Category.Special, true, false, ()=>CrashAll(), null, true),
             new Button("Crash Gun", Category.Special, true, false, ()=>CrashGun(), null, true),
             new Button("Crash On Touch", Category.Special, true, false, ()=>CrashOnTouch(), null, true),
-            new Button("Freeze All", Category.Special, false, false, ()=>InvisAll(), null, true),
-            new Button("Freeze Gun", Category.Special, true, false, ()=>InvisGun(), null, true),
-            new Button("Freeze On Touch", Category.Special, true, false, ()=>InvisOnTouch(), null, true),
+            new Button("Stutter All", Category.Special, true, false, ()=>InvisAll(), null, true),
+            new Button("Stutter Gun", Category.Special, true, false, ()=>InvisGun(), null, true),
+            new Button("Stutter On Touch", Category.Special, true, false, ()=>InvisOnTouch(), null, true),
 
             new Button("Lag All", Category.Special, true, false, ()=>LagAl(), null, true),
             new Button("Lag Gun", Category.Special, true, false, ()=>LagGun(), null, true),
@@ -225,6 +229,8 @@ namespace Steal
             new Button("Float Gun", Category.Special, true, false, ()=>FloatGun(), null, true),
             new Button("Sound Spam", Category.Special, true, false, ()=>SoundSpam(), null, true),
             new Button("Tag Lag", Category.Special, true, false, ()=>TagLag(), ()=>RevertTagLag(), true),
+            
+            new Button("Projectile Gun", Category.Special, true, false, ()=>ProjectileGun(), ()=>CleanUp(), true),
 
             new Button("Change Theme", Category.Settings, false, false, ()=>ChangeTheme(), null, false, false),
             new Button("Change SpeedBoost ", Category.Settings, false, false, ()=>SwitchSpeed(), null, false, true, true, ()=>getSpeedBoostMultiplier()),
@@ -232,14 +238,15 @@ namespace Steal
             new Button("Change WallWalk ", Category.Settings, false, false, ()=>SwitchWallWalk(), null, false, true, true, ()=>getWallWalkMultiplier()),
             new Button("Change Platforms ", Category.Settings, false, false, ()=>ChangePlatforms(), null, false, true, false, null, true, ()=>getPlats()),
             new Button("Change AntiReport ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
-
+            
+            new Button("Projectile Type: ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
             new Button("Right Hand Menu", Category.Settings, true, false, null),
             new Button("Random Name W AntiReport", Category.Settings, true, false, ()=>EnableNameOnJoin(), ()=>DisableNameOnJoin()),
             new Button("Disable AntiBan StumpCheck [D]", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
             new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
             new Button("Toggle Categorys", Category.Settings, false, false, ()=>ChangePageType()),
-            new Button("Toggle Watch Menu", Category.Settings, false, false, ()=>ToggleWatch()),
             
+            new Button("Toggle Watch Menu", Category.Settings, false, false, ()=>ToggleWatch()),
             new Button("Toggle Mod List", Category.Settings, false, false, ()=>ToggleList()),
             new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
             new Button("Disable Notifications", Category.Settings, false, false, ()=>Notif.IsEnabled = !Notif.IsEnabled),
@@ -415,7 +422,7 @@ namespace Steal
 
                 foreach (Button bt in buttons)
                 {
-                    if (bt.Enabled == true)
+                    if (bt.Enabled)
                     {
                         if (bt.onEnable != null)
                         {
@@ -423,6 +430,8 @@ namespace Steal
                         }
                     }
                 }
+                
+               
                 
             }
             catch (Exception e)
@@ -439,13 +448,14 @@ namespace Steal
             Side,
         };
 
+
         public static Texture2D MenuBackground
         {
             get
             {
-                if (SettingsLib.bgURI != "NONE")
+                if (true)//SettingsLib.bgURI != "NONE")
                 {
-                    if (SettingsLib.bgURI.Contains("http"))
+                    if (false)//SettingsLib.bgURI.Contains("http"))
                     {
                         return AssetLoader.DownloadBackround(SettingsLib.bgURI);
                     }
@@ -642,7 +652,7 @@ namespace Steal
 
             newBtn.transform.parent = menu.transform;
             newBtn.transform.rotation = Quaternion.identity;
-            newBtn.transform.localScale = new Vector3(0.09f, 0.8f, 0.08f);
+            newBtn.transform.localScale = new Vector3(0.1f, 0.92f, 0.1f);
             newBtn.transform.localPosition = new Vector3(0.56f, 0f, 0.28f - offset);
 
             BtnCollider btnColScript = newBtn.AddComponent<BtnCollider>();
@@ -677,6 +687,7 @@ namespace Steal
             }
             title.fontSize = 1;
             title.color = GetTheme(UI.Theme)[3];
+            title.fontStyle = FontStyle.Bold;
             title.alignment = TextAnchor.MiddleCenter;
             title.resizeTextForBestFit = true;
             title.resizeTextMinSize = 0;
@@ -732,6 +743,7 @@ namespace Steal
                 Text title = titleObj.AddComponent<Text>();
                 title.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
                 title.text = "Steal";
+                title.fontStyle = FontStyle.BoldAndItalic;
                 title.color = GetTheme(UI.Theme)[3];
                 title.fontSize = 1;
                 title.alignment = TextAnchor.MiddleCenter;

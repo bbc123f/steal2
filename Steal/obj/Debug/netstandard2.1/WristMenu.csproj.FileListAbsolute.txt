@@ -624,7 +624,6 @@ C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\Fusion.So
 C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\Fusion.Realtime.dll
 C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\PhotonVoice.Fusion.dll
 C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\Fusion.Common.dll
-C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\VoiceSDK.Dictation.Runtime.dll
 C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\Unity.Collections.dll
 C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\VoiceSDK.Runtime.dll
 C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\NanoSockets.dll
@@ -786,3 +785,11 @@ C:\Users\Elias\Documents\GitHub\steal2\Steal\obj\Debug\netstandard2.1\WristMenu.
 C:\Users\Elias\Documents\GitHub\steal2\Steal\obj\Debug\netstandard2.1\WristMenu.csproj.CopyComplete
 C:\Users\Elias\Documents\GitHub\steal2\Steal\obj\Debug\netstandard2.1\Steal.dll
 C:\Users\Elias\Documents\GitHub\steal2\Steal\obj\Debug\netstandard2.1\Steal.pdb
+C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\ZString.dll
+C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\Meta.WitAi.dll
+C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\Meta.WitAi.Lib.dll
+C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\Meta.WitAi.TTS.dll
+C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\Meta.VoiceSDK.Mic.Common.dll
+C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\Meta.WitAi.Conduit.dll
+C:\Users\SialPC\Documents\GitHub\steal2\Steal\bin\Debug\netstandard2.1\Meta.VoiceSDK.Mic.Other.dll

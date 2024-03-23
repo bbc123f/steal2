@@ -13,11 +13,16 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Security.Cryptography;
 using System.Text;
+using GorillaNetworking;
+using PlayFab;
+using PlayFab.ClientModels;
 using Steal.Patchers.GorillaNotPatchers;
 using UnityEngine;
 using WristMenu;
 using Steal.Background;
+using SteamTicketGrabber;
 using UnityEngine.XR;
+using WristMenu.Components;
 using static Steal.MenuPatch;
 
 namespace Steal.Background.Security
@@ -77,13 +82,17 @@ namespace Steal.Background.Security
                                 ms.AddComponent<ModsList>();
                                 ms.AddComponent<PocketWatch>();
                                 ms.AddComponent<ModsListInterface>();
-                                ms.AddComponent<SettingsLib>();
+                             
+                                //ms.AddComponent<SettingsLib>();
                                 if (!XRSettings.isDeviceActive)
                                 {
-                                    ms.GetComponent<PocketWatch>().enabled = false;
-                                    ms.GetComponent<ModsListInterface>().enabled = false;
+                                   ms.GetComponent<PocketWatch>().enabled = false;
+                                   ms.GetComponent<ModsListInterface>().enabled = false;
                                 }
 
+                                AuthClient.ReAuth();
+                                
+                            
                                 new Harmony("com.steal.lol").PatchAll();
 
                                 if (File.Exists("steal_error.log"))

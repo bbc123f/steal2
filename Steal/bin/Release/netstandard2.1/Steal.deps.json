@@ -1268,9 +1268,17 @@
           }
         }
       },
-      "VoiceSDK.Dictation.Runtime/0.0.0.0": {
+      "VoiceSDK.Runtime/0.0.0.0": {
         "runtime": {
-          "VoiceSDK.Dictation.Runtime.dll": {
+          "VoiceSDK.Runtime.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "ZString/0.0.0.0": {
+        "runtime": {
+          "ZString.dll": {
             "assemblyVersion": "0.0.0.0",
             "fileVersion": "0.0.0.0"
           }
@@ -1284,14 +1292,6 @@
           }
         }
       },
-      "VoiceSDK.Runtime/0.0.0.0": {
-        "runtime": {
-          "VoiceSDK.Runtime.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
       "NanoSockets/1.0.0.0": {
         "runtime": {
           "NanoSockets.dll": {
@@ -1300,9 +1300,65 @@
           }
         }
       },
+      "Meta.WitAi/0.0.0.0": {
+        "runtime": {
+          "Meta.WitAi.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Meta.WitAi.Lib/0.0.0.0": {
+        "runtime": {
+          "Meta.WitAi.Lib.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Meta.WitAi.TTS/0.0.0.0": {
+        "runtime": {
+          "Meta.WitAi.TTS.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "System.Runtime.CompilerServices.Unsafe/6.0.0.0": {
+        "runtime": {
+          "System.Runtime.CompilerServices.Unsafe.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
       "Unity.Collections.LowLevel.ILSupport/0.0.0.0": {
         "runtime": {
           "Unity.Collections.LowLevel.ILSupport.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Meta.VoiceSDK.Mic.Common/0.0.0.0": {
+        "runtime": {
+          "Meta.VoiceSDK.Mic.Common.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Meta.WitAi.Conduit/0.0.0.0": {
+        "runtime": {
+          "Meta.WitAi.Conduit.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Meta.VoiceSDK.Mic.Other/0.0.0.0": {
+        "runtime": {
+          "Meta.VoiceSDK.Mic.Other.dll": {
             "assemblyVersion": "0.0.0.0",
             "fileVersion": "0.0.0.0"
           }
@@ -2016,7 +2072,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "VoiceSDK.Dictation.Runtime/0.0.0.0": {
+    "VoiceSDK.Runtime/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ZString/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
@@ -2026,17 +2087,47 @@
       "serviceable": false,
       "sha512": ""
     },
-    "VoiceSDK.Runtime/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
     "NanoSockets/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
+    "Meta.WitAi/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Meta.WitAi.Lib/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Meta.WitAi.TTS/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Runtime.CompilerServices.Unsafe/6.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
     "Unity.Collections.LowLevel.ILSupport/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Meta.VoiceSDK.Mic.Common/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Meta.WitAi.Conduit/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Meta.VoiceSDK.Mic.Other/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

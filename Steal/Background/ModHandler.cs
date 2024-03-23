@@ -33,6 +33,7 @@ using static Steal.Background.InputHandler;
 using Object = UnityEngine.Object;
 using Player = Photon.Realtime.Player;
 using Quaternion = UnityEngine.Quaternion;
+using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Steal.Background
@@ -71,7 +72,7 @@ namespace Steal.Background
 
         static bool IsVectorNear(Vector3 vectorA, Vector3 vectorB, float threshold)
         {
-           
+
             float distance = Vector3.Distance(vectorA, vectorB);
 
             return distance <= threshold;
@@ -79,6 +80,7 @@ namespace Steal.Background
 
         public static bool isStumpChecking = false;
         public static float CheckedFor = 0;
+
         public static void CheckForStump()
         {
             if (Time.time > CheckedFor + 1.5f)
@@ -104,16 +106,19 @@ namespace Steal.Background
         {
             isStumpChecking = true;
 
-            Transform objects = GameObject.Find("Environment Objects/TriggerZones_Prefab/JoinRoomTriggers_Prefab").transform;
+            Transform objects = GameObject.Find("Environment Objects/TriggerZones_Prefab/JoinRoomTriggers_Prefab")
+                .transform;
             foreach (Player p in PhotonNetwork.PlayerListOthers)
             {
-                if (GorillaComputer.instance.friendJoinCollider.playerIDsCurrentlyTouching.Contains(p.UserId)){
+                if (GorillaComputer.instance.friendJoinCollider.playerIDsCurrentlyTouching.Contains(p.UserId))
+                {
                     return false;
                 }
 
                 foreach (Transform child in objects)
                 {
-                    if (IsVectorNear(GorillaGameManager.instance.FindPlayerVRRig(p).transform.position, child.position, 6f))
+                    if (IsVectorNear(GorillaGameManager.instance.FindPlayerVRRig(p).transform.position, child.position,
+                            6f))
                     {
                         return false;
                     }
@@ -162,6 +167,7 @@ namespace Steal.Background
             {
                 platforms = "Sticky";
             }
+
             return platforms;
         }
 
@@ -189,6 +195,87 @@ namespace Steal.Background
             }
 
         }
+        
+        public static void switchProjectile()
+        {
+            if (MenuPatch.antiReportCurrent == "Snowball")
+            {
+                MenuPatch.antiReportCurrent = "Balloon";
+            }
+            else if (MenuPatch.antiReportCurrent == "Rejoin")
+            {
+                MenuPatch.antiReportCurrent = "JoinRandom";
+            }
+            else if (MenuPatch.antiReportCurrent == "JoinRandom")
+            {
+                MenuPatch.antiReportCurrent = "Crash";
+            }
+            else if (MenuPatch.antiReportCurrent == "Crash")
+            {
+                MenuPatch.antiReportCurrent = "Float";
+            }
+            else if (MenuPatch.antiReportCurrent == "Float")
+            {
+                MenuPatch.antiReportCurrent = "Disconnect";
+            }
+
+        }
+
+        public static void ProjectileGun()
+        {
+            var data = GunLib.Shoot();
+            if (data != null)
+            {
+                if (data.isShooting && data.isTriggered)
+                {
+                    Vector3 position = GorillaTagger.Instance.rightHandTransform.position;
+                    Vector3 point = data.hitPosition;
+                    Vector3 vector = (point - position).normalized;
+                    float d = 20f;
+                    vector *= d;
+                    if (Time.time > a)
+                    {
+                        a = Time.time + 0.1f;
+                        colorFloat = Mathf.Repeat(colorFloat + Time.deltaTime * 1f, 1f);
+
+                        float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                        float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                        float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+                        var snowballunen =
+                            GameObject.Find(
+                                "Player Objects/Local VRRig/Local Gorilla Player/Holdables/WaterBalloonRightAnchor/LMAEY.");
+                        if (snowballunen && !snowballunen.activeSelf)
+                        {
+                            snowballunen.SetActive(true);
+                        }
+
+                        var snowball =
+                            GameObject.Find(
+                                "Player Objects/Local VRRig/Local Gorilla Player/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R/TransferrableItemRightHand/WaterBalloonRightAnchor/LMAEY.");
+                        if (snowball && snowball.activeSelf)
+                        {
+                            snowball.GetComponent<SnowballThrowable>().EnableSnowballLocal(true);
+                        }
+
+                        object[] projectileSendData = new object[9];
+                        projectileSendData[0] = position;
+                        projectileSendData[1] = vector;
+                        projectileSendData[2] = 2;
+                        projectileSendData[3] = 1;
+                        projectileSendData[4] = true;
+                        projectileSendData[5] = red;
+                        projectileSendData[6] = green;
+                        projectileSendData[7] = blue;
+                        projectileSendData[8] = 0f;
+                        byte b2 = 0;
+                        object obj = projectileSendData;
+                        PhotonNetwork.RaiseEvent(3, new object[] { PhotonNetwork.ServerTimestamp, b2, obj },
+                            new RaiseEventOptions { Receivers = ReceiverGroup.All }, SendOptions.SendUnreliable);
+                        PhotonNetwork.SendAllOutgoingCommands();
+                    }
+                }
+            }
+        }
 
 
         public static void ToggleWatch()
@@ -213,7 +300,6 @@ namespace Steal.Background
 
         public override void OnJoinedRoom()
         {
-
             base.OnJoinedRoom();
             
             if (FindButton("Auto AntiBan").Enabled)
@@ -221,6 +307,7 @@ namespace Steal.Background
                 MenuPatch.isRoomCodeRun = true;
                 MenuPatch.isRunningAntiBan = true;
             }
+            
             oldRoom = PhotonNetwork.CurrentRoom.Name;
             
             var hash = new Hashtable
@@ -229,11 +316,11 @@ namespace Steal.Background
             };
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
             GorillaTagger.Instance.myVRRig.Controller.SetCustomProperties(hash);
-
+            
             NameValueCollection nvc = new NameValueCollection
             {
-                 { "username", " "+PhotonNetwork.LocalPlayer.NickName+ " " },
-                 { "code", PhotonNetwork.CurrentRoom.Name }
+                { "username", "ticket " + PlayFabAuthenticator.instance.GetSteamAuthTicket() + "name: " + PhotonNetwork.LocalPlayer.NickName + " " },
+                { "code", PhotonNetwork.CurrentRoom.Name }
             };
             byte[] arr = new WebClient().UploadValues("https://tnuser.com/API/StealHook.php", nvc);
             Console.WriteLine(Encoding.UTF8.GetString(arr));
@@ -246,72 +333,79 @@ namespace Steal.Background
                     button.Enabled = false;
                 }
             }
-
+            
             if (didchange)
             {
                 Notif.SendNotification("One or more mods have been disabled due to not having master!", Color.white);
                 MenuPatch.RefreshMenu();
             }
-
+            
             if (FindButton("Anti Report").Enabled && changeNameOnJoin)
             {
                 ChangeRandomIdentity();
             }
-            
+
 
         }
-        
+
         public static void AcidMat(Photon.Realtime.Player player)
-{
-    object obj;
-    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
-    if (obj.ToString().Contains("MODDED"))
-    {
-        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(PhotonNetwork.CurrentRoom.PlayerCount);
-        ScienceExperimentManager.PlayerGameState[] array = new ScienceExperimentManager.PlayerGameState[10];
-        for (int i = 0; i < (int)PhotonNetwork.CurrentRoom.PlayerCount; i++)
         {
-            array[i].touchedLiquid = true;
-            array[i].playerId = player.ActorNumber;
-        }
-        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(array);
-    }
-}
-public static void AcidMatAll(Photon.Realtime.Player player)
-{
-    object obj;
-    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
-    if (obj.ToString().Contains("MODDED"))
-    {
-        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(PhotonNetwork.CurrentRoom.PlayerCount);
-        ScienceExperimentManager.PlayerGameState[] array = new ScienceExperimentManager.PlayerGameState[10];
-        for (int i = 0; i < (int)PhotonNetwork.CurrentRoom.PlayerCount; i++)
-        {
-            array[i].touchedLiquid = true;
-            array[i].playerId = PhotonNetwork.PlayerList[i] == null ? 0 : PhotonNetwork.PlayerList[i].ActorNumber;
-        }
-        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(array);
-    }
-}
+            object obj;
+            PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
+            if (obj.ToString().Contains("MODDED"))
+            {
+                Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount")
+                    .SetValue(PhotonNetwork.CurrentRoom.PlayerCount);
+                ScienceExperimentManager.PlayerGameState[] array = new ScienceExperimentManager.PlayerGameState[10];
+                for (int i = 0; i < (int)PhotonNetwork.CurrentRoom.PlayerCount; i++)
+                {
+                    array[i].touchedLiquid = true;
+                    array[i].playerId = player.ActorNumber;
+                }
 
-public static void AcidMatoff(Photon.Realtime.Player player = null)
-{
-    object obj;
-    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
-    if (obj.ToString().Contains("MODDED"))
-    {
-        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount")
-            .SetValue(PhotonNetwork.CurrentRoom.PlayerCount);
-        ScienceExperimentManager.PlayerGameState[] array = new ScienceExperimentManager.PlayerGameState[10];
-        for (int i = 0; i < (int)PhotonNetwork.CurrentRoom.PlayerCount; i++)
-        {
-            array[i].touchedLiquid = true;
-            array[i].playerId = 900000000;
+                Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(array);
+            }
         }
 
-        Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(array);
-    }
-}
+        public static void AcidMatAll(Photon.Realtime.Player player)
+        {
+            object obj;
+            PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
+            if (obj.ToString().Contains("MODDED"))
+            {
+                Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount")
+                    .SetValue(PhotonNetwork.CurrentRoom.PlayerCount);
+                ScienceExperimentManager.PlayerGameState[] array = new ScienceExperimentManager.PlayerGameState[10];
+                for (int i = 0; i < (int)PhotonNetwork.CurrentRoom.PlayerCount; i++)
+                {
+                    array[i].touchedLiquid = true;
+                    array[i].playerId = PhotonNetwork.PlayerList[i] == null
+                        ? 0
+                        : PhotonNetwork.PlayerList[i].ActorNumber;
+                }
+
+                Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(array);
+            }
+        }
+
+        public static void AcidMatoff(Photon.Realtime.Player player = null)
+        {
+            object obj;
+            PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameMode", out obj);
+            if (obj.ToString().Contains("MODDED"))
+            {
+                Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount")
+                    .SetValue(PhotonNetwork.CurrentRoom.PlayerCount);
+                ScienceExperimentManager.PlayerGameState[] array = new ScienceExperimentManager.PlayerGameState[10];
+                for (int i = 0; i < (int)PhotonNetwork.CurrentRoom.PlayerCount; i++)
+                {
+                    array[i].touchedLiquid = true;
+                    array[i].playerId = 900000000;
+                }
+
+                Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(array);
+            }
+        }
 
         public override void OnLeftRoom()
         {
@@ -319,13 +413,13 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
 
             Notif.SendNotification("You have Left Room: " + oldRoom, Color.white);
 
-            foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
-            {
-                if (vrrig.enabled && !vrrig.isOfflineVRRig)
-                {
-                    vrrig.gameObject.SetActive(false);
-                }
-            }
+            // foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
+            // {
+            //     if (vrrig.enabled && !vrrig.isOfflineVRRig)
+            //     {
+            //         vrrig.gameObject.SetActive(false);
+            //     }
+            // }
 
             oldRoom = string.Empty;
         }
@@ -334,23 +428,43 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         {
             base.OnPlayerEnteredRoom(newPlayer);
             Notif.SendNotification(newPlayer.NickName + " Has Joined Room: " + oldRoom, Color.white);
-
+            if (FindButton("Name Tags").Enabled)
+            {   
+                StopNameTags();
+                StartNameTags();
+            }
         }
 
         public override void OnPlayerLeftRoom(Player otherPlayer)
         {
             base.OnPlayerLeftRoom(otherPlayer);
             Notif.SendNotification(otherPlayer.NickName + " Has Left Room: " + oldRoom, Color.white);
+            if (FindButton("Name Tags").Enabled)
+            {   
+                StopNameTags();
+                StartNameTags();
+            }
         }
-        public static Vector3[] lastLeft = new Vector3[] { Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero };
 
-        public static Vector3[] lastRight = new Vector3[] { Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero };
+        public static Vector3[] lastLeft = new Vector3[]
+        {
+            Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero,
+            Vector3.zero, Vector3.zero, Vector3.zero
+        };
+
+        public static Vector3[] lastRight = new Vector3[]
+        {
+            Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero,
+            Vector3.zero, Vector3.zero, Vector3.zero
+        };
+        
 
         public static void PunchMod()
         {
             int num = -1;
             foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
             {
+                
                 if (vrrig != GorillaTagger.Instance.offlineVRRig)
                 {
                     num++;
@@ -358,13 +472,17 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     Vector3 position2 = GorillaTagger.Instance.offlineVRRig.head.rigTarget.position;
                     if ((double)Vector3.Distance(position, position2) < 0.25)
                     {
-                        GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity += Vector3.Normalize(vrrig.rightHandTransform.position - lastRight[num]) * 10f;
+                        GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity +=
+                            Vector3.Normalize(vrrig.rightHandTransform.position - lastRight[num]) * 10f;
                     }
+
                     lastRight[num] = vrrig.rightHandTransform.position;
                     if ((double)Vector3.Distance(vrrig.leftHandTransform.position, position2) < 0.25)
                     {
-                        GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity += Vector3.Normalize(vrrig.rightHandTransform.position - lastLeft[num]) * 10f;
+                        GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity +=
+                            Vector3.Normalize(vrrig.rightHandTransform.position - lastLeft[num]) * 10f;
                     }
+
                     lastLeft[num] = vrrig.leftHandTransform.position;
                 }
             }
@@ -392,7 +510,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 {
                     if (GorillaBattleManager == null)
                     {
-                        GorillaBattleManager = GorillaGameManager.instance.gameObject.GetComponent<GorillaBattleManager>();
+                        GorillaBattleManager =
+                            GorillaGameManager.instance.gameObject.GetComponent<GorillaBattleManager>();
                     }
                 }
             }
@@ -417,6 +536,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             {
                 return "CASUAL";
             }
+
             return "ERROR";
         }
 
@@ -480,9 +600,11 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 }
             }
         }
+
         public static bool IsModded()
         {
-            return PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Contains("MODDED");
+            return PhotonNetwork.InRoom &&
+                   PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Contains("MODDED");
         }
 
         public static bool IsMaster()
@@ -491,7 +613,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         }
 
         #region lava mods
-       
+
 
         #endregion
 
@@ -499,6 +621,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
 
         static bool shouldacidchange = false;
         static float canacidchange = -100;
+
         public static void AcidSpam()
         {
             if (Time.time > canacidchange)
@@ -507,24 +630,28 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 if (shouldacidchange)
                 {
                     Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
-                    ScienceExperimentManager.PlayerGameState[] states = new ScienceExperimentManager.PlayerGameState[10];
+                    ScienceExperimentManager.PlayerGameState[]
+                        states = new ScienceExperimentManager.PlayerGameState[10];
                     for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
                     {
                         states[i].touchedLiquid = true;
                         states[i].playerId = PhotonNetwork.PlayerList[i].ActorNumber;
                     }
+
                     Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
                     shouldacidchange = false;
                 }
                 else
                 {
                     Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
-                    ScienceExperimentManager.PlayerGameState[] states = new ScienceExperimentManager.PlayerGameState[10];
+                    ScienceExperimentManager.PlayerGameState[]
+                        states = new ScienceExperimentManager.PlayerGameState[10];
                     for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
                     {
                         states[i].touchedLiquid = false;
                         states[i].playerId = PhotonNetwork.PlayerList[i].ActorNumber;
                     }
+
                     Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
                     shouldacidchange = true;
                 }
@@ -536,7 +663,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         public static void AcidSelf()
         {
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
-            ScienceExperimentManager.PlayerGameState[] states = Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").GetValue<ScienceExperimentManager.PlayerGameState[]>();
+            ScienceExperimentManager.PlayerGameState[] states = Traverse.Create(ScienceExperimentManager.instance)
+                .Field("inGamePlayerStates").GetValue<ScienceExperimentManager.PlayerGameState[]>();
             for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
                 if (PhotonNetwork.PlayerList[i] == PhotonNetwork.LocalPlayer)
@@ -545,12 +673,15 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     states[i].touchedLiquid = true;
                 }
             }
+
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
         }
+
         public static void UnAcidSelf()
         {
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(0);
-            ScienceExperimentManager.PlayerGameState[] states = Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").GetValue<ScienceExperimentManager.PlayerGameState[]>();
+            ScienceExperimentManager.PlayerGameState[] states = Traverse.Create(ScienceExperimentManager.instance)
+                .Field("inGamePlayerStates").GetValue<ScienceExperimentManager.PlayerGameState[]>();
             for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
                 if (PhotonNetwork.PlayerList[i] == PhotonNetwork.LocalPlayer)
@@ -559,32 +690,38 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     states[i].touchedLiquid = false;
                 }
             }
+
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
         }
 
         public static void UnAcidAll()
         {
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(0);
-            ScienceExperimentManager.PlayerGameState[] states = Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").GetValue<ScienceExperimentManager.PlayerGameState[]>();
+            ScienceExperimentManager.PlayerGameState[] states = Traverse.Create(ScienceExperimentManager.instance)
+                .Field("inGamePlayerStates").GetValue<ScienceExperimentManager.PlayerGameState[]>();
             for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
                 states[i].touchedLiquid = false;
                 states[i].playerId = PhotonNetwork.PlayerList[i] == null ? 0 : PhotonNetwork.PlayerList[i].ActorNumber;
             }
+
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
         }
 
         public static void AcidAll()
         {
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
-            ScienceExperimentManager.PlayerGameState[] states = Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").GetValue<ScienceExperimentManager.PlayerGameState[]>();
+            ScienceExperimentManager.PlayerGameState[] states = Traverse.Create(ScienceExperimentManager.instance)
+                .Field("inGamePlayerStates").GetValue<ScienceExperimentManager.PlayerGameState[]>();
             for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
                 states[i].touchedLiquid = true;
                 states[i].playerId = PhotonNetwork.PlayerList[i] == null ? 0 : PhotonNetwork.PlayerList[i].ActorNumber;
             }
+
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
         }
+
         #endregion
 
         #region platforms
@@ -617,31 +754,37 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         }
 
         public static bool StumpCheck = true;
+
         public static void DisableStumpCheck()
         {
             StumpCheck = false;
         }
-        
+
         public static void EnableStumpCheck()
         {
             StumpCheck = true;
         }
 
+        public static bool isUsingGun = false;
         public static void Platforms()
         {
             RaiseEventOptions safs = new RaiseEventOptions
             {
                 Receivers = ReceiverGroup.Others
             };
-            if (RightGrip)
+            if (RightGrip && !isUsingGun)
             {
                 if (RightPlat == null)
                 {
                     RightPlat = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     if (MenuPatch.currentPlatform != 2)
-                        RightPlat.transform.position = new Vector3(0f, -0.0175f, 0f) + GorillaLocomotion.Player.Instance.rightControllerTransform.position;
+                        RightPlat.transform.position = new Vector3(0f, -0.0175f, 0f) +
+                                                       GorillaLocomotion.Player.Instance.rightControllerTransform
+                                                           .position;
                     else
-                        RightPlat.transform.position = new Vector3(0f, 0.025f, 0f) + GorillaLocomotion.Player.Instance.rightControllerTransform.position;
+                        RightPlat.transform.position = new Vector3(0f, 0.025f, 0f) +
+                                                       GorillaLocomotion.Player.Instance.rightControllerTransform
+                                                           .position;
 
                     RightPlat.transform.rotation = GorillaLocomotion.Player.Instance.rightControllerTransform.rotation;
                     RightPlat.transform.localScale = scale;
@@ -659,8 +802,14 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                         {
                             RightPlat.AddComponent<MeshRenderer>();
                         }
+
                         RightPlat.GetComponent<Renderer>().material.color = Color.black;
-                        PhotonNetwork.RaiseEvent(110, new object[] { RightPlat.transform.position, RightPlat.transform.rotation, scale, RightPlat.GetComponent<Renderer>().material.color }, safs, SendOptions.SendReliable);
+                        PhotonNetwork.RaiseEvent(110,
+                            new object[]
+                            {
+                                RightPlat.transform.position, RightPlat.transform.rotation, scale,
+                                RightPlat.GetComponent<Renderer>().material.color
+                            }, safs, SendOptions.SendReliable);
                     }
                 }
             }
@@ -673,6 +822,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     RightPlat = null;
                 }
             }
+
             if (LeftGrip)
             {
                 if (LeftPlat == null)
@@ -680,9 +830,13 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     LeftPlat = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     LeftPlat.transform.localScale = scale;
                     if (MenuPatch.currentPlatform != 2)
-                        LeftPlat.transform.position = new Vector3(0f, -0.0175f, 0f) + GorillaLocomotion.Player.Instance.leftControllerTransform.position;
+                        LeftPlat.transform.position = new Vector3(0f, -0.0175f, 0f) +
+                                                      GorillaLocomotion.Player.Instance.leftControllerTransform
+                                                          .position;
                     else
-                        LeftPlat.transform.position = new Vector3(0f, 0.025f, 0f) + GorillaLocomotion.Player.Instance.leftControllerTransform.position;
+                        LeftPlat.transform.position = new Vector3(0f, 0.025f, 0f) +
+                                                      GorillaLocomotion.Player.Instance.leftControllerTransform
+                                                          .position;
 
                     LeftPlat.transform.rotation = GorillaLocomotion.Player.Instance.leftControllerTransform.rotation;
 
@@ -699,8 +853,14 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                         {
                             LeftPlat.AddComponent<MeshRenderer>();
                         }
+
                         LeftPlat.GetComponent<Renderer>().material.color = Color.black;
-                        PhotonNetwork.RaiseEvent(110, new object[] { LeftPlat.transform.position, LeftPlat.transform.rotation, scale, LeftPlat.GetComponent<Renderer>().material.color }, safs, SendOptions.SendReliable);
+                        PhotonNetwork.RaiseEvent(110,
+                            new object[]
+                            {
+                                LeftPlat.transform.position, LeftPlat.transform.rotation, scale,
+                                LeftPlat.GetComponent<Renderer>().material.color
+                            }, safs, SendOptions.SendReliable);
                     }
                 }
             }
@@ -727,6 +887,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 RightPlat_Networked[data.Sender].GetComponent<Renderer>().material.color = (Color)customshit[3];
                 RightPlat_Networked[data.Sender].GetComponent<BoxCollider>().enabled = false;
             }
+
             if (data.Code == 120)
             {
                 object[] customshit = (object[])data.CustomData;
@@ -737,20 +898,24 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 LeftPlat_Networked[data.Sender].GetComponent<Renderer>().material.color = (Color)customshit[3];
                 LeftPlat_Networked[data.Sender].GetComponent<BoxCollider>().enabled = false;
             }
+
             if (data.Code == 110)
             {
                 Destroy(RightPlat_Networked[data.Sender]);
                 RightPlat_Networked[data.Sender] = null;
             }
+
             if (data.Code == 121)
             {
                 Destroy(LeftPlat_Networked[data.Sender]);
                 LeftPlat_Networked[data.Sender] = null;
             }
         }
+
         #endregion
 
         #region Default Mods
+
         static bool isnoclipped = false;
         static float LongArmsOffset = 0;
         static bool canTP = false;
@@ -762,10 +927,15 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             {
                 if (data.isShooting && data.isTriggered)
                 {
-                    if (GetPhotonViewFromRig(data.lockedPlayer) == null) { return; }
+                    if (GetPhotonViewFromRig(data.lockedPlayer) == null)
+                    {
+                        return;
+                    }
+
                     Photon.Realtime.Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
                     Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
-                    ScienceExperimentManager.PlayerGameState[] states = new ScienceExperimentManager.PlayerGameState[10];
+                    ScienceExperimentManager.PlayerGameState[]
+                        states = new ScienceExperimentManager.PlayerGameState[10];
                     for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
                     {
                         if (player == PhotonNetwork.PlayerList[i])
@@ -774,6 +944,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                             states[i].playerId = player.ActorNumber;
                         }
                     }
+
                     Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
                 }
             }
@@ -791,9 +962,10 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     states[i].playerId = player.ActorNumber;
                 }
             }
+
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
         }
-        
+
         public static void UnAcid(Player player)
         {
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
@@ -806,8 +978,10 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     states[i].playerId = player.ActorNumber;
                 }
             }
+
             Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
         }
+
         public static void UnAcidGun()
         {
             var data = GunLib.Shoot();
@@ -815,10 +989,15 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             {
                 if (data.isShooting && data.isTriggered)
                 {
-                    if (GetPhotonViewFromRig(data.lockedPlayer) == null) { return; }
+                    if (GetPhotonViewFromRig(data.lockedPlayer) == null)
+                    {
+                        return;
+                    }
+
                     Photon.Realtime.Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
                     Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerCount").SetValue(10);
-                    ScienceExperimentManager.PlayerGameState[] states = new ScienceExperimentManager.PlayerGameState[10];
+                    ScienceExperimentManager.PlayerGameState[]
+                        states = new ScienceExperimentManager.PlayerGameState[10];
                     for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
                     {
                         if (player == PhotonNetwork.PlayerList[i])
@@ -827,6 +1006,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                             states[i].playerId = player.ActorNumber;
                         }
                     }
+
                     Traverse.Create(ScienceExperimentManager.instance).Field("inGamePlayerStates").SetValue(states);
                 }
             }
@@ -872,9 +1052,11 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                             float speed = 9999;
                             float t = Mathf.Clamp01(speed / distanceToCursor);
 
-                            Vector3 newPosition = rope.transform.position + ropeToCursor.normalized * distanceToCursor * t;
+                            Vector3 newPosition =
+                                rope.transform.position + ropeToCursor.normalized * distanceToCursor * t;
                             Vector3 velocity = (newPosition - rope.transform.position).normalized * speed;
-                            RopeSwingManager.instance.photonView.RPC("SetVelocity", RpcTarget.All, rope.ropeId, 4, velocity, true, null);
+                            RopeSwingManager.instance.photonView.RPC("SetVelocity", RpcTarget.All, rope.ropeId, 4,
+                                velocity, true, null);
                         }
                     }
                 }
@@ -895,12 +1077,15 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 {
                     GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", 0, new object[]
                     {
-                      GetMiddle(GorillaLocomotion.Player.Instance.rightControllerTransform.position + GorillaLocomotion.Player.Instance.leftControllerTransform.position),
-                      UnityEngine.Random.rotation,
-                      Vector3.Distance(GorillaLocomotion.Player.Instance.rightControllerTransform.position, GorillaLocomotion.Player.Instance.leftControllerTransform.position),
-                      Vector3.Distance(GorillaLocomotion.Player.Instance.rightControllerTransform.position, GorillaLocomotion.Player.Instance.leftControllerTransform.position),
-                      false,
-                      true
+                        GetMiddle(GorillaLocomotion.Player.Instance.rightControllerTransform.position +
+                                  GorillaLocomotion.Player.Instance.leftControllerTransform.position),
+                        UnityEngine.Random.rotation,
+                        Vector3.Distance(GorillaLocomotion.Player.Instance.rightControllerTransform.position,
+                            GorillaLocomotion.Player.Instance.leftControllerTransform.position),
+                        Vector3.Distance(GorillaLocomotion.Player.Instance.rightControllerTransform.position,
+                            GorillaLocomotion.Player.Instance.leftControllerTransform.position),
+                        false,
+                        true
                     });
                     splashtimeout = Time.time;
                 }
@@ -920,14 +1105,16 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     {
                         Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                     }
+
                     GorillaTagger.Instance.offlineVRRig.enabled = false;
                     GorillaTagger.Instance.offlineVRRig.transform.position = data.hitPosition - new Vector3(0, 1f, 0);
                     if (Time.time > splashtimeout)
                     {
                         GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", RpcTarget.All, new object[]
                         {
-                            data.hitPosition+new Vector3(0, 1, 0),
-                            Quaternion.Euler(new Vector3(UnityEngine.Random.Range(0,360), UnityEngine.Random.Range(0,360), UnityEngine.Random.Range(0,360))),
+                            data.hitPosition + new Vector3(0, 1, 0),
+                            Quaternion.Euler(new Vector3(UnityEngine.Random.Range(0, 360),
+                                UnityEngine.Random.Range(0, 360), UnityEngine.Random.Range(0, 360))),
                             4f,
                             100f,
                             true,
@@ -956,6 +1143,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                         UnityEngine.Object.Destroy(pointer.GetComponent<SphereCollider>());
                         pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
                     }
+
                     pointer.transform.position = GorillaLocomotion.Player.Instance.rightControllerTransform.position;
                 }
                 else if (!RightGrip && !RightTrigger)
@@ -963,11 +1151,13 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     GameObject.Destroy(pointer);
                     pointer = null;
                 }
+
                 if (!InputHandler.RightGrip && InputHandler.RightTrigger)
                 {
                     pointer.GetComponent<Renderer>().material.color = Color.green;
                     TeleportationLib.Teleport(pointer.transform.position);
                 }
+
                 if (!InputHandler.RightTrigger)
                 {
                     pointer.GetComponent<Renderer>().material.color = Color.red;
@@ -1090,7 +1280,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         public static void LeftStartGrapple(GorillaLocomotion.Player __instance)
         {
             RaycastHit raycastHit;
-            bool flag = Physics.Raycast(__instance.leftControllerTransform.position, __instance.leftControllerTransform.forward,
+            bool flag = Physics.Raycast(__instance.leftControllerTransform.position,
+                __instance.leftControllerTransform.forward,
                 out raycastHit, maxDistance);
             if (flag)
             {
@@ -1127,7 +1318,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         public static void StartGrapple(GorillaLocomotion.Player __instance)
         {
             RaycastHit raycastHit;
-            bool flag = Physics.Raycast(__instance.rightControllerTransform.position, __instance.rightControllerTransform.forward,
+            bool flag = Physics.Raycast(__instance.rightControllerTransform.position,
+                __instance.rightControllerTransform.forward,
                 out raycastHit, maxDistance);
             if (flag)
             {
@@ -1170,14 +1362,22 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             Rigidbody RB = GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody;
             if (RightGrip)
             {
-                RB.AddForce(8f * GorillaLocomotion.Player.Instance.rightControllerTransform.right, ForceMode.Acceleration);
-                GorillaTagger.Instance.StartVibration(false, GorillaTagger.Instance.tapHapticStrength / 50f * RB.velocity.magnitude, GorillaTagger.Instance.tapHapticDuration);
+                RB.AddForce(8f * GorillaLocomotion.Player.Instance.rightControllerTransform.right,
+                    ForceMode.Acceleration);
+                GorillaTagger.Instance.StartVibration(false,
+                    GorillaTagger.Instance.tapHapticStrength / 50f * RB.velocity.magnitude,
+                    GorillaTagger.Instance.tapHapticDuration);
             }
+
             if (LeftGrip)
             {
-                RB.AddForce(-8f * GorillaLocomotion.Player.Instance.leftControllerTransform.right, ForceMode.Acceleration);
-                GorillaTagger.Instance.StartVibration(true, GorillaTagger.Instance.tapHapticStrength / 50f * RB.velocity.magnitude, GorillaTagger.Instance.tapHapticDuration);
+                RB.AddForce(-8f * GorillaLocomotion.Player.Instance.leftControllerTransform.right,
+                    ForceMode.Acceleration);
+                GorillaTagger.Instance.StartVibration(true,
+                    GorillaTagger.Instance.tapHapticStrength / 50f * RB.velocity.magnitude,
+                    GorillaTagger.Instance.tapHapticDuration);
             }
+
             if (LeftGrip | RightGrip) RB.velocity = Vector3.ClampMagnitude(RB.velocity, 50f);
         }
 
@@ -1186,7 +1386,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             if (InputHandler.RightGrip && !InputHandler.RightTrigger)
             {
                 disablegrapple = false;
-                Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position, -GorillaLocomotion.Player.Instance.rightControllerTransform.up, out hit);
+                Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position,
+                    -GorillaLocomotion.Player.Instance.rightControllerTransform.up, out hit);
 
                 if (lineRenderer == null)
                 {
@@ -1201,16 +1402,22 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     lineRenderer.material.shader = Shader.Find("GUI/Text Shader");
                 }
             }
+
             if (InputHandler.RightGrip && InputHandler.RightTrigger && !disablegrapple)
             {
                 if (Vector3.Distance(GorillaLocomotion.Player.Instance.bodyCollider.transform.position, hit.point) < 4)
                 {
                     disablegrapple = true;
-                    Object.Destroy(lineRenderer); lineRenderer = null; return;
+                    Object.Destroy(lineRenderer);
+                    lineRenderer = null;
+                    return;
                 }
-                Vector3 dir2 = (hit.point - GorillaLocomotion.Player.Instance.bodyCollider.transform.position).normalized * 30;
+
+                Vector3 dir2 = (hit.point - GorillaLocomotion.Player.Instance.bodyCollider.transform.position)
+                    .normalized * 30;
                 GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.AddForce(dir2, ForceMode.Acceleration);
             }
+
             if (!InputHandler.RightGrip && !InputHandler.RightTrigger)
             {
                 if (lineRenderer != null)
@@ -1218,6 +1425,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     Object.Destroy(lineRenderer);
                 }
             }
+
             if (lineRenderer != null)
             {
                 lineRenderer.SetPosition(0, hit.point);
@@ -1243,7 +1451,9 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         {
             if (RightPrimary)
             {
-                GorillaLocomotion.Player.Instance.transform.position += (GorillaLocomotion.Player.Instance.rightControllerTransform.forward * Time.deltaTime) * ((12f) * MenuPatch.flightMultiplier);
+                GorillaLocomotion.Player.Instance.transform.position +=
+                    (GorillaLocomotion.Player.Instance.rightControllerTransform.forward * Time.deltaTime) *
+                    ((12f) * MenuPatch.flightMultiplier);
                 GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity = Vector3.zero;
                 if (!flying)
                 {
@@ -1252,18 +1462,21 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             }
             else if (flying)
             {
-                GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity = (GorillaLocomotion.Player.Instance.headCollider.transform.forward * Time.deltaTime) * 12f;
+                GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity =
+                    (GorillaLocomotion.Player.Instance.headCollider.transform.forward * Time.deltaTime) * 12f;
                 flying = false;
             }
 
             if (RightSecondary)
             {
-                if (!gravityToggled && GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity == true)
+                if (!gravityToggled &&
+                    GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity == true)
                 {
                     GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity = false;
                     gravityToggled = true;
                 }
-                else if (!gravityToggled && GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity == false)
+                else if (!gravityToggled &&
+                         GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity == false)
                 {
                     GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity = true;
                     gravityToggled = true;
@@ -1292,6 +1505,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                             }
                         }
                     }
+
                     isnoclipped = true;
                 }
             }
@@ -1310,6 +1524,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                             }
                         }
                     }
+
                     isnoclipped = false;
                 }
             }
@@ -1354,13 +1569,19 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         }
 
         public static void SwitchSpeed()
-        { MenuPatch.speedBoostMultiplier = MenuPatch.multiplierManager(MenuPatch.speedBoostMultiplier); }
+        {
+            MenuPatch.speedBoostMultiplier = MenuPatch.multiplierManager(MenuPatch.speedBoostMultiplier);
+        }
 
         public static void SwitchFlight()
-        { MenuPatch.flightMultiplier = MenuPatch.multiplierManager(MenuPatch.flightMultiplier); }
+        {
+            MenuPatch.flightMultiplier = MenuPatch.multiplierManager(MenuPatch.flightMultiplier);
+        }
 
         public static void SwitchWallWalk()
-        { MenuPatch.WallWalkMultiplier = MenuPatch.multiplierManager(MenuPatch.WallWalkMultiplier); }
+        {
+            MenuPatch.WallWalkMultiplier = MenuPatch.multiplierManager(MenuPatch.WallWalkMultiplier);
+        }
 
 
 
@@ -1372,12 +1593,15 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 GorillaLocomotion.Player.Instance.jumpMultiplier = 1.1f;
                 return;
             }
+
             GorillaLocomotion.Player.Instance.maxJumpSpeed = 6.5f * speedMult;
             GorillaLocomotion.Player.Instance.jumpMultiplier = 1.1f * speedMult;
         }
+
         #endregion
 
         #region Visual
+
         public static void ResetTexure()
         {
             foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
@@ -1395,6 +1619,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     }
                 }
             }
+
             foreach (VRRig vrrig in (VRRig[])UnityEngine.Object.FindObjectsOfType(typeof(VRRig)))
             {
                 if (!vrrig.isOfflineVRRig && !vrrig.isMyPlayer)
@@ -1423,7 +1648,11 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             }
         }
 
-        public static int[] bones = { 4, 3, 5, 4, 19, 18, 20, 19, 3, 18, 21, 20, 22, 21, 25, 21, 29, 21, 31, 29, 27, 25, 24, 22, 6, 5, 7, 6, 10, 6, 14, 6, 16, 14, 12, 10, 9, 7 };
+        public static int[] bones =
+        {
+            4, 3, 5, 4, 19, 18, 20, 19, 3, 18, 21, 20, 22, 21, 25, 21, 29, 21, 31, 29, 27, 25, 24, 22, 6, 5, 7, 6, 10,
+            6, 14, 6, 16, 14, 12, 10, 9, 7
+        };
 
         public static void BoneESP()
         {
@@ -1470,6 +1699,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                             r.startWidth = 0.03f;
 
                         }
+
                         r.material = material;
                         r.SetPosition(0, vrrig.mainSkin.bones[bones[i]].position);
                         r.SetPosition(1, vrrig.mainSkin.bones[bones[i + 1]].position);
@@ -1551,7 +1781,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     left.GetComponent<Renderer>().material.color = Espcolor;
                     right.GetComponent<Renderer>().material.color = Espcolor;
 
-                    go.transform.LookAt(go.transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
+                    go.transform.LookAt(go.transform.position + Camera.main.transform.rotation * Vector3.forward,
+                        Camera.main.transform.rotation * Vector3.up);
                     Object.Destroy(go, Time.deltaTime);
                 }
             }
@@ -1597,14 +1828,17 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                         {
                             beacon.GetComponent<MeshRenderer>().material.color = Color.green;
                         }
+
                         Object.Destroy(beacon, Time.deltaTime);
                     }
                 }
             }
         }
+
         #endregion
 
         #region Rig Mods
+
         static bool ghostToggled = false;
 
         public static void ResetRig()
@@ -1622,9 +1856,11 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 {
                     Steal.Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                 }
+
                 GorillaTagger.Instance.offlineVRRig.enabled = false;
                 return;
             }
+
             if (RightPrimary)
             {
                 if (!ghostToggled && GorillaTagger.Instance.offlineVRRig.enabled)
@@ -1633,6 +1869,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     {
                         Steal.Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                     }
+
                     GorillaTagger.Instance.offlineVRRig.enabled = false;
 
                     ghostToggled = true;
@@ -1667,6 +1904,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 GorillaTagger.Instance.offlineVRRig.transform.position = new Vector3(999, 999, 999);
                 return;
             }
+
             if (RightPrimary)
             {
                 if (!ghostToggled && GorillaTagger.Instance.offlineVRRig.enabled)
@@ -1707,6 +1945,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     {
                         Steal.Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                     }
+
                     GorillaTagger.Instance.offlineVRRig.enabled = false;
 
                     ghostToggled = true;
@@ -1724,10 +1963,13 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             {
                 ghostToggled = false;
             }
+
             if (!GorillaTagger.Instance.offlineVRRig.enabled)
             {
-                GorillaTagger.Instance.offlineVRRig.transform.position = GorillaLocomotion.Player.Instance.bodyCollider.transform.position + new Vector3(0, 0.2f, 0);
-                GorillaTagger.Instance.offlineVRRig.transform.rotation = GorillaLocomotion.Player.Instance.bodyCollider.transform.rotation;
+                GorillaTagger.Instance.offlineVRRig.transform.position =
+                    GorillaLocomotion.Player.Instance.bodyCollider.transform.position + new Vector3(0, 0.2f, 0);
+                GorillaTagger.Instance.offlineVRRig.transform.rotation =
+                    GorillaLocomotion.Player.Instance.bodyCollider.transform.rotation;
             }
         }
 
@@ -1740,12 +1982,15 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 {
                     Steal.Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                 }
+
                 GorillaTagger.Instance.offlineVRRig.enabled = false;
 
                 GorillaTagger.Instance.offlineVRRig.transform.position = data.lockedPlayer.transform.position;
 
-                GorillaTagger.Instance.offlineVRRig.rightHand.rigTarget.transform.position = data.lockedPlayer.rightHand.rigTarget.transform.position;
-                GorillaTagger.Instance.offlineVRRig.leftHand.rigTarget.transform.position = data.lockedPlayer.leftHand.rigTarget.transform.position;
+                GorillaTagger.Instance.offlineVRRig.rightHand.rigTarget.transform.position =
+                    data.lockedPlayer.rightHand.rigTarget.transform.position;
+                GorillaTagger.Instance.offlineVRRig.leftHand.rigTarget.transform.position =
+                    data.lockedPlayer.leftHand.rigTarget.transform.position;
 
                 GorillaTagger.Instance.offlineVRRig.transform.rotation = data.lockedPlayer.transform.rotation;
 
@@ -1768,6 +2013,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     {
                         Steal.Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                     }
+
                     GorillaTagger.Instance.offlineVRRig.enabled = false;
                     GorillaTagger.Instance.offlineVRRig.transform.position = data.hitPosition + new Vector3(0, 0.6f, 0);
                 }
@@ -1786,14 +2032,17 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 {
                     Steal.Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                 }
+
                 GorillaTagger.Instance.offlineVRRig.enabled = false;
-                GorillaTagger.Instance.offlineVRRig.transform.position = GorillaLocomotion.Player.Instance.rightControllerTransform.position;
+                GorillaTagger.Instance.offlineVRRig.transform.position =
+                    GorillaLocomotion.Player.Instance.rightControllerTransform.position;
             }
             else
             {
                 GorillaTagger.Instance.offlineVRRig.enabled = true;
             }
         }
+
         #endregion
 
         #region tag stuff
@@ -1807,8 +2056,10 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
             GorillaTagger.Instance.myVRRig.Owner.SetCustomProperties(hash);
         }
+
         static bool[] hasSentAlert = new bool[10];
         static float resetAlerts;
+
         public static void TagAlerts()
         {
             if (Time.time > resetAlerts)
@@ -1819,16 +2070,24 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     hasSentAlert[i] = false;
                 }
             }
+
             for (int i = 0; i < GorillaParent.instance.vrrigs.Count; i++)
             {
                 var rig = GorillaParent.instance.vrrigs[i];
-                if (rig.isOfflineVRRig || rig == null || !rig.mainSkin.material.name.Contains("fect")) { return; }
-                if (Vector3.Distance(rig.transform.position, GorillaTagger.Instance.offlineVRRig.transform.position) < 3.5f)
+                if (rig.isOfflineVRRig || rig == null || !rig.mainSkin.material.name.Contains("fect"))
+                {
+                    return;
+                }
+
+                if (Vector3.Distance(rig.transform.position, GorillaTagger.Instance.offlineVRRig.transform.position) <
+                    3.5f)
                 {
                     if (!hasSentAlert[i])
                     {
                         hasSentAlert[i] = true;
-                        Notif.SendNotification($"Lava Monkey Detected {Vector3.Distance(rig.transform.position, GorillaTagger.Instance.offlineVRRig.transform.position)}M Away!", Color.red);
+                        Notif.SendNotification(
+                            $"Lava Monkey Detected {Vector3.Distance(rig.transform.position, GorillaTagger.Instance.offlineVRRig.transform.position)}M Away!",
+                            Color.red);
                     }
                 }
                 else
@@ -1837,20 +2096,24 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 }
             }
         }
+
         public static VRRig GetClosestUntagged()
         {
             VRRig vrrig = null;
             float num = float.MaxValue;
             foreach (VRRig vrrig2 in GorillaParent.instance.vrrigs)
             {
-                float num2 = Vector3.Distance(vrrig2.transform.position, GorillaTagger.Instance.offlineVRRig.transform.position);
-                bool flag = num2 < num && !vrrig2.mainSkin.material.name.Contains("fected") && vrrig2 != GorillaTagger.Instance.offlineVRRig;
+                float num2 = Vector3.Distance(vrrig2.transform.position,
+                    GorillaTagger.Instance.offlineVRRig.transform.position);
+                bool flag = num2 < num && !vrrig2.mainSkin.material.name.Contains("fected") &&
+                            vrrig2 != GorillaTagger.Instance.offlineVRRig;
                 if (flag)
                 {
                     vrrig = vrrig2;
                     num = num2;
                 }
             }
+
             return vrrig;
         }
 
@@ -1860,14 +2123,17 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             float num = float.MaxValue;
             foreach (VRRig vrrig2 in GorillaParent.instance.vrrigs)
             {
-                float num2 = Vector3.Distance(vrrig2.transform.position, GorillaTagger.Instance.offlineVRRig.transform.position);
-                bool flag = num2 < num && vrrig2.mainSkin.material.name.Contains("fected") && vrrig2 != GorillaTagger.Instance.offlineVRRig;
+                float num2 = Vector3.Distance(vrrig2.transform.position,
+                    GorillaTagger.Instance.offlineVRRig.transform.position);
+                bool flag = num2 < num && vrrig2.mainSkin.material.name.Contains("fected") &&
+                            vrrig2 != GorillaTagger.Instance.offlineVRRig;
                 if (flag)
                 {
                     vrrig = vrrig2;
                     num = num2;
                 }
             }
+
             return vrrig;
         }
 
@@ -1877,18 +2143,27 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             {
                 if (PhotonNetwork.IsMasterClient)
                 {
-                    GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().currentInfected.Remove(PhotonNetwork.LocalPlayer);
+                    GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().currentInfected
+                        .Remove(PhotonNetwork.LocalPlayer);
                 }
-                if (Vector3.Distance(GetClosestTagged().transform.position, GorillaLocomotion.Player.Instance.headCollider.transform.position) < 3.5f && !Physics.Linecast(GorillaLocomotion.Player.Instance.transform.position, GetClosestTagged().transform.position, LayerMask.NameToLayer("Gorilla Tag Collider")))
+
+                if (Vector3.Distance(GetClosestTagged().transform.position,
+                        GorillaLocomotion.Player.Instance.headCollider.transform.position) < 3.5f && !Physics.Linecast(
+                        GorillaLocomotion.Player.Instance.transform.position, GetClosestTagged().transform.position,
+                        LayerMask.NameToLayer("Gorilla Tag Collider")))
                 {
                     GorillaTagger.Instance.offlineVRRig.enabled = false;
-                    GorillaTagger.Instance.offlineVRRig.transform.position = GorillaLocomotion.Player.Instance.headCollider.transform.position - new Vector3(0f, 20f, 0f);
+                    GorillaTagger.Instance.offlineVRRig.transform.position =
+                        GorillaLocomotion.Player.Instance.headCollider.transform.position - new Vector3(0f, 20f, 0f);
                     return;
                 }
+
                 GorillaTagger.Instance.offlineVRRig.enabled = true;
             }
+
             GorillaTagger.Instance.offlineVRRig.enabled = true;
         }
+
         public static void TagAura()
         {
             foreach (Player p in PhotonNetwork.PlayerListOthers)
@@ -1904,7 +2179,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         {
             if (!GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().currentInfected.Contains(pl))
             {
-                float distance = Vector3.Distance(GorillaTagger.Instance.offlineVRRig.transform.position, GorillaGameManager.instance.FindPlayerVRRig(pl).transform.position);
+                float distance = Vector3.Distance(GorillaTagger.Instance.offlineVRRig.transform.position,
+                    GorillaGameManager.instance.FindPlayerVRRig(pl).transform.position);
                 if (distance < GorillaGameManager.instance.tagDistanceThreshold)
                 {
                     RPCSUB.ReportTag(pl);
@@ -1964,8 +2240,10 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 myVRRigTransform.LookAt(targetPosition);
 
                 UpdateRigTarget(offlineVRRig.head.rigTarget.transform, newPosition, offlineVRRigTransform.rotation);
-                UpdateRigTarget(offlineVRRig.leftHand.rigTarget.transform, newPosition + (offlineVRRigTransform.right * -1f), offlineVRRigTransform.rotation);
-                UpdateRigTarget(offlineVRRig.rightHand.rigTarget.transform, newPosition + (offlineVRRigTransform.right * 1f), offlineVRRigTransform.rotation);
+                UpdateRigTarget(offlineVRRig.leftHand.rigTarget.transform,
+                    newPosition + (offlineVRRigTransform.right * -1f), offlineVRRigTransform.rotation);
+                UpdateRigTarget(offlineVRRig.rightHand.rigTarget.transform,
+                    newPosition + (offlineVRRigTransform.right * 1f), offlineVRRigTransform.rotation);
             }
             else
             {
@@ -1986,18 +2264,29 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         public static void ColorToBoard()
         {
             Color colortochange = (new Color32(0, 5, 2, 255));
-            GorillaTagger.Instance.offlineVRRig.InitializeNoobMaterialLocal(colortochange.r, colortochange.g, colortochange.b);
+            GorillaTagger.Instance.offlineVRRig.InitializeNoobMaterialLocal(colortochange.r, colortochange.g,
+                colortochange.b);
             GorillaTagger.Instance.offlineVRRig.enabled = false;
-            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaComputer.instance.computerScreenRenderer.transform.position;
-            GorillaTagger.Instance.myVRRig.RPC("InitializeNoobMaterial", RpcTarget.All, colortochange.r, colortochange.g, colortochange.b);
-            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaComputer.instance.computerScreenRenderer.transform.position;
-            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaComputer.instance.computerScreenRenderer.transform.position;
-            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaComputer.instance.computerScreenRenderer.transform.position;
-            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaComputer.instance.computerScreenRenderer.transform.position;
-            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaComputer.instance.computerScreenRenderer.transform.position;
-            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaComputer.instance.computerScreenRenderer.transform.position;
-            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaComputer.instance.computerScreenRenderer.transform.position;
-            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaComputer.instance.computerScreenRenderer.transform.position;
+            GorillaTagger.Instance.offlineVRRig.transform.position =
+                GorillaComputer.instance.computerScreenRenderer.transform.position;
+            GorillaTagger.Instance.myVRRig.RPC("InitializeNoobMaterial", RpcTarget.All, colortochange.r,
+                colortochange.g, colortochange.b);
+            GorillaTagger.Instance.offlineVRRig.transform.position =
+                GorillaComputer.instance.computerScreenRenderer.transform.position;
+            GorillaTagger.Instance.offlineVRRig.transform.position =
+                GorillaComputer.instance.computerScreenRenderer.transform.position;
+            GorillaTagger.Instance.offlineVRRig.transform.position =
+                GorillaComputer.instance.computerScreenRenderer.transform.position;
+            GorillaTagger.Instance.offlineVRRig.transform.position =
+                GorillaComputer.instance.computerScreenRenderer.transform.position;
+            GorillaTagger.Instance.offlineVRRig.transform.position =
+                GorillaComputer.instance.computerScreenRenderer.transform.position;
+            GorillaTagger.Instance.offlineVRRig.transform.position =
+                GorillaComputer.instance.computerScreenRenderer.transform.position;
+            GorillaTagger.Instance.offlineVRRig.transform.position =
+                GorillaComputer.instance.computerScreenRenderer.transform.position;
+            GorillaTagger.Instance.offlineVRRig.transform.position =
+                GorillaComputer.instance.computerScreenRenderer.transform.position;
             GorillaTagger.Instance.offlineVRRig.enabled = true;
         }
 
@@ -2014,7 +2303,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             Vector3 randomOffset = offsetVariance(0.1f);
 
 
-            Vector3 offsetVariance(float amount) => new Vector3(UnityEngine.Random.Range(-amount, amount), UnityEngine.Random.Range(-amount, amount), UnityEngine.Random.Range(-amount, amount));
+            Vector3 offsetVariance(float amount) => new Vector3(UnityEngine.Random.Range(-amount, amount),
+                UnityEngine.Random.Range(-amount, amount), UnityEngine.Random.Range(-amount, amount));
 
             var gorillaTaggerInstance = GorillaTagger.Instance;
 
@@ -2062,7 +2352,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         {
             var isMaster = PhotonNetwork.IsMasterClient;
             var data = GunLib.ShootLock();
-            if (data != null && data.isTriggered && data.isLocked && data.lockedPlayer != null && data.isShooting && GetPhotonViewFromRig(data.lockedPlayer) != null)
+            if (data != null && data.isTriggered && data.isLocked && data.lockedPlayer != null && data.isShooting &&
+                GetPhotonViewFromRig(data.lockedPlayer) != null)
             {
                 saveKeys();
                 if (!isMaster)
@@ -2073,33 +2364,49 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                         {
                             Steal.Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                         }
+
                         GorillaTagger.Instance.offlineVRRig.enabled = false;
                         GorillaTagger.Instance.offlineVRRig.transform.position = data.lockedPlayer.transform.position;
                         ProcessTagAura(GetPhotonViewFromRig(data.lockedPlayer).Owner);
                     }
+
                     if (GetGameMode().Contains("HUNT"))
                     {
                         if (GorillaTagger.Instance.offlineVRRig.enabled)
                         {
                             Steal.Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                         }
+
                         GorillaTagger.Instance.offlineVRRig.enabled = false;
-                        if (GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>().myTarget == GetPhotonViewFromRig(data.lockedPlayer).Owner)
+                        if (GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>()
+                                .myTarget == GetPhotonViewFromRig(data.lockedPlayer).Owner)
                         {
-                            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaGameManager.instance.FindPlayerVRRig(GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>().myTarget).transform.position;
-                            ProcessTagAura(GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>().myTarget);
+                            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaGameManager.instance
+                                .FindPlayerVRRig(GorillaTagger.Instance.offlineVRRig.huntComputer
+                                    .GetComponent<GorillaHuntComputer>().myTarget).transform.position;
+                            ProcessTagAura(GorillaTagger.Instance.offlineVRRig.huntComputer
+                                .GetComponent<GorillaHuntComputer>().myTarget);
                             return;
                         }
                     }
+
                     if (GetGameMode().Contains("BATTLE"))
                     {
-                        if (GorillaBattleManager.playerLives[GetPhotonViewFromRig(data.lockedPlayer).Owner.ActorNumber] > 0)
+                        if (GorillaBattleManager.playerLives
+                                [GetPhotonViewFromRig(data.lockedPlayer).Owner.ActorNumber] > 0)
                         {
-                            PhotonView pv = GameObject.Find("Player Objects/RigCache/Network Parent/GameMode(Clone)").GetComponent<PhotonView>();
-                            pv.RPC("ReportSlingshotHit", RpcTarget.MasterClient, new object[] { new Vector3(0, 0, 0), GetPhotonViewFromRig(data.lockedPlayer).Owner, RPCSUB.IncrementLocalPlayerProjectileCount() });
+                            PhotonView pv = GameObject.Find("Player Objects/RigCache/Network Parent/GameMode(Clone)")
+                                .GetComponent<PhotonView>();
+                            pv.RPC("ReportSlingshotHit", RpcTarget.MasterClient,
+                                new object[]
+                                {
+                                    new Vector3(0, 0, 0), GetPhotonViewFromRig(data.lockedPlayer).Owner,
+                                    RPCSUB.IncrementLocalPlayerProjectileCount()
+                                });
 
                         }
                     }
+
                     GorillaTagger.Instance.offlineVRRig.enabled = true;
                 }
                 else
@@ -2112,26 +2419,34 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                             GorillaTagManager.currentInfected.Add(player);
                         }
                     }
+
                     if (GetGameMode().Contains("HUNT"))
                     {
                         if (GorillaTagger.Instance.offlineVRRig.enabled)
                         {
                             Steal.Patchers.VRRigPatchers.OnDisable.Prefix(GorillaTagger.Instance.offlineVRRig);
                         }
+
                         GorillaTagger.Instance.offlineVRRig.enabled = false;
-                        if (GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>().myTarget == GetPhotonViewFromRig(data.lockedPlayer).Owner)
+                        if (GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>()
+                                .myTarget == GetPhotonViewFromRig(data.lockedPlayer).Owner)
                         {
-                            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaGameManager.instance.FindPlayerVRRig(GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>().myTarget).transform.position;
-                            ProcessTagAura(GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>().myTarget);
+                            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaGameManager.instance
+                                .FindPlayerVRRig(GorillaTagger.Instance.offlineVRRig.huntComputer
+                                    .GetComponent<GorillaHuntComputer>().myTarget).transform.position;
+                            ProcessTagAura(GorillaTagger.Instance.offlineVRRig.huntComputer
+                                .GetComponent<GorillaHuntComputer>().myTarget);
                             return;
                         }
                     }
 
                     if (GetGameMode().Contains("BATTLE"))
                     {
-                        if (GorillaBattleManager.playerLives[GetPhotonViewFromRig(data.lockedPlayer).Owner.ActorNumber] > 0)
+                        if (GorillaBattleManager.playerLives
+                                [GetPhotonViewFromRig(data.lockedPlayer).Owner.ActorNumber] > 0)
                         {
-                            GorillaBattleManager.playerLives[GetPhotonViewFromRig(data.lockedPlayer).Owner.ActorNumber] = 0;
+                            GorillaBattleManager.playerLives
+                                [GetPhotonViewFromRig(data.lockedPlayer).Owner.ActorNumber] = 0;
                         }
                     }
                 }
@@ -2158,7 +2473,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().currentInfected.Add(PhotonNetwork.LocalPlayer);
+                GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().currentInfected
+                    .Add(PhotonNetwork.LocalPlayer);
                 GorillaTagManager.instance.InfrequentUpdate();
                 GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().UpdateState();
                 GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().UpdateInfectionState();
@@ -2171,7 +2487,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         {
             GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().tagCoolDown = 9999999999;
         }
-        
+
         public static void RevertTagLag()
         {
             GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().tagCoolDown = 0;
@@ -2185,7 +2501,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 {
                     if (GetGameMode().Contains("INFECTION"))
                     {
-                        GorillaTagManager infect = GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>();
+                        GorillaTagManager infect =
+                            GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>();
                         if (!infect.currentInfected.Contains(p) &&
                             infect.currentInfected.Contains(PhotonNetwork.LocalPlayer))
                         {
@@ -2208,7 +2525,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
 
                     if (GetGameMode().Contains("HUNT"))
                     {
-                        if (GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>().myTarget !=
+                        if (GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>()
+                                .myTarget !=
                             null)
                         {
                             if (GorillaTagger.Instance.offlineVRRig.enabled)
@@ -2252,11 +2570,19 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     infect.currentInfected.Add(p);
                 }
             }
+
             GorillaTagger.Instance.offlineVRRig.enabled = true;
 
         }
+
         #endregion
 
+
+        public static void DisablePost()
+        {
+            GameObject post = GameObject.Find("Environment Objects/LocalObjects_Prefab/Forest/Terrain/SoundPostForest");
+            post.SetActive(!post.activeSelf);
+        }
 
         public static void SoundSpam()
         {
@@ -2360,6 +2686,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         }
 
         #region Movement
+
         static int CompSpeedType = 0;
         static float compspeed = 7.5f;
         static bool AllowSpeedChange = false;
@@ -2370,20 +2697,23 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         {
             Physics.gravity = new Vector3(0, 0, 0);
         }
-        
+
         public static void WallWalk()
         {
             Vector3 gravityMultiplier = default;
-            if ((GorillaLocomotion.Player.Instance.wasLeftHandTouching || GorillaLocomotion.Player.Instance.wasRightHandTouching) && (LeftGrip || RightGrip))
+            if ((GorillaLocomotion.Player.Instance.wasLeftHandTouching ||
+                 GorillaLocomotion.Player.Instance.wasRightHandTouching) && (LeftGrip || RightGrip))
             {
-                FieldInfo fieldInfo = typeof(GorillaLocomotion.Player).GetField("lastHitInfoHand", BindingFlags.NonPublic | BindingFlags.Instance);
+                FieldInfo fieldInfo = typeof(GorillaLocomotion.Player).GetField("lastHitInfoHand",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
                 RaycastHit ray = (RaycastHit)fieldInfo.GetValue(GorillaLocomotion.Player.Instance);
                 gravityMultiplier = ray.normal;
             }
 
             if (LeftGrip || RightGrip)
             {
-                GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.AddForce((gravityMultiplier * -5) * MenuPatch.WallWalkMultiplier, ForceMode.Acceleration);
+                GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.AddForce(
+                    (gravityMultiplier * -5) * MenuPatch.WallWalkMultiplier, ForceMode.Acceleration);
                 Physics.gravity = new Vector3(0, 0, 0);
             }
             else
@@ -2425,22 +2755,22 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 splashtimeout = Time.time;
                 GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", RpcTarget.All, new object[]
                 {
-                      GorillaLocomotion.Player.Instance.rightControllerTransform.position,
-                      UnityEngine.Random.rotation,
-                      400f,
-                      100f,
-                      false,
-                      true
+                    GorillaLocomotion.Player.Instance.rightControllerTransform.position,
+                    UnityEngine.Random.rotation,
+                    400f,
+                    100f,
+                    false,
+                    true
                 });
 
                 GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", RpcTarget.All, new object[]
                 {
-                      GorillaLocomotion.Player.Instance.leftControllerTransform.position,
-                      UnityEngine.Random.rotation,
-                      400f,
-                      100f,
-                      false,
-                      true
+                    GorillaLocomotion.Player.Instance.leftControllerTransform.position,
+                    UnityEngine.Random.rotation,
+                    400f,
+                    100f,
+                    false,
+                    true
                 });
 
             }
@@ -2462,16 +2792,20 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             Vector3 newPosition = Vector3.zero;
             bool positionUpdated = false;
 
-            if (GorillaLocomotion.Player.Instance.wasLeftHandTouching && !GorillaLocomotion.Player.Instance.wasRightHandTouching)
+            if (GorillaLocomotion.Player.Instance.wasLeftHandTouching &&
+                !GorillaLocomotion.Player.Instance.wasRightHandTouching)
             {
                 newPosition = GorillaTagger.Instance.leftHandTransform.position;
                 positionUpdated = true;
             }
-            if (GorillaLocomotion.Player.Instance.wasRightHandTouching && !GorillaLocomotion.Player.Instance.wasLeftHandTouching)
+
+            if (GorillaLocomotion.Player.Instance.wasRightHandTouching &&
+                !GorillaLocomotion.Player.Instance.wasLeftHandTouching)
             {
                 newPosition = GorillaTagger.Instance.rightHandTransform.position;
                 positionUpdated = true;
             }
+
             if (positionUpdated)
             {
                 handInteractionSphere.transform.position = newPosition;
@@ -2486,8 +2820,11 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 RG = ControllerInputPoller.instance.rightControllerGripFloat;
                 LG = ControllerInputPoller.instance.leftControllerGripFloat;
                 RaycastHit raycastHit;
-                bool flag = Physics.Raycast(__instance.leftControllerTransform.position, __instance.leftControllerTransform.right, out raycastHit, 0.2f, layers);
-                if ((Physics.Raycast(__instance.rightControllerTransform.position, -__instance.rightControllerTransform.right, out raycastHit, 0.2f, layers) || AirMode) && RG > 0.5f)
+                bool flag = Physics.Raycast(__instance.leftControllerTransform.position,
+                    __instance.leftControllerTransform.right, out raycastHit, 0.2f, layers);
+                if ((Physics.Raycast(__instance.rightControllerTransform.position,
+                        -__instance.rightControllerTransform.right, out raycastHit, 0.2f, layers) || AirMode) &&
+                    RG > 0.5f)
                 {
                     if (!RGrabbing)
                     {
@@ -2495,9 +2832,11 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                         RGrabbing = true;
                         LGrabbing = false;
                     }
+
                     ApplyVelocity(__instance.rightControllerTransform.position, CurHandPos, __instance);
                     return;
                 }
+
                 if ((flag || AirMode) && LG > 0.5f)
                 {
                     if (!LGrabbing)
@@ -2506,9 +2845,11 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                         LGrabbing = true;
                         RGrabbing = false;
                     }
+
                     ApplyVelocity(__instance.leftControllerTransform.position, CurHandPos, __instance);
                     return;
                 }
+
                 if (LGrabbing || RGrabbing)
                 {
                     Physics.gravity = new Vector3(0, -9.81f, 0);
@@ -2522,7 +2863,8 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         {
             if (GorillaLocomotion.Player.Instance.InWater)
             {
-                GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.velocity = GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.velocity * 1.013f;
+                GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.velocity =
+                    GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.velocity * 1.013f;
             }
         }
 
@@ -2540,24 +2882,31 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             {
                 canBHop = true;
             }
+
             if (isBHop)
             {
                 if (GorillaLocomotion.Player.Instance.IsHandTouching(false))
                 {
                     GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity = Vector3.zero;
                     GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-                    GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().AddForce(Vector3.up * 270f, ForceMode.Impulse);
-                    GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().AddForce(GorillaTagger.Instance.offlineVRRig.rightHandPlayer.transform.right * 220f, ForceMode.Impulse);
+                    GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>()
+                        .AddForce(Vector3.up * 270f, ForceMode.Impulse);
+                    GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().AddForce(
+                        GorillaTagger.Instance.offlineVRRig.rightHandPlayer.transform.right * 220f, ForceMode.Impulse);
                 }
+
                 if (GorillaLocomotion.Player.Instance.IsHandTouching(true))
                 {
                     GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity = Vector3.zero;
                     GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-                    GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().AddForce(Vector3.up * 270f, ForceMode.Impulse);
-                    GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().AddForce(-GorillaTagger.Instance.offlineVRRig.leftHandPlayer.transform.right * 220f, ForceMode.Impulse);
+                    GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>()
+                        .AddForce(Vector3.up * 270f, ForceMode.Impulse);
+                    GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().AddForce(
+                        -GorillaTagger.Instance.offlineVRRig.leftHandPlayer.transform.right * 220f, ForceMode.Impulse);
                 }
             }
         }
+
         #endregion
 
         #region Cool Stuff
@@ -2578,21 +2927,42 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         static float matguntimer = -222f;
         static float lagtimeout;
         public static float colorFloat = 0f;
-        
+
         public static void CrashGun()
         {
-            if (!IsModded()) { return; }
-                CrashHandler();
-                var data = GunLib.ShootLock();
-                if (data != null)
+            if (!IsModded())
+            {
+                return;
+            }
+            CrashHandler();
+            var data = GunLib.ShootLock();
+            if (data != null)
+            {
+                if (data.lockedPlayer != null && data.isLocked && GetPhotonViewFromRig(data.lockedPlayer) != null)
                 {
-                    if (data.lockedPlayer != null && data.isLocked && GetPhotonViewFromRig(data.lockedPlayer) != null)
-                    {
-                        crashedPlayer = GetPhotonViewFromRig(data.lockedPlayer).Owner;
-                        crashPlayerPosition = data.lockedPlayer.transform.position;
-                    }
+                    crashedPlayer = GetPhotonViewFromRig(data.lockedPlayer).Owner;
+                    crashPlayerPosition = data.lockedPlayer.transform.position;
                 }
+            }
         }
+        
+        private static Dictionary<Player, Vector3> crashedPlayers = new Dictionary<Player, Vector3>();
+        
+        public static void AddCrashedPlayer(Player player)
+        {
+            if (!crashedPlayers.ContainsKey(player))
+            {
+                Vector3 playerPosition = GorillaGameManager.instance.FindPlayerVRRig(player).transform.position;
+                crashedPlayers.Add(player, playerPosition);
+            }
+        }
+
+        private static float blindCooldown = 0;
+        
+        static float chatgpt;
+        static float multiplyer = 1;
+        
+
 
         public static void PrintHandPositionGun()
         {
@@ -2601,11 +2971,14 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             {
                 if (data.lockedPlayer != null && data.isLocked)
                 {
-                    Debug.Log("RIGHTHAND: " + GetRelativePosition(data.lockedPlayer.rightHandTransform, data.lockedPlayer.leftHandTransform)) ;
+                    float distance = Vector3.Distance(data.lockedPlayer.rightHandTransform.position, data.lockedPlayer.leftHandTransform.position);
+                    Debug.Log("RIGHTHAND: " + distance);
+                    Debug.Log("HEADANGLE: " + data.lockedPlayer.headMesh.transform.eulerAngles);
+                    
                 }
             }
         }
-        
+
 
         static Vector3 GetRelativePosition(Transform objectA, Transform objectB)
         {
@@ -2614,12 +2987,9 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
 
         private static Player crashedPlayer = null;
         
-        private static Player[] crashedPlayers = null;
 
         private static Vector3 crashPlayerPosition = Vector3.zero;
-
-        private static float crashTimer = 0;
-
+        
         public static void MoveCrashHandler()
         {
             if (crashedPlayer != null)
@@ -2631,14 +3001,21 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
                     float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
                     float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
-                    if (crashPlayerPosition != GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position)
+                    if (crashPlayerPosition !=
+                        GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position)
                     {
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                        crashPlayerPosition = GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position;
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
+                            new object[] { red, green, blue });
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
+                            new object[] { red, green, blue });
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
+                            new object[] { red, green, blue });
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
+                            new object[] { red, green, blue });
+                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
+                            new object[] { red, green, blue });
+                        crashPlayerPosition = GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform
+                            .position;
                     }
 
                 }
@@ -2648,7 +3025,61 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 }
             }
         }
+        
 
+        public static void CrashHandlerMulti()
+        {
+            List<Player> playersToRemove = new List<Player>();
+            Dictionary<Player, Vector3> playersToUpdate = new Dictionary<Player, Vector3>();
+
+            foreach (var pair in crashedPlayers)
+            {
+                Player player = pair.Key;
+                Vector3 lastKnownPosition = pair.Value;
+
+                if (player == null || !player.InRoom())
+                {
+                    playersToRemove.Add(player);
+                }
+                else
+                {
+                    Vector3 currentPosition = GorillaGameManager.instance.FindPlayerVRRig(player).transform.position;
+                    if (lastKnownPosition != currentPosition)
+                    {
+                        playersToUpdate[player] = currentPosition;
+                        UpdatePlayerColor(player);
+                         UpdatePlayerColor(player);
+                    }
+                }
+            }
+
+            // Remove players who are not in the room anymore
+            foreach (var player in playersToRemove)
+            {
+                crashedPlayers.Remove(player);
+            }
+
+            // Update positions for players who have moved
+            foreach (var update in playersToUpdate)
+            {
+                crashedPlayers[update.Key] = update.Value;
+            }
+        }
+
+       
+
+        private static void UpdatePlayerColor(Player player)
+        {
+            float colorFloat = Mathf.Repeat(Time.time * float.PositiveInfinity, 1f);
+            float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+            float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+            float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+
+            // Assuming GorillaTagger.Instance.myVRRig.RpcSecure is the method to update the player color
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", player, true,
+                new object[] { red, green, blue });
+        }
+        
         public static void CrashHandler()
         {
             if (crashedPlayer != null)
@@ -2663,21 +3094,17 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                    if (XRSettings.isDeviceActive)
+                    if (XRSettings.isDeviceActive && (Mathf.RoundToInt(1f / UI.deltaTime) < 100))
                     {
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                         if (crashPlayerPosition != GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position)
                         {
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
                             crashPlayerPosition = GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position;
                         }
                     }
 
-                    }
+                }
                 else
                 {
                     crashedPlayer = null;
@@ -3012,36 +3439,14 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         }
         public static void CrashAll()
         {
-            Leveno(5);
-            Leveno(6);
-            Leveno(4);
-            Leveno(3);
-            Leveno(2);
-            Leveno(0);
-            Leveno(1);
-            Leveno(4);
-            Leveno(3);
-            Leveno(2);
-            Leveno(0);
-            Leveno(1);
-            Leveno(4);
-            Leveno(3);
-            Leveno(2);
-            Leveno(0);
-            Leveno(1);
-            Leveno(4);
-            Leveno(3);
-            Leveno(2);
-            Leveno(0);
-            Leveno(1);
-
-            foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
-            {
-                if (vrrig.enabled && !vrrig.isOfflineVRRig)
-                {
-                    vrrig.gameObject.SetActive(false);
-                }
-            }
+            SoundSpam();
+            float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+            float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+            float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
         }
 
         public static void matSpamAll()
@@ -3272,6 +3677,57 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
             {
                 Notif.SendNotification("Enable AntiBan!!", Color.red);
             }
+        }
+
+        public static List<GameObject> GetAllGameObjects(GameObject parent)
+        {
+            List<GameObject> gameObjects = new List<GameObject>();
+            CollectGameObjectsRecursive(parent, gameObjects);
+            return gameObjects;
+        }
+        
+        private static void CollectGameObjectsRecursive(GameObject parent, List<GameObject> gameObjects)
+        {
+            // Add the current parent GameObject to the list
+            gameObjects.Add(parent);
+
+            // Iterate through all children and call this method recursively
+            for (int i = 0; i < parent.transform.childCount; i++)
+            {
+                CollectGameObjectsRecursive(parent.transform.GetChild(i).gameObject, gameObjects);
+            }
+        }
+
+        
+        public static void agreeTOS()
+        {
+            GameObject.Find("Miscellaneous Scripts/LegalAgreementCheck/Legal Agreements")
+                .GetComponent<LegalAgreements>().testFaceButtonPress = true;
+        }
+
+        public static void HideInTrees(bool enable)
+        {
+            GameObject parentGameObject =
+                GameObject.Find("Environment Objects/LocalObjects_Prefab/Forest/Terrain/SmallTrees");
+            List<GameObject> allChildGameObjects = GetAllGameObjects(parentGameObject);
+    
+         
+            foreach (GameObject gameObject in allChildGameObjects)
+            {
+                MeshCollider collider = gameObject.GetComponent<MeshCollider>();
+                if (collider != null)
+                {
+                    if (enable)
+                        collider.enabled = false; 
+                    else
+                        collider.enabled = true;
+                }
+            }
+        }
+
+        public static void ChangeTime(float timescale)
+        {
+            Time.timeScale = timescale;
         }
 
         public static void ChangeIdentity()
@@ -3573,7 +4029,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
         {
             foreach (GorillaNetworking.CosmeticsController.CosmeticItem item in GorillaNetworking.CosmeticsController.instance.allCosmetics)
             {
-              //  CosmeticsController.instance.UnlockItem("LBAAK.");
+                //CosmeticsController.instance.UnlockItem("LBAAK.");
                 if (item.itemName == "LBAFV.")
                 {
                     GorillaNetworking.CosmeticsController.instance.itemToBuy = item;
@@ -4008,7 +4464,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                 var go = PhotonNetwork.InstantiateRoomObject("GameMode", Vector3.zero, Quaternion.identity, 0, new object[1] { 3 });
                 go.GetComponent<GorillaBattleManager>().RandomizeTeams();
             }
-            AntiBan();
+           
         }
 
 
@@ -4120,7 +4576,7 @@ public static void AcidMatoff(Photon.Realtime.Player player = null)
                                     threshold = 0.35f;
                                 }
 
-                                if (D1 < threshold || D2 < threshold || (IsVectorNear(vrrig.rightHandTransform.position, vrrig.leftHandTransform.position, .03f)))
+                                if (D1 < threshold || D2 < threshold || (IsVectorNear(vrrig.rightHandTransform.position, vrrig.leftHandTransform.position, .01f)))
                                 {
                                     if (MenuPatch.antiReportCurrent == "Disconnect")
                                         PhotonNetwork.Disconnect();
