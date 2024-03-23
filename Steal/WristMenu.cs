@@ -199,9 +199,9 @@ namespace Steal
             new Button("Crash All", Category.Special, true, false, ()=>CrashAll(), null, true),
             new Button("Crash Gun", Category.Special, true, false, ()=>CrashGun(), null, true),
             new Button("Crash On Touch", Category.Special, true, false, ()=>CrashOnTouch(), null, true),
-            new Button("Stutter All", Category.Special, true, false, ()=>InvisAll(), null, true),
-            new Button("Stutter Gun", Category.Special, true, false, ()=>InvisGun(), null, true),
-            new Button("Stutter On Touch", Category.Special, true, false, ()=>InvisOnTouch(), null, true),
+            new Button("Stutter All", Category.Special, true, false, ()=>StutterAll(), null, true),
+            new Button("Stutter Gun", Category.Special, true, false, ()=>StutterGun(), null, true),
+            new Button("Stutter On Touch", Category.Special, true, false, ()=>StutterOnTouch(), null, true),
 
             new Button("Lag All", Category.Special, true, false, ()=>LagAl(), null, true),
             new Button("Lag Gun", Category.Special, true, false, ()=>LagGun(), null, true),

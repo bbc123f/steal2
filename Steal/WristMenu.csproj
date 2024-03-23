@@ -22,6 +22,7 @@
     <None Remove="Background\Notifs" />
     <None Remove="Components\ModsList" />
     <None Remove="Components\NewFile1.txt" />
+    <None Remove="Patches\NewFile1.txt" />
     <None Remove="Resources\click" />
   </ItemGroup>
 

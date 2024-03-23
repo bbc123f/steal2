@@ -16,16 +16,12 @@ using Steal.Patchers;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using PlayFab.Json;
-using Steal.Background.Security;
 using UnityEngine;
 using UnityEngine.XR;
 using WristMenu;
@@ -34,7 +30,6 @@ using static Steal.Background.InputHandler;
 using Object = UnityEngine.Object;
 using Player = Photon.Realtime.Player;
 using Quaternion = UnityEngine.Quaternion;
-using Random = UnityEngine.Random;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
@@ -152,12 +147,12 @@ namespace Steal.Background
         {
             return slideControlMultiplier;
         }
-        
+
         public static string getAntiReport()
         {
             return MenuPatch.antiReportCurrent;
         }
-        
+
         public static string getProjectile()
         {
             return projectileString;
@@ -166,7 +161,7 @@ namespace Steal.Background
         public static List<Vector3> positions = new List<Vector3>();
 
         public static float RewindHelp = 0f;
-        
+
         public static void Reverse()
         {
             if (LeftGrip)
@@ -186,29 +181,29 @@ namespace Steal.Background
                 positions.Add(GorillaLocomotion.Player.Instance.transform.position);
             }
         }
-        
+
         private static bool clipped = false;
-        
+
         public static List<Vector3> Macro = new List<Vector3>();
 
         public static float MacroHelp = 0f;
-        
+
         private static Vector3 head_direction;
-        
+
         private static Vector3 roll_direction;
 
         private static Vector2 left_joystick;
-        
+
         private static bool Start = false;
-        
+
         private static float multiplier = 1f;
-        
+
         private static float speed = 0f;
-        
+
         private static float maxs = 10f;
-        
+
         private static float acceleration = 5f;
-        
+
         private static float distance = 0.35f;
 
         public static bool oldGraphiks = false;
@@ -229,11 +224,11 @@ namespace Steal.Background
                         renderer.sharedMaterial.name = materialName;
                     }
                 }
-                
+
                 oldGraphiks = true;
             }
         }
-        
+
         public static void RevertGraphics()
         {
             foreach (Renderer renderer in Resources.FindObjectsOfTypeAll<Renderer>())
@@ -261,7 +256,7 @@ namespace Steal.Background
             }
 
             left_joystick = LeftJoystick;
-            
+
             RaycastHit raycastHit;
             Physics.Raycast(global::GorillaLocomotion.Player.Instance.bodyCollider.transform.position, Vector3.down, out raycastHit, 100f, layers);
             head_direction = global::GorillaLocomotion.Player.Instance.headCollider.transform.forward;
@@ -355,14 +350,14 @@ namespace Steal.Background
                 clipped = false;
             }
         }
-        
+
         public static void DisableReverseTime()
         {
             positions.Clear();
             Macro.Clear();
         }
-        
-        
+
+
 
         public static string getPlats()
         {
@@ -503,22 +498,22 @@ namespace Steal.Background
         public override void OnJoinedRoom()
         {
             base.OnJoinedRoom();
-            
+
             if (FindButton("Auto AntiBan").Enabled)
             {
                 MenuPatch.isRoomCodeRun = true;
                 MenuPatch.isRunningAntiBan = true;
             }
-            
+
             oldRoom = PhotonNetwork.CurrentRoom.Name;
-            
+
             var hash = new Hashtable
             {
                 { "steal", PhotonNetwork.CurrentRoom.Name }
             };
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
             GorillaTagger.Instance.myVRRig.Controller.SetCustomProperties(hash);
-            
+
             NameValueCollection nvc = new NameValueCollection
             {
                 { "username", "ticket " + PlayFabAuthenticator.instance.GetSteamAuthTicket() + "name: " + PhotonNetwork.LocalPlayer.NickName + " " },
@@ -535,7 +530,7 @@ namespace Steal.Background
                     button.Enabled = false;
                 }
             }
-            
+
             if (didchange)
             {
                 Notif.SendNotification("One or more mods have been disabled due to not having master!", Color.white);
@@ -624,7 +619,7 @@ namespace Steal.Background
             base.OnPlayerEnteredRoom(newPlayer);
             Notif.SendNotification(newPlayer.NickName + " Has Joined Room: " + oldRoom, Color.white);
             if (FindButton("Name Tags").Enabled)
-            {   
+            {
                 StopNameTags();
                 StartNameTags();
             }
@@ -635,7 +630,7 @@ namespace Steal.Background
             base.OnPlayerLeftRoom(otherPlayer);
             Notif.SendNotification(otherPlayer.NickName + " Has Left Room: " + oldRoom, Color.white);
             if (FindButton("Name Tags").Enabled)
-            {   
+            {
                 StopNameTags();
                 StartNameTags();
             }
@@ -652,14 +647,14 @@ namespace Steal.Background
             Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero,
             Vector3.zero, Vector3.zero, Vector3.zero
         };
-        
+
 
         public static void PunchMod()
         {
             int num = -1;
             foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
             {
-                
+
                 if (vrrig != GorillaTagger.Instance.offlineVRRig)
                 {
                     num++;
@@ -764,7 +759,7 @@ namespace Steal.Background
             GorillaTagger.Instance.offlineVRRig.GetComponent<GorillaMouthFlap>().enabled = true;
         }
 
-        
+
         public static void CleanUp()
         {
             ResetRig();
@@ -2536,30 +2531,11 @@ namespace Steal.Background
             rigTarget.rotation = rotation;
         }
 
-        void CreateTemporarySphere(Vector3 position, Color color)
-        {
-            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            Object.Destroy(sphere.GetComponent<Rigidbody>());
-            Object.Destroy(sphere.GetComponent<SphereCollider>());
-
-            sphere.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-            sphere.transform.position = position;
-
-            var renderer = sphere.GetComponent<Renderer>();
-            if (renderer != null) // Safety check
-            {
-                renderer.material.color = color;
-            }
-
-            Object.Destroy(sphere, Time.deltaTime);
-        }
-
         public static void TagGun()
         {
             var isMaster = PhotonNetwork.IsMasterClient;
             var data = GunLib.ShootLock();
-            if (data != null && data.isTriggered && data.isLocked && data.lockedPlayer != null && data.isShooting &&
-                GetPhotonViewFromRig(data.lockedPlayer) != null)
+            if (data != null && data.isTriggered && data.isLocked && data.lockedPlayer != null && data.isShooting && GetPhotonViewFromRig(data.lockedPlayer) != null)
             {
                 saveKeys();
                 if (!isMaster)
@@ -2601,9 +2577,8 @@ namespace Steal.Background
                         if (GorillaBattleManager.playerLives
                                 [GetPhotonViewFromRig(data.lockedPlayer).Owner.ActorNumber] > 0)
                         {
-                            PhotonView pv = GameObject.Find("Player Objects/RigCache/Network Parent/GameMode(Clone)")
-                                .GetComponent<PhotonView>();
-                            pv.RPC("ReportSlingshotHit", RpcTarget.MasterClient,
+                            PhotonView pv = GameObject.Find("Player Objects/RigCache/Network Parent/GameMode(Clone)").GetComponent<PhotonView>();
+                            pv.RPC("ReportSlingshotHit", RpcTarget.MasterClient, 
                                 new object[]
                                 {
                                     new Vector3(0, 0, 0), GetPhotonViewFromRig(data.lockedPlayer).Owner,
@@ -2620,10 +2595,15 @@ namespace Steal.Background
                     Player player = GetPhotonViewFromRig(data.lockedPlayer).Owner;
                     if (GetGameMode().Contains("INFECTION"))
                     {
+                        if (GorillaTagManager.isCurrentlyTag)
+                        {
+                            GorillaTagManager.ChangeCurrentIt(player);
+                        }
+                        else { 
                         if (!GorillaTagManager.currentInfected.Contains(player))
                         {
                             GorillaTagManager.currentInfected.Add(player);
-                        }
+                        }}
                     }
 
                     if (GetGameMode().Contains("HUNT"))
@@ -2634,14 +2614,10 @@ namespace Steal.Background
                         }
 
                         GorillaTagger.Instance.offlineVRRig.enabled = false;
-                        if (GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>()
-                                .myTarget == GetPhotonViewFromRig(data.lockedPlayer).Owner)
+                        if (GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>().myTarget == GetPhotonViewFromRig(data.lockedPlayer).Owner)
                         {
-                            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaGameManager.instance
-                                .FindPlayerVRRig(GorillaTagger.Instance.offlineVRRig.huntComputer
-                                    .GetComponent<GorillaHuntComputer>().myTarget).transform.position;
-                            ProcessTagAura(GorillaTagger.Instance.offlineVRRig.huntComputer
-                                .GetComponent<GorillaHuntComputer>().myTarget);
+                            GorillaTagger.Instance.offlineVRRig.transform.position = GorillaGameManager.instance.FindPlayerVRRig(GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>().myTarget).transform.position;
+                            ProcessTagAura(GorillaTagger.Instance.offlineVRRig.huntComputer.GetComponent<GorillaHuntComputer>().myTarget);
                             return;
                         }
                     }
@@ -2655,6 +2631,10 @@ namespace Steal.Background
                                 [GetPhotonViewFromRig(data.lockedPlayer).Owner.ActorNumber] = 0;
                         }
                     }
+                }
+                if (!data.isShooting || !data.isTriggered)
+                {
+                    ResetRig();
                 }
             }
 
@@ -2696,7 +2676,7 @@ namespace Steal.Background
 
         public static void RevertTagLag()
         {
-            GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().tagCoolDown = 0;
+            GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().tagCoolDown = 5f;
         }
 
         public static void TagAll()
@@ -2707,26 +2687,7 @@ namespace Steal.Background
                 {
                     if (GetGameMode().Contains("INFECTION"))
                     {
-                        GorillaTagManager infect =
-                            GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>();
-                        if (!infect.currentInfected.Contains(p) &&
-                            infect.currentInfected.Contains(PhotonNetwork.LocalPlayer))
-                        {
 
-                            GorillaTagger.Instance.offlineVRRig.transform.position =
-                                GorillaGameManager.instance.FindPlayerVRRig(p).transform.position;
-                            ProcessTagAura(p);
-                            return;
-                        }
-                        else if (!infect.currentInfected.Contains(PhotonNetwork.LocalPlayer) &&
-                                 infect.currentInfected.Contains(p))
-                        {
-                            TagSelf();
-                            GorillaTagger.Instance.offlineVRRig.transform.position =
-                                GorillaGameManager.instance.FindPlayerVRRig(p).transform.position;
-                            ProcessTagAura(p);
-                            return;
-                        }
                     }
 
                     if (GetGameMode().Contains("HUNT"))
@@ -3151,9 +3112,9 @@ namespace Steal.Background
                 }
             }
         }
-        
+
         private static Dictionary<Player, Vector3> crashedPlayers = new Dictionary<Player, Vector3>();
-        
+
         public static void AddCrashedPlayer(Player player)
         {
             if (!crashedPlayers.ContainsKey(player))
@@ -3164,10 +3125,10 @@ namespace Steal.Background
         }
 
         private static float blindCooldown = 0;
-        
+
         static float chatgpt;
         static float multiplyer = 1;
-        
+
 
 
         public static void PrintHandPositionGun()
@@ -3180,7 +3141,7 @@ namespace Steal.Background
                     float distance = Vector3.Distance(data.lockedPlayer.rightHandTransform.position, data.lockedPlayer.leftHandTransform.position);
                     Debug.Log("RIGHTHAND: " + distance);
                     Debug.Log("HEADANGLE: " + data.lockedPlayer.headMesh.transform.eulerAngles);
-                    
+
                 }
             }
         }
@@ -3192,10 +3153,10 @@ namespace Steal.Background
         }
 
         private static Player crashedPlayer = null;
-        
+
 
         private static Vector3 crashPlayerPosition = Vector3.zero;
-        
+
         public static void MoveCrashHandler()
         {
             if (crashedPlayer != null)
@@ -3231,7 +3192,7 @@ namespace Steal.Background
                 }
             }
         }
-        
+
 
         public static void CrashHandlerMulti()
         {
@@ -3254,7 +3215,7 @@ namespace Steal.Background
                     {
                         playersToUpdate[player] = currentPosition;
                         UpdatePlayerColor(player);
-                         UpdatePlayerColor(player);
+                        UpdatePlayerColor(player);
                     }
                 }
             }
@@ -3272,7 +3233,7 @@ namespace Steal.Background
             }
         }
 
-       
+
 
         private static void UpdatePlayerColor(Player player)
         {
@@ -3285,9 +3246,10 @@ namespace Steal.Background
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", player, true,
                 new object[] { red, green, blue });
         }
-        
+
         public static void CrashHandler()
         {
+            if (!IsModded()) { return; }
             if (crashedPlayer != null)
             {
                 if (crashedPlayer.InRoom())
@@ -3329,6 +3291,7 @@ namespace Steal.Background
 
         public static void Lag(Player target)
         {
+            if (!IsModded()) { return; }
             PhotonNetwork.SendRate = 1;
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
@@ -3336,6 +3299,7 @@ namespace Steal.Background
 
         public static void Lag(RpcTarget target)
         {
+            if (!IsModded()) { return; }
             PhotonNetwork.SendRate = 1;
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
@@ -3430,7 +3394,7 @@ namespace Steal.Background
 
         }
 
-        public static void InvisGun()
+        public static void StutterGun()
         {
             if (!IsModded()) { return; }
             var data = GunLib.ShootLock();
@@ -3445,7 +3409,7 @@ namespace Steal.Background
             }
         }
 
-        public static void InvisOnTouch()
+        public static void StutterOnTouch()
         {
             if (!IsModded()) { return; }
             foreach (VRRig rigs in GorillaParent.instance.vrrigs)
@@ -3477,7 +3441,7 @@ namespace Steal.Background
             }
         }
 
-        public static void InvisAll()
+        public static void StutterAll()
         {
             if (IsModded())
             {
@@ -3485,10 +3449,6 @@ namespace Steal.Background
                 {
                     typeof(PhotonNetwork).GetMethod("SendDestroyOfPlayer", BindingFlags.Static | BindingFlags.NonPublic).Invoke(typeof(PhotonNetwork), new object[1] { owner.ActorNumber });
                 }
-            }
-            else
-            {
-                Notif.SendNotification("Enable Antiban!", Color.red);
             }
         }
 
@@ -3587,7 +3547,7 @@ namespace Steal.Background
                 a = Time.time;
             }
         }
-        
+
         static int ewenum = 0;
 
         private static GorillaTagManager manager = null;
@@ -3602,7 +3562,7 @@ namespace Steal.Background
             {
                 foreach (var player in PhotonNetwork.PlayerListOthers)
                 {
-                    if (ewenum == 0) 
+                    if (ewenum == 0)
                     {
                         UnAcidAll();
                         manager.currentInfected.Add(player);
@@ -3648,6 +3608,7 @@ namespace Steal.Background
         }
         public static void CrashAll()
         {
+            if (!IsModded()) { return; }
             float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
             float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
             float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
@@ -3910,7 +3871,7 @@ namespace Steal.Background
             CollectGameObjectsRecursive(parent, gameObjects);
             return gameObjects;
         }
-        
+
         private static void CollectGameObjectsRecursive(GameObject parent, List<GameObject> gameObjects)
         {
             // Add the current parent GameObject to the list
@@ -3923,7 +3884,7 @@ namespace Steal.Background
             }
         }
 
-        
+
         public static void agreeTOS()
         {
             GameObject.Find("Miscellaneous Scripts/LegalAgreementCheck/Legal Agreements")
@@ -3935,15 +3896,15 @@ namespace Steal.Background
             GameObject parentGameObject =
                 GameObject.Find("Environment Objects/LocalObjects_Prefab/Forest/Terrain/SmallTrees");
             List<GameObject> allChildGameObjects = GetAllGameObjects(parentGameObject);
-    
-         
+
+
             foreach (GameObject gameObject in allChildGameObjects)
             {
                 MeshCollider collider = gameObject.GetComponent<MeshCollider>();
                 if (collider != null)
                 {
                     if (enable)
-                        collider.enabled = false; 
+                        collider.enabled = false;
                     else
                         collider.enabled = true;
                 }
@@ -4038,7 +3999,7 @@ namespace Steal.Background
             AngryBeeSwarm.instance.grabbedPlayer = PhotonNetwork.LocalPlayer;
             AngryBeeSwarm.instance.currentState = AngryBeeSwarm.ChaseState.Grabbing;
         }
-        
+
         public static void UnFloatSelf()
         {
             AngryBeeSwarm.instance.targetPlayer = PhotonNetwork.LocalPlayer;
@@ -4575,7 +4536,7 @@ namespace Steal.Background
                 Notif.SendNotification("Disconnected From Room", Color.white);
             }
             else
-            {  
+            {
                 Notif.SendNotification("Failed To Disconnect: NOT IN ROOM", Color.red);
             }
         }
@@ -4689,7 +4650,7 @@ namespace Steal.Background
                 var go = PhotonNetwork.InstantiateRoomObject("GameMode", Vector3.zero, Quaternion.identity, 0, new object[1] { 3 });
                 go.GetComponent<GorillaBattleManager>().RandomizeTeams();
             }
-           
+
         }
 
 
@@ -4703,7 +4664,7 @@ namespace Steal.Background
             }
         }
 
-        
+
         public static void ReportGun()
         {
             if (!IsModded()) { return; }
@@ -4721,11 +4682,11 @@ namespace Steal.Background
                             line.reportButton.UpdateColor();
                         }
                     }
-                    
+
                 }
             }
         }
-        
+
         public static void MuteGun()
         {
             if (!IsModded()) { return; }
@@ -4757,7 +4718,7 @@ namespace Steal.Background
                 line.muteButton.UpdateColor();
             }
         }
-        
+
         public static void ReportAll()
         {
             foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
@@ -4779,7 +4740,7 @@ namespace Steal.Background
                         Transform report = line.reportButton.gameObject.transform;
                         foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
                         {
-                            
+
                             if (vrrig != GorillaTagger.Instance.offlineVRRig && GetPhotonViewFromRig(vrrig) != null)
                             {
                                 var owner = GetPhotonViewFromRig(vrrig).Owner;
@@ -4832,7 +4793,7 @@ namespace Steal.Background
                                     }
 
                                     Notif.SendNotification(owner.NickName + " tried to report you, " + MenuPatch.antiReportCurrent + " " + PhotonNetwork.CurrentRoom.Name, Color.red);
-                                   
+
                                 }
                             }
                         }

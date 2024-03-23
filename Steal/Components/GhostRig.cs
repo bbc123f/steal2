@@ -29,24 +29,19 @@ namespace Steal.Components
             {
                 var rigOB = Instantiate<GameObject>(GorillaTagger.Instance.offlineVRRig.gameObject);
                 ghostRig = rigOB.GetComponent<VRRig>();
-                Destroy(ghostRig.rightHandPlayer);
-                Destroy(ghostRig.leftHandPlayer);
                 Destroy(rigOB.GetComponent<Rigidbody>());
                 ghostRig.mainSkin.material.shader = Shader.Find("GUI/Text Shader");
                 ghostRig.mainSkin.material.color = new Color32(255, 255, 255, 40);
                 ghostRig.transform.position = Vector3.zero;
                 ghostRig.enabled = false;
+                GameObject.Find("Player Objects/GorillaParent/Local Gorilla Player(Clone)/VR Constraints/LeftArm/Left Arm IK/SlideAudio").SetActive(false);
+                GameObject.Find("Player Objects/GorillaParent/Local Gorilla Player(Clone)/VR Constraints/RightArm/Right Arm IK/SlideAudio").SetActive(false);
             }
             if (ghostRig == null) { return; }
-            if (ghostRig.leftHandPlayer != null && ghostRig.rightHandPlayer != null)
-            {
-                Destroy(ghostRig.rightHandPlayer);
-                Destroy(ghostRig.leftHandPlayer);
-            }
             if (ghostRig.enabled && GorillaTagger.Instance.offlineVRRig.enabled)
             {
-                ghostRig.transform.position = Vector3.zero;
-                ghostRig.enabled = false;
+                ghostRig.transform.position = Vector3.zero; 
+                ghostRig.enabled = false; 
 
             }
             if (!GorillaTagger.Instance.offlineVRRig.enabled)
