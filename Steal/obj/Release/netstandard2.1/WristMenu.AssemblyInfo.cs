@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Steal")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f5771a56a9bbad39f2754cb78966c9720d6c34e0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9b476cc6d5da93d20ae7904ae729e782c7788457")]
 [assembly: System.Reflection.AssemblyProductAttribute("Steal")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Steal")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

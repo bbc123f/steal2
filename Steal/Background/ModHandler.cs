@@ -11,11 +11,13 @@ using Photon.Realtime;
 using Photon.Voice.PUN;
 using PlayFab;
 using PlayFab.ClientModels;
+using Steal.Background.Security;
 using Steal.Components;
 using Steal.Patchers;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -27,6 +29,7 @@ using UnityEngine.XR;
 using WristMenu;
 using WristMenu.Components;
 using static Steal.Background.InputHandler;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 using Player = Photon.Realtime.Player;
 using Quaternion = UnityEngine.Quaternion;
@@ -418,6 +421,7 @@ namespace Steal.Background
 
         }
 
+
         public static void ProjectileGun()
         {
             var data = GunLib.Shoot();
@@ -425,55 +429,126 @@ namespace Steal.Background
             {
                 if (data.isShooting && data.isTriggered)
                 {
-                    Vector3 position = GorillaTagger.Instance.rightHandTransform.position;
-                    Vector3 point = data.hitPosition;
-                    Vector3 vector = (point - position).normalized;
-                    float d = 20f;
-                    vector *= d;
-                    if (Time.time > a)
+                    if (projectileString == "Snowball")
                     {
-                        a = Time.time + 0.1f;
-                        colorFloat = Mathf.Repeat(colorFloat + Time.deltaTime * 1f, 1f);
-
-                        float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-                        float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-                        float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
-                        var snowballunen =
-                            GameObject.Find(
-                                "Player Objects/Local VRRig/Local Gorilla Player/Holdables/WaterBalloonRightAnchor/LMAEY.");
-                        if (snowballunen && !snowballunen.activeSelf)
+                        int typeofpar = 0;
+                        Vector3 pos = data.hitPosition;
+                        Vector3 vel = GorillaTagger.Instance.offlineVRRig.rightHandTransform.transform.up * Time.deltaTime * 1000f;
+                        if (pos != null)
                         {
-                            snowballunen.SetActive(true);
+                            SendProjectile(pos, vel, 1f, 1f, 1f, typeofpar, false, false, true);
                         }
-
-                        var snowball =
-                            GameObject.Find(
-                                "Player Objects/Local VRRig/Local Gorilla Player/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R/TransferrableItemRightHand/WaterBalloonRightAnchor/LMAEY.");
-                        if (snowball && snowball.activeSelf)
+                    }
+                    else if (projectileString == "Balloon")
+                    {
+                        int typeofpar = 2;
+                        Vector3 pos = data.hitPosition;
+                        Vector3 vel = GorillaTagger.Instance.offlineVRRig.rightHandTransform.transform.up * Time.deltaTime * 1000f;
+                        if (pos != null)
                         {
-                            snowball.GetComponent<SnowballThrowable>().EnableSnowballLocal(true);
+                            SendProjectile(pos, vel, 1f, 1f, 1f, typeofpar, false, true, false);
                         }
-
-                        object[] projectileSendData = new object[9];
-                        projectileSendData[0] = position;
-                        projectileSendData[1] = vector;
-                        projectileSendData[2] = 2;
-                        projectileSendData[3] = 1;
-                        projectileSendData[4] = true;
-                        projectileSendData[5] = red;
-                        projectileSendData[6] = green;
-                        projectileSendData[7] = blue;
-                        projectileSendData[8] = 0f;
-                        byte b2 = 0;
-                        object obj = projectileSendData;
-                        PhotonNetwork.RaiseEvent(3, new object[] { PhotonNetwork.ServerTimestamp, b2, obj },
-                            new RaiseEventOptions { Receivers = ReceiverGroup.All }, SendOptions.SendUnreliable);
-                        PhotonNetwork.SendAllOutgoingCommands();
+                    }
+                    else if (projectileString == "Dirt")
+                    {
+                        int typeofpar = 6;
+                        Vector3 pos = data.hitPosition;
+                        Vector3 vel = GorillaTagger.Instance.offlineVRRig.rightHandTransform.transform.up * Time.deltaTime * 1000f;
+                        if (pos != null)
+                        {
+                            SendProjectile(pos, vel, 1f, 1f, 1f, typeofpar, true, false, false);
+                        }
                     }
                 }
             }
         }
 
+        static bool hasDisabledthing = false;
+
+        static Dictionary<int, string> s = new Dictionary<int, string>
+        {
+            { 0, "Player Objects/Local VRRig/Local Gorilla Player/Holdables/SnowballRightAnchor/LMACF."},
+            { 2, "Player Objects/Local VRRig/Local Gorilla Player/Holdables/WaterBalloonRightAnchor/LMAEY." },
+            { 6, "Player Objects/Local VRRig/Local Gorilla Player/Holdables/FishFoodRightAnchor/LMAIP." },
+        };
+
+        static KeyValuePair<int, string> GetItem(int key)
+        {
+            foreach (KeyValuePair<int, string> kvp in s)
+            {
+                if (kvp.Key == key)
+                {
+                    return kvp;
+                }
+            }
+            return default;
+        }
+
+        public static void SendProjectile(Vector3 position, Vector3 vector, float red, float green, float blue, int i, bool food, bool balooon, bool shnowball)
+        {
+            if (Time.time > a)
+            {
+                a = Time.time + 0.1f;
+                if (!hasDisabledthing)
+                {
+                    foreach (KeyValuePair<int, string> kvp in s)
+                    {
+                        var go = GameObject.Find(kvp.Value);
+                        if (go && !go.activeSelf)
+                        {
+                            go.SetActive(true);
+                        }
+                        var go2 = GameObject.Find("Player Objects/Local VRRig/Local Gorilla Player/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R/TransferrableItemRightHand/" + kvp.Value.Remove(0, 58));
+                        if (go2 && go2.activeSelf)
+                        {
+                            go2.SetActive(false);
+                        }
+                    }
+                }
+                var snowball1 = GameObject.Find("Player Objects/Local VRRig/Local Gorilla Player/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R/TransferrableItemRightHand/" + GetItem(i).Value.Remove(0, 58));
+                if (snowball1)
+                {
+                    if (snowball1.activeSelf)
+                    {
+                        snowball1.GetComponent<SnowballThrowable>().EnableSnowballLocal(true);
+                    }
+                    else
+                    {
+                        snowball1.SetActive(true);
+                    }
+                }
+                object[] projectileSendData = new object[9];
+                projectileSendData[0] = position;
+                projectileSendData[1] = vector;
+                projectileSendData[2] = 2;
+                projectileSendData[3] = 1;
+                projectileSendData[4] = false;
+                projectileSendData[5] = red;
+                projectileSendData[6] = green;
+                projectileSendData[7] = blue;
+                projectileSendData[8] = 0f;
+                byte b2 = 0;
+                object obj = projectileSendData;
+                PhotonNetwork.RaiseEvent(3, new object[] { PhotonNetwork.ServerTimestamp, b2, obj }, new RaiseEventOptions { Receivers = ReceiverGroup.All }, SendOptions.SendUnreliable);
+                UnityEngine.Color throwableProjectileColor = new UnityEngine.Color(red, green, blue);
+                int num = 0;
+                if (food)
+                {
+                    num = PoolUtils.GameObjHashCode(GameObject.Find("Environment Objects/PersistentObjects_Prefab/GlobalObjectPools/FishFoodProjectile(PoolIndex=40)"));
+                }
+                if (balooon)
+                {
+                    num = PoolUtils.GameObjHashCode(GameObject.Find("Environment Objects/PersistentObjects_Prefab/GlobalObjectPools/WaterBalloonProjectile(PoolIndex=104)"));
+                }
+                if (shnowball)
+                {
+                    num = PoolUtils.GameObjHashCode(GameObject.Find("Environment Objects/PersistentObjects_Prefab/GlobalObjectPools/SnowballProjectile(PoolIndex=136)"));
+                }
+                SlingshotProjectile component = ObjectPools.instance.Instantiate(num).GetComponent<SlingshotProjectile>();
+                component.Launch(position, vector, PhotonNetwork.LocalPlayer, false, false, 1, snowball1.GetComponent<SnowballThrowable>().transform.lossyScale.x, true, throwableProjectileColor);
+                PhotonNetwork.SendAllOutgoingCommands();
+            }
+        }
 
         public static void ToggleWatch()
         {
@@ -536,6 +611,23 @@ namespace Steal.Background
                 Notif.SendNotification("One or more mods have been disabled due to not having master!", Color.white);
                 MenuPatch.RefreshMenu();
             }
+        }
+
+        public static void ReAuth()
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Base.GetAuth.license2(Base.key);
+            if (Base.GetAuth.response.success)
+            {
+                Debug.Log("ReAuth");
+            }
+            else
+            {
+                Application.Quit();
+            }
+            stopwatch.Stop();
+            Debug.Log("REAUTHED IN " + stopwatch.ElapsedMilliseconds + "MS");
         }
 
         public static void AcidMat(Photon.Realtime.Player player)

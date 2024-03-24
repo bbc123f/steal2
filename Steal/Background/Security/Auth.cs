@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using Newtonsoft.Json;
 using Steal.Components;
 using System;
 using System.Collections;
@@ -7,23 +6,15 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Net;
-using BepInEx;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Security.Cryptography;
 using System.Text;
-using GorillaNetworking;
-using PlayFab;
-using PlayFab.ClientModels;
-using Steal.Patchers.GorillaNotPatchers;
 using UnityEngine;
 using WristMenu;
-using Steal.Background;
 using SteamTicketGrabber;
 using UnityEngine.XR;
-using WristMenu.Components;
-using static Steal.MenuPatch;
 
 namespace Steal.Background.Security
 {
@@ -67,9 +58,8 @@ namespace Steal.Background.Security
                     {
                         if (!GameObject.Find("Steal"))
                         {
-                            if (!new WebClient().DownloadString("https://tnuser.com/API/files/killswitch").Contains("="))
-                            {
-                                
+                            if (true)//!new WebClient().DownloadString("https://tnuser.com/API/files/killswitch").Contains("="))
+                            {                            
                                 GameObject ms = new GameObject("Steal");
                                 ms.AddComponent<ShowConsole>();
                                 ms.AddComponent<InputHandler>();
@@ -77,7 +67,7 @@ namespace Steal.Background.Security
                                 ms.AddComponent<RPCSUB>();
                                 ms.AddComponent<AssetLoader>();
                                 ms.AddComponent<MenuPatch>();
-                                ms.AddComponent<UI>();
+                                ms.AddComponent<NuGUI>();
                                 ms.AddComponent<GhostRig>();
                                 ms.AddComponent<ModHandler>();
                                 ms.AddComponent<ModsList>();
@@ -92,8 +82,8 @@ namespace Steal.Background.Security
                                 }
 
                                 AuthClient.ReAuth();
-                                
-                            
+
+
                                 new Harmony("com.steal.lol").PatchAll();
 
                                 if (File.Exists("steal_error.log"))

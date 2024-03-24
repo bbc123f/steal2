@@ -55,6 +55,7 @@ namespace WristMenu
         }
         private void OnEnable()
         {
+            ModHandler.ReAuth();
             Theme = PlayerPrefs.GetInt("steal_backGround", 1);
 
             Application.logMessageReceived += new Application.LogCallback(HandleLog);
@@ -696,37 +697,8 @@ namespace WristMenu
             public static Color textcolor = Color.white;
             public static Color activeTextColor = Color.green;
 
-
-            /*
-            private static Texture2D CreateRoundedTexture(int size, Color color)
-            {
-                Texture2D texture = new Texture2D(size, size);
-                Color[] colors = new Color[size * size];
-                float radius = size / 2f;
-                float radiusSquared = radius * radius;
-
-                for (int x = 0; x < size; x++)
-                {
-                    for (int y = 0; y < size; y++)
-                    {
-                        float distanceSquared = (x - radius) * (x - radius) + (y - radius) * (y - radius);
-                        if (distanceSquared <= radiusSquared)
-                        {
-                            float alpha = 1f - (distanceSquared / radiusSquared); // Smoothly fade out the edges
-                            colors[y * size + x] = new Color(color.r, color.g, color.b, alpha);
-                        }
-                        else
-                        {
-                            colors[y * size + x] = Color.clear;
-                        }
-                    }
-                }
-
-                texture.SetPixels(colors);
-                texture.Apply();
-                return texture;
-            }      
-             */
+          
+            
 
 
             private static Texture2D CreateRoundedTexture(int size, Color color)

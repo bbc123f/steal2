@@ -63,30 +63,48 @@ public class ModsList : MonoBehaviour
         guiStyle2.wordWrap = true;
     }
 
-    void OnGUI()
+void OnGUI()
+{
+    // Set the text color based on the theme
+    guiStyle.normal.textColor = MenuPatch.GetTheme(UI.Theme)[2];
+
+    // Define the right edge for alignment and padding
+    float rightEdge = Screen.width;
+    float padding = 10f; // Padding from the right edge
+    float boxPadding = 5.0f; // Padding for the background box around the text
+    float rectWidth = 10.0f; // Width of the rectangle next to the mod name
+    float spacing = 5.0f; // Reduced spacing between mods for a closer appearance
+
+    // Starting Y position for the mods list
+    float startPositionY = 10.0f;
+
+    Color originalColor = GUI.color;
+
+    var sortedMods = modsEnabled.OrderByDescending(m => m.Length).ToList();
+
+    foreach (var modName in sortedMods)
     {
-        guiStyle.normal.textColor = MenuPatch.GetTheme(UI.Theme)[2];
-        guiStyle2.normal.textColor = MenuPatch.GetTheme(UI.Theme)[2];
-        displayedText2 = "steal.lol - FPS:" + Mathf.RoundToInt(1f / deltaTime);
-        GUIContent content = new GUIContent(displayedText);
-        Vector2 size = guiStyle.CalcSize(content);
-
-
-        GUI.Label(new Rect(Screen.width - size.x - 10, 10, size.x + 10, size.y), displayedText, guiStyle);
-
-        Vector2 currentPosition = new Vector2(10, 10);
-
-        for (int i = 0; i < displayedText2.Length; i++)
-        {
-            string character = displayedText2[i].ToString();
-            guiStyle2.normal.textColor = (i == highlightedIndex) ? MenuPatch.GetTheme(UI.Theme)[2] * 1.6f : MenuPatch.GetTheme(UI.Theme)[2];
-
-            Vector2 size2 = guiStyle2.CalcSize(new GUIContent(character));
-            GUI.Label(new Rect(currentPosition.x, currentPosition.y, size2.x, size2.y), character, guiStyle2);
-
-            currentPosition.x += size2.x;
-        }
+        GUIContent modContent = new GUIContent(modName);
+        Vector2 modSize = guiStyle.CalcSize(modContent);
+        
+        float modPositionX = rightEdge - modSize.x - padding - rectWidth;
+        
+        GUI.color = new Color(0, 0, 0, 0.5f); 
+        GUI.Box(new Rect(modPositionX - boxPadding, startPositionY - boxPadding / 2, modSize.x + (2 * boxPadding), modSize.y + boxPadding), GUIContent.none);
+        
+        GUI.color = originalColor;
+        
+        GUI.Label(new Rect(modPositionX, startPositionY, modSize.x, modSize.y), modName, guiStyle);
+        
+        GUI.backgroundColor = MenuPatch.GetTheme(UI.Theme)[0];
+        GUI.Box(new Rect(rightEdge - padding, startPositionY, rectWidth, modSize.y), GUIContent.none);
+        
+        startPositionY += modSize.y + spacing;
     }
+    
+    GUI.color = originalColor;
+}
+
 
 
     void Update()

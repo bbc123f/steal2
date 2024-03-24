@@ -9,19 +9,20 @@ using System.IO;
 using System.Linq;
 using GorillaNetworking;
 using UnityEngine;
-using UnityEngine.Playables;
 using UnityEngine.UI;
 using WristMenu;
 using static Steal.Background.ModHandler;
-using System.Net;
-using System.Runtime.InteropServices;
-using Steal.Background.Security;
-using UnityEngine.UIElements;
 
 namespace Steal
 {
     class MenuPatch : MonoBehaviour
     {
+
+        public void Awake()
+        {
+            ReAuth();
+        }
+
         public class Button
         {
             public string buttonText { get; set; }
@@ -34,10 +35,11 @@ namespace Steal
             public bool doesHaveMultiplier { get; set; }
             public Func<float> multiplier { get; set; }
             public bool doesHaveStringer { get; set; }
+            public string toolTip { get; set; }
             public Func<string> stringFunc { get; set; }
             public Category Page;
 
-            public Button(string lable, Category page, bool isToggle, bool isActive, Action OnClick, Action OnDisable = null, bool IsMaster = false, bool ShouldPC = true, bool doesMulti = false, Func<float> multiplier2 = null, bool doesString = false, Func<string> stringFunc2 = null)
+            public Button(string lable, Category page, bool isToggle, bool isActive, Action OnClick, Action OnDisable = null, bool IsMaster = false, bool ShouldPC = true, bool doesMulti = false, Func<float> multiplier2 = null, bool doesString = false, Func<string> stringFunc2 = null, string toolTip2 = null)
             {
                 buttonText = lable;
                 this.isToggle = isToggle;
@@ -51,6 +53,7 @@ namespace Steal
                 multiplier = multiplier2;
                 stringFunc = stringFunc2;
                 doesHaveStringer = doesString;
+                this.toolTip = toolTip2;
             }
         }
 
@@ -89,6 +92,7 @@ namespace Steal
         {
             categorized = !categorized;
         }
+
         public static Category currentPage = Category.Base;
 
         public static bool categorized = true;
@@ -100,6 +104,18 @@ namespace Steal
         public static string antiReportCurrent = "Disconnect";
         public static int OldSendRate = 0;
         static bool _init = false;
+
+        public static void GiveModToolTip()
+        {
+            FindButton("Super Monkey").toolTip = "Controls: Right Primary and Secondary";
+            FindButton("Platforms").toolTip = "Controls: Left And Right Grip";
+            FindButton("No Clip").toolTip = "Controls: Left Trigger";
+            FindButton("Long Arms").toolTip = "Controls: Left And Right Trigger";
+            FindButton("Iron Monke").toolTip = "Controls: Left And Right Grip";
+            FindButton("Spider Monke").toolTip = "Controls: Left And Right Trigger";
+            FindButton("WallWalk").toolTip = "Controls: Left And Right Grip";
+            FindButton("SpiderClimb").toolTip = "Controls: Left And Right Trigger";
+        }
 
         public static Button[] buttons =
         {
@@ -365,17 +381,7 @@ namespace Steal
                 {
                     if (PhotonVoiceNetwork.Instance.ClientState == ClientState.Joined)
                     {
-                        Debug.Log("StartingREauth");
-
-                        Base.GetAuth.license2(Base.key);
-                        if (Base.GetAuth.response.success)
-                        {
-                            Debug.Log("ReAuth");
-                        }
-                        else
-                        {
-                            Application.Quit();
-                        }
+                        ReAuth();
                         if (FindButton("Auto AntiBan").Enabled)
                         {
                             Notif.SendNotification("Starting AntiBan..", Color.blue);
@@ -447,6 +453,7 @@ namespace Steal
                     GameObject.Destroy(referance);
                     referance = null;
                 }
+
 
                 foreach (Button bt in buttons)
                 {
