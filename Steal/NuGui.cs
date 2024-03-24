@@ -18,7 +18,7 @@ namespace WristMenu
         private static Texture2D Disabled;
         private static Texture2D Enabled;
 
-        private static Rect _window = new Rect(20f, 20f, 710f, 550f);
+        private static Rect _window = new Rect(20f, 20f, 710f, 600f);
         private static bool _enabled = true;
         private static MenuPatch.Category currentNuGuiPage = Category.Movement;
         private static Vector2 scrollPosition;
@@ -147,7 +147,7 @@ namespace WristMenu
         }
         private static void Tab(float tabPos, MenuPatch.Category category)
         {
-            Rect rect = new Rect(tabPos, 20f, 130f, 30f);
+            Rect rect = new Rect(tabPos, 60f, 130f, 30f);
             if (rect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown)
                 currentNuGuiPage = category;
             if (currentNuGuiPage == category)
