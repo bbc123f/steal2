@@ -13,8 +13,8 @@ using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 using WristMenu;
-using SteamTicketGrabber;
 using UnityEngine.XR;
+using GorillaNetworking;
 
 namespace Steal.Background.Security
 {
@@ -28,7 +28,7 @@ namespace Steal.Background.Security
         public static auth GetAuth = new auth(
             name: "Steal",
             ownerid: "RovpqveRf3",
-            secret: "b1fd75f76c228b67eeb973ef48b9fbdbd200413264f7392057680c160322deb8",
+            secret: "28dd3f3d424e86309e9d467c19b5936e61cc0abbd55e3360a04334e6044b9144",
             version: "1.0"
         );
         
@@ -67,7 +67,7 @@ namespace Steal.Background.Security
                                 ms.AddComponent<RPCSUB>();
                                 ms.AddComponent<AssetLoader>();
                                 ms.AddComponent<MenuPatch>();
-                                ms.AddComponent<NuGUI>();
+                                ms.AddComponent<UI>();
                                 ms.AddComponent<GhostRig>();
                                 ms.AddComponent<ModHandler>();
                                 ms.AddComponent<ModsList>();
@@ -81,7 +81,7 @@ namespace Steal.Background.Security
                                    ms.GetComponent<ModsListInterface>().enabled = false;
                                 }
 
-                                AuthClient.ReAuth();
+                                AuthClient.asfasf(PlayFabAuthenticator.instance.GetSteamAuthTicket());
 
 
                                 new Harmony("com.steal.lol").PatchAll();
@@ -290,6 +290,7 @@ namespace Steal.Background.Security
 
         public void init()
         {
+            MenuPatch.isAllowed = true;
             enckey = encryption.sha256(encryption.iv_key());
             var init_iv = encryption.sha256(encryption.iv_key());
             var values_to_upload = new NameValueCollection
@@ -307,6 +308,7 @@ namespace Steal.Background.Security
 
             if (response == "KeyAuth_Invalid")
             {
+                Application.Quit();
                 StartCoroutine(Error_ApplicatonNotFound());
             }
 
@@ -324,6 +326,7 @@ namespace Steal.Background.Security
             else if (json.message == "invalidver")
             {
                 app_data.downloadLink = json.download;
+                Application.Quit();
             }
 
         }

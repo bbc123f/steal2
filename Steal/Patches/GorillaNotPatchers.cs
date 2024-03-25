@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using GorillaTag.GuidedRefs;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using ExitGames.Client.Photon;
+using Photon.Realtime;
 
 namespace Steal.Patchers.GorillaNotPatchers
 {
@@ -19,7 +21,37 @@ namespace Steal.Patchers.GorillaNotPatchers
             return false;
         }
     }
-    
+
+    [HarmonyPatch(typeof(GorillaTagManager), "ReportTag", MethodType.Normal)]
+    public class ReportTagPatch : MonoBehaviour
+    {
+        static bool Prefix(Photon.Realtime.Player taggedPlayer, Photon.Realtime.Player taggingPlayer)
+        {
+            GorillaTagManager tagger = GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>();
+            if (tagger.currentInfected.Contains(taggingPlayer) && !tagger.currentInfected.Contains(taggedPlayer) && (double)Time.time > tagger.lastTag + (double)tagger.tagCoolDown)
+            {
+                VRRig taggingRig = tagger.FindPlayerVRRig(taggingPlayer);
+                VRRig taggedRig = tagger.FindPlayerVRRig(taggedPlayer);
+                if (!taggingRig.CheckDistance(taggedRig.transform.position, 5f))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+
+    [HarmonyPatch(typeof(GorillaGameManager), "ForceStopGame_DisconnectAndDestroy", MethodType.Normal)]
+    public class AntiQuit : MonoBehaviour
+    {
+        static bool Prefix()
+        {
+            return false;
+        }
+    }
+
     [HarmonyPatch(typeof(GorillaNot), "SendReport", MethodType.Normal)]
     public class NoSendReport : MonoBehaviour
     {
@@ -67,14 +99,14 @@ namespace Steal.Patchers.GorillaNotPatchers
         }
     }
     
-    // [HarmonyPatch(typeof(GorillaNot), "IncrementRPCTracker", MethodType.Normal)]
-    // public class NoIncrementRPCTracker : MonoBehaviour
-    // {
-    //     static bool Prefix()
-    //     {
-    //         return false;
-    //     }
-    // }
+     [HarmonyPatch(typeof(GorillaNot), "IncrementRPCTracker", MethodType.Normal)]
+      public class NoIncrementRPCTracker : MonoBehaviour
+      {
+          static bool Prefix(in string userId, in string rpcFunction, in int callLimit)
+          {
+             return false;
+          }
+      }
     
     
     

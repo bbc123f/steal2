@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using BuildSafe;
 using GorillaNetworking;
+using GorillaTag;
 using HarmonyLib;
 using Photon.Chat;
 using Photon.Pun;
@@ -12,6 +13,7 @@ using PlayFab.ClientModels;
 using PlayFab.Internal;
 using Steal.Background;
 using UnityEngine;
+using static LocomotionTeleport;
 using Random = UnityEngine.Random;
 
 namespace Steal.Patchers.Playfab

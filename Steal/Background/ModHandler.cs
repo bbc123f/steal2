@@ -9,7 +9,7 @@ using HarmonyLib;
 using Photon.Pun;
 using Photon.Realtime;
 using Photon.Voice.PUN;
-using PlayFab;
+using PlayFab; 
 using PlayFab.ClientModels;
 using Steal.Background.Security;
 using Steal.Components;
@@ -99,6 +99,37 @@ namespace Steal.Background
                 //AngryBeeSwarm.instance.beeAnimator.transform.position
                 AngryBeeSwarm.instance.targetPlayer = p;
                 AngryBeeSwarm.instance.grabbedPlayer = p;
+            }
+        }
+        static string odRoom;
+        public static bool shouldAntiLag = false;
+        public static void CosTest()
+        {
+            shouldAntiLag = true;
+            if (PhotonNetwork.CurrentRoom != null)
+            {
+                odRoom = PhotonNetwork.CurrentRoom.Name;
+                var data = GunLib.ShootLock();
+                if (data == null) { return; }
+                if (data.isTriggered && data.lockedPlayer != null)
+                {
+                    var ph = GetPhotonViewFromRig(data.lockedPlayer);
+                    var ow = GetPhotonViewFromRig(data.lockedPlayer).Owner;
+                    for (int i = 0; i < 5000; i++)
+                    {
+                        ph.RPC("RequestMaterialColor", ow, new object[] { PhotonNetwork.LocalPlayer });
+                    }
+                    PhotonNetwork.SendAllOutgoingCommands();
+                    PhotonNetwork.NetworkingClient.LoadBalancingPeer.SendOutgoingCommands();
+                }
+            }
+            else
+            {
+                if (odRoom != string.Empty)
+                {
+                    PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(odRoom);
+                    odRoom = string.Empty;
+                }
             }
         }
 
@@ -610,7 +641,7 @@ namespace Steal.Background
             {
                 Notif.SendNotification("One or more mods have been disabled due to not having master!", Color.white);
                 MenuPatch.RefreshMenu();
-            }
+            }   
         }
 
         public static void ReAuth()
@@ -4396,9 +4427,13 @@ namespace Steal.Background
             }
         }
 
+
+
+
         public static void AntiBan()
         {
             Debug.Log("Running...");
+
 
             PlayFabClientAPI.ExecuteCloudScript(new ExecuteCloudScriptRequest
             {
@@ -4434,6 +4469,8 @@ namespace Steal.Background
 
             isStumpChecking = false;
         }
+
+
 
         public static string[] moderatorIds =
       {

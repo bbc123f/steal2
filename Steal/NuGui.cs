@@ -47,46 +47,52 @@ namespace WristMenu
         private static void WindowMain(int id)
         {
             DrawWindow(new Rect(0f, 0f, _window.width, _window.height), 8);
-            float currentTabPos = 10f;
-            foreach (Category page in Enum.GetValues(typeof(Category)))
-            {
-                if (page != Category.Base && page != Category.Settings)
+
+            //SettingsMaker();
+
+                float currentTabPos = 10f;
+                foreach (Category page in Enum.GetValues(typeof(Category)))
                 {
-                    Tab(currentTabPos, page);
-                    currentTabPos += 140;
+                    if (page != Category.Base)
+                    {
+                        Tab(currentTabPos, page);
+                        currentTabPos += 140;
+                    }
                 }
-            }
+                var buttons = GetButtonInfoByPage(currentNuGuiPage);
+                int modsCount = buttons.Count;
+                float contentHeight = (modsCount / 3 + (modsCount % 3 > 0 ? 1 : 0)) * 140f;
+                Rect scrollViewRect = new Rect(20f, 90f, _window.width - 10f, _window.height - 110f);
+                Rect scrollContentRect = new Rect(0, 0, scrollViewRect.width - 20f, contentHeight);
 
-            var buttons = GetButtonInfoByPage(currentNuGuiPage);
-            int modsCount = buttons.Count;
-            float contentHeight = (modsCount / 3 + (modsCount % 3 > 0 ? 1 : 0)) * 140f;
-            Rect scrollViewRect = new Rect(20f, 90f, _window.width - 10f, _window.height - 110f);
-            Rect scrollContentRect = new Rect(0, 0, scrollViewRect.width - 20f, contentHeight);
+                scrollPosition = GUI.BeginScrollView(scrollViewRect, scrollPosition, scrollContentRect, false, true);
 
-            scrollPosition = GUI.BeginScrollView(scrollViewRect, scrollPosition, scrollContentRect, false, true);
-
-            float currentCheatPosX = 0f;
-            float currentCheatPosY = 0f;
-            foreach (Button button in buttons)
-            {
-                DrawMod(new Rect(currentCheatPosX, currentCheatPosY, 210f, 130f), button, 8);
-
-                if (currentCheatPosX < scrollViewRect.width - 100f * 2)
+                float currentCheatPosX = 0f;
+                float currentCheatPosY = 0f;
+                foreach (Button button in buttons)
                 {
-                    currentCheatPosX += 230f;
-                }
-                else
-                {
-                    currentCheatPosX = 0f;
-                    currentCheatPosY += 140f;
-                }
-            }
+                    DrawMod(new Rect(currentCheatPosX, currentCheatPosY, 210f, 130f), button, 8);
 
-            GUI.EndScrollView();
+                    if (currentCheatPosX < scrollViewRect.width - 100f * 2)
+                    {
+                        currentCheatPosX += 230f;
+                    }
+                    else
+                    {
+                        currentCheatPosX = 0f;
+                        currentCheatPosY += 140f;
+                    }
+                }
 
-            DrawTabBar(new Rect(0f, 530f, _window.width, 20f), new Vector4(8f, 0f, 0f, 8f));
+                GUI.EndScrollView();
+            
+
+
+            DrawTabBar(new Rect(0f, 600f, _window.width, 20f), new Vector4(8f, 0f, 0f, 8f));
 
             GUI.DragWindow();
+
+            DrawText(new Rect((_window.width / 2) - 35, -170, 400, 400f), "Steal", 30, Color.white, FontStyle.Italic, false, true);
         }
 
         public static void Initialize()
@@ -107,7 +113,22 @@ namespace WristMenu
             DrawTexture(rect, Box, 8);
             DrawTexture(new Rect(rect.x, rect.y + 25f, rect.width, 1f), BoxLine, 0);
             ModEnabledButton(new Rect(rect.x, rect.y + 100f, rect.width, 30f), text);
-               DrawText(new Rect(rect.x + 5f, rect.y, rect.width, 25f), text.buttonText, 12, Color.white, FontStyle.Bold, false, true);
+
+            string buttonName = "";
+            if (text.doesHaveMultiplier)
+            {
+                buttonName = text.buttonText + "[" + text.multiplier() + "]";
+            }
+            else if (text.doesHaveStringer)
+            {
+                buttonName = text.buttonText + "[" + text.stringFunc() + "]";
+            }
+            else
+            {
+                buttonName = text.buttonText;
+            }
+
+            DrawText(new Rect(rect.x + 5f, rect.y, rect.width, 25f), buttonName, 12, Color.white, FontStyle.Bold, false, true);
             if (text.toolTip != null)
                 DrawText(new Rect(rect.x, rect.y + 30f, rect.width, 30f), text.toolTip, 12, Color.white, FontStyle.Normal, true, true);
         }
@@ -118,7 +139,7 @@ namespace WristMenu
         {
             if (modRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown)
                 Toggle(mod);
-            if (mod.Enabled)
+            if (mod.Enabled || !mod.isToggle)
             {
                 DrawTexture(modRect, Enabled, 8);
             }
@@ -129,10 +150,12 @@ namespace WristMenu
             GUIStyle labelstyle = new GUIStyle(GUI.skin.label);
             labelstyle.fontSize = 12;
             labelstyle.fontStyle = FontStyle.Bold;
-            if (mod.Enabled)
+            if (mod.Enabled && mod.isToggle)
                 DrawText(modRect, "Enabled", 12, Color.white, FontStyle.Bold, true, true);
-            else
+            else if (mod.isToggle)
                 DrawText(modRect, "Disabled", 12, Color.white, FontStyle.Bold, true, true);
+            else
+                DrawText(modRect, "Run Mod", 12, Color.white, FontStyle.Bold, true, true);
         }
 
         public static void DrawText(Rect rect, string text, int fontSize = 12, Color textColor = default, FontStyle fontStyle = FontStyle.Normal, bool centerX = false, bool centerY = false)
@@ -147,9 +170,16 @@ namespace WristMenu
         }
         private static void Tab(float tabPos, MenuPatch.Category category)
         {
-            Rect rect = new Rect(tabPos, 60f, 130f, 30f);
+            Rect rect = new Rect();
+            if (category != Category.Settings)
+                rect = new Rect(tabPos, 50f, 130f, 30f);
+            else
+                rect = new Rect(570, 10f, 130f, 30f);
             if (rect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown)
+            {
                 currentNuGuiPage = category;
+                //InSettings = false;
+            }
             if (currentNuGuiPage == category)
             {
                 DrawTexture(rect, TabActive, 16);
@@ -163,6 +193,9 @@ namespace WristMenu
             labelstyle.fontStyle = FontStyle.Bold;
             DrawText(rect, category.ToString(), 12, Color.white, FontStyle.Bold, true, true);
         }
+
+    
+     
         public static void DrawTabBar(Rect rect, Vector4 borderRadius)
         {
             DrawTexture(rect, TabBar, 0, borderRadius);

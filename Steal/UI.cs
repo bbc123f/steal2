@@ -55,7 +55,7 @@ namespace WristMenu
         }
         private void OnEnable()
         {
-            ModHandler.ReAuth();
+            
             Theme = PlayerPrefs.GetInt("steal_backGround", 1);
 
             Application.logMessageReceived += new Application.LogCallback(HandleLog);

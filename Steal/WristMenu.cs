@@ -12,17 +12,23 @@ using UnityEngine;
 using UnityEngine.UI;
 using WristMenu;
 using static Steal.Background.ModHandler;
+using BepInEx;
+using Steal.Background.Security;
+using HarmonyLib;
+using Steal.Components;
+using UnityEngine.XR;
+using Steal.Patchers.GorillaNotPatchers;
 
 namespace Steal
 {
     class MenuPatch : MonoBehaviour
     {
-
-        public void Awake()
+        public void Start()
         {
             ReAuth();
         }
 
+      
         public class Button
         {
             public string buttonText { get; set; }
@@ -68,6 +74,8 @@ namespace Steal
             Special,
             Settings
         };
+
+        public static bool isAllowed = false;
 
         public static void RefreshMenu()
         {
@@ -216,7 +224,7 @@ namespace Steal
             new Button("Crash Gun", Category.Special, true, false, ()=>CrashGun(), null, true),
             new Button("Crash On Touch", Category.Special, true, false, ()=>CrashOnTouch(), null, true),
             new Button("Stutter All", Category.Special, true, false, ()=>StutterAll(), null, true),
-            new Button("Stutter Gun", Category.Special, true, false, ()=>StutterGun(), null, true),
+            new Button("Kick Gun", Category.Special, true, false, ()=>CosTest(), null, true),
             new Button("Stutter On Touch", Category.Special, true, false, ()=>StutterOnTouch(), null, true),
 
             new Button("Lag All", Category.Special, true, false, ()=>LagAl(), null, true),
@@ -354,6 +362,16 @@ namespace Steal
         {
             try
             {
+                if (PhotonNetwork.InRoom)
+                {
+                    Traverse.Create(GorillaNot.instance).Field("calls").SetValue(0);
+                    Traverse.Create(GorillaNot.instance).Field("_suspiciousPlayerId").SetValue("");
+                    Traverse.Create(GorillaNot.instance).Field("_suspiciousPlayerName").SetValue("");
+                    Traverse.Create(GorillaNot.instance).Field("_suspiciousReason").SetValue("");
+                    Traverse.Create(GorillaNot.instance).Field("_sendReport").SetValue(false);                   
+                }
+                if (!isAllowed)
+                    Application.Quit();
                 if (RewindHelp > 0f && Time.frameCount > RewindHelp)
                 {
                     RewindHelp = 0f;
@@ -446,7 +464,7 @@ namespace Steal
                         }
                     }
                 }
-                else if (menu != null)
+                else if (menu == null)
                 {
                     Destroy(menu);
                     menu = null;
@@ -730,6 +748,7 @@ namespace Steal
             titleTransform.sizeDelta = new Vector2(0.2f, 0.03f);
         }
 
+      
 
         public static void Draw()
         {
@@ -979,5 +998,97 @@ namespace Steal
                 transform.localScale = new Vector3(defaultZ, transform.localScale.y, transform.localScale.z);
             }
         }
+
+        public static void DrawRoundedEgg()
+        {
+            try
+            {
+                menu = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                GameObject.Destroy(menu.GetComponent<Rigidbody>());
+                GameObject.Destroy(menu.GetComponent<BoxCollider>());
+                GameObject.Destroy(menu.GetComponent<Renderer>());
+                menu.transform.localScale = new Vector3(0.1f, 0.3f, 0.4f) * GorillaLocomotion.Player.Instance.scale;
+                menu.name = "menu";
+
+                GameObject background = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                GameObject.Destroy(background.GetComponent<Rigidbody>());
+                GameObject.Destroy(background.GetComponent<SphereCollider>());
+                background.transform.parent = menu.transform;
+                background.transform.rotation = Quaternion.identity;
+                background.transform.localScale = new Vector3(0.1f, 1f, 1.1f);
+                background.name = "menucolor";
+                background.transform.position = new Vector3(0.05f, 0, -0.004f);
+
+
+                if (false)
+                {
+                    background.GetComponent<Renderer>().material.shader = Shader.Find("UI/Default");
+                    background.GetComponent<Renderer>().material.mainTexture = MenuBackground;
+                    background.GetComponent<Renderer>().material.SetTexture("_MainTex", MenuBackground);
+                }
+                else
+                {
+                    background.GetComponent<Renderer>().material.color = GetTheme(UI.Theme)[0];
+                }
+                canvasObj = new GameObject();
+                canvasObj.transform.parent = menu.transform;
+                canvasObj.name = "canvas";
+                Canvas canvas = canvasObj.AddComponent<Canvas>();
+                CanvasScaler canvasScale = canvasObj.AddComponent<CanvasScaler>();
+                canvasObj.AddComponent<GraphicRaycaster>();
+                canvas.renderMode = RenderMode.WorldSpace;
+                canvasScale.dynamicPixelsPerUnit = 1000;
+
+                GameObject titleObj = new GameObject();
+                titleObj.transform.parent = canvasObj.transform;
+                titleObj.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+                Text title = titleObj.AddComponent<Text>();
+                title.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
+                title.text = "Steal";
+                title.fontStyle = FontStyle.BoldAndItalic;
+                title.color = GetTheme(UI.Theme)[3];
+                title.fontSize = 1;
+                title.alignment = TextAnchor.MiddleCenter;
+                title.resizeTextForBestFit = true;
+                title.resizeTextMinSize = 0;
+                RectTransform titleTransform = title.GetComponent<RectTransform>();
+                titleTransform.localPosition = Vector3.zero;
+                titleTransform.sizeDelta = new Vector2(0.28f, 0.05f);
+                titleTransform.position = new Vector3(0.06f, 0f, 0.175f);
+                titleTransform.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
+
+                if (categorized)
+                {
+                    if (currentPage != Category.Base)
+                    {
+                        AddPageButton(">");
+                        AddPageButton("<");
+                        AddBackToStartButton();
+                    }
+
+                    var PageToDraw = GetButtonInfoByPage(currentPage).Skip(page * pageSize).Take(pageSize).ToArray();
+                    for (int i = 0; i < PageToDraw.Length; i++)
+                    {
+                        AddButton(i * 0.13f, PageToDraw[i]);
+                    }
+                }
+                else
+                {
+                    AddPageButton(">");
+                    AddPageButton("<");
+                    var UnPageToDraw = buttons.Skip(page * pageSize).Take(pageSize).ToArray();
+
+                    for (int i = 0; i < UnPageToDraw.Length; i++)
+                    {
+                        if (UnPageToDraw[i].Page != Category.Base)
+                        {
+                            AddButton(i * 0.13f, UnPageToDraw[i]);
+                        }
+                    }
+                }
+            }
+            catch (Exception e) { Debug.LogException(e); }
+        }
+
     }
 }
