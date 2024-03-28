@@ -13,9 +13,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\SialPC\\Documents\\GitHub\\steal2\\Steal\\WristMenu.csproj",
+      "projectUniqueName": "C:\\Users\\SialPC\\Documents\\GitHub\\steal2\\Steal\\Steal.csproj",
       "projectName": "Steal",
-      "projectPath": "C:\\Users\\SialPC\\Documents\\GitHub\\steal2\\Steal\\WristMenu.csproj",
+      "projectPath": "C:\\Users\\SialPC\\Documents\\GitHub\\steal2\\Steal\\Steal.csproj",
       "packagesPath": "C:\\Users\\SialPC\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\SialPC\\Documents\\GitHub\\steal2\\Steal\\obj\\",
       "projectStyle": "PackageReference",

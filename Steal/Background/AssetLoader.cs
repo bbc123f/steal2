@@ -13,7 +13,7 @@ namespace Steal
     internal class AssetLoader : MonoBehaviour
     {
         #region Assets
-        static Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream("WristMenu.Resources.click");
+        static Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream("Steal.Resources.click");
         static AssetBundle bundle = AssetBundle.LoadFromStream(str);
         public static AudioClip click = bundle.LoadAsset("click") as AudioClip;
         #endregion

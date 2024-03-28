@@ -49,6 +49,8 @@ namespace WristMenu
         private static bool matself;
         private static bool antiban;
         public static float mattimer = 0;
+        private string textFieldString = "Enter text here";
+
         public void changeGUIPage(MenuPatch.Category page)
         {
             currentGUIPage = page;
@@ -517,7 +519,7 @@ namespace WristMenu
 
         public Texture2D notInfectTexture;
 
-        private Texture2D ApplyColorFilter(Color color)
+        public static Texture2D ApplyColorFilter(Color color)
         {
             Texture2D texture = new Texture2D(30, 30);
 
@@ -530,6 +532,8 @@ namespace WristMenu
             texture.Apply();
             return texture;
         }
+
+
 
         private static void LogToConsole(string message)
         {
@@ -931,6 +935,7 @@ namespace WristMenu
 
             public static void CreateTexture()
             {
+                oldGuiSkin = GUI.skin;
                 GUI.skin.button.normal.background = button;
 
                 GUI.skin.button.hover.background = buttonhovered;

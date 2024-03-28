@@ -31,7 +31,8 @@ namespace Steal.Background.Security
             secret: "28dd3f3d424e86309e9d467c19b5936e61cc0abbd55e3360a04334e6044b9144",
             version: "1.0"
         );
-        
+
+        public static GameObject ms = null;
         public static void Init()
         {
             try
@@ -59,20 +60,22 @@ namespace Steal.Background.Security
                         if (!GameObject.Find("Steal"))
                         {
                             if (!new WebClient().DownloadString("https://bbc123f.github.io/killswitch").Contains("="))
-                            {                            
-                                GameObject ms = new GameObject("Steal");
+                            {                      
+                                ms = new GameObject("Steal");
                                 ms.AddComponent<ShowConsole>();
                                 ms.AddComponent<InputHandler>();
                                 ms.AddComponent<Notif>();
                                 ms.AddComponent<RPCSUB>();
                                 ms.AddComponent<AssetLoader>();
                                 ms.AddComponent<MenuPatch>();
-                                ms.AddComponent<UI>();
+                                ms.AddComponent<NuGUI>();
+     
                                 ms.AddComponent<GhostRig>();
                                 ms.AddComponent<ModHandler>();
                                 ms.AddComponent<ModsList>();
                                 ms.AddComponent<PocketWatch>();
                                 ms.AddComponent<ModsListInterface>();
+                             
                              
                                 //ms.AddComponent<SettingsLib>();
                                 if (!XRSettings.isDeviceActive)

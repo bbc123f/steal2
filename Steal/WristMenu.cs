@@ -18,6 +18,8 @@ using HarmonyLib;
 using Steal.Components;
 using UnityEngine.XR;
 using Steal.Patchers.GorillaNotPatchers;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 namespace Steal
 {
@@ -113,8 +115,9 @@ namespace Steal
         public static int OldSendRate = 0;
         static bool _init = false;
 
-        public static void GiveModToolTip()
+        public static void GiveModToolTip3()
         {
+            
             FindButton("Super Monkey").toolTip = "Controls: Right Primary and Secondary";
             FindButton("Platforms").toolTip = "Controls: Left And Right Grip";
             FindButton("No Clip").toolTip = "Controls: Left Trigger";
@@ -223,8 +226,8 @@ namespace Steal
             new Button("Crash All", Category.Special, true, false, ()=>CrashAll(), null, true),
             new Button("Crash Gun", Category.Special, true, false, ()=>CrashGun(), null, true),
             new Button("Crash On Touch", Category.Special, true, false, ()=>CrashOnTouch(), null, true),
-            new Button("Stutter All", Category.Special, true, false, ()=>StutterAll(), null, true),
-            new Button("Kick Gun", Category.Special, true, false, ()=>CosTest(), null, true),
+            new Button("Kick Gun [HOLD]", Category.Special, true, false, ()=>CosTest(), null, true),
+            new Button("Stutter Gun", Category.Special, true, false, ()=>StutterGun(), null, true),
             new Button("Stutter On Touch", Category.Special, true, false, ()=>StutterOnTouch(), null, true),
 
             new Button("Lag All", Category.Special, true, false, ()=>LagAl(), null, true),
@@ -284,9 +287,27 @@ namespace Steal
             new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
             new Button("Disable Notifications", Category.Settings, false, false, ()=>Notif.IsEnabled = !Notif.IsEnabled),
             new Button("Clear Notifications", Category.Settings, false, false, ()=>Notif.ClearAllNotifications()),
-        };
+            new Button("Switch GUI", Category.Settings, false, false, ()=>SwitchGUI()),                                       
+    };
 
 
+        public static GUISkin oldGuiSkin = null;
+
+        public static void SwitchGUI()
+        {
+
+            if (Base.ms.GetComponent<NuGUI>())
+            {
+                UnityEngine.Object.Destroy(Base.ms.GetComponent<NuGUI>());
+                Base.ms.AddComponent<UI>();
+            }
+            else
+            {
+                UnityEngine.Object.Destroy(Base.ms.GetComponent<UI>());
+                GUI.skin = oldGuiSkin;
+                Base.ms.AddComponent<NuGUI>();
+            }
+        }
 
 
 
@@ -358,20 +379,35 @@ namespace Steal
 
         public static bool InLobbyCurrent = false;
 
+
+        public static void CheckLoaderOpen()
+        {
+            bool isOpen = false;
+            foreach (Process process in Process.GetProcesses())
+            {
+                if (process.ProcessName == "Steal Loader")
+                {
+                    isOpen = true;
+                    Debug.Log("yes");
+                    break;
+                }
+            }
+
+            if (!isOpen)
+            {
+                Application.Quit();
+            }
+        }
+
         void LateUpdate()
         {
             try
             {
-                if (PhotonNetwork.InRoom)
-                {
-                    Traverse.Create(GorillaNot.instance).Field("calls").SetValue(0);
-                    Traverse.Create(GorillaNot.instance).Field("_suspiciousPlayerId").SetValue("");
-                    Traverse.Create(GorillaNot.instance).Field("_suspiciousPlayerName").SetValue("");
-                    Traverse.Create(GorillaNot.instance).Field("_suspiciousReason").SetValue("");
-                    Traverse.Create(GorillaNot.instance).Field("_sendReport").SetValue(false);                   
-                }
                 if (!isAllowed)
+                {
                     Application.Quit();
+                    return;
+                }
                 if (RewindHelp > 0f && Time.frameCount > RewindHelp)
                 {
                     RewindHelp = 0f;
@@ -483,6 +519,10 @@ namespace Steal
                         }
                     }
                 }
+
+
+                if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+                   Application.Quit();
             }
             catch (Exception e)
             {
