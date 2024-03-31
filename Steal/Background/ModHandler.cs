@@ -3298,6 +3298,14 @@ namespace Steal.Background
                     float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
                     float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
                     float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
+    new object[] { red, green, blue });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
+    new object[] { red, green, blue });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
+    new object[] { red, green, blue });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
+    new object[] { red, green, blue });
                     if (crashPlayerPosition !=
                         GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position)
                     {
@@ -3742,13 +3750,15 @@ namespace Steal.Background
             float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
             float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
             float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
             if ((Mathf.RoundToInt(1f / UI.deltaTime) < 100))
             {
-                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
-                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { red, green, blue });
+                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
             }
         }
 
@@ -4421,14 +4431,14 @@ namespace Steal.Background
                     }
                 }
 
-                if (antibancooldown > Time.time) { Notif.SendNotification("<color=red>Triggered AntiBan Cooldown!</color>", Color.red); return; }
+               // if (antibancooldown > Time.time) { Notif.SendNotification("<color=red>Triggered AntiBan Cooldown!</color>", Color.red); return; }
                 if (PhotonVoiceNetwork.Instance.Client.LoadBalancingPeer.PeerState != ExitGames.Client.Photon.PeerStateValue.Connected) { Notif.SendNotification("Voices Have Not Loaded!", Color.white); return; }
                 Debug.Log("antiBan");
-                antibancooldown = Time.time + 4f;
+              //  antibancooldown = Time.time + 4f;
                 AntiBan();
             }
             catch
-            {
+            {//
                 Debug.LogError("Unknown Error!");
                 throw;
             }
