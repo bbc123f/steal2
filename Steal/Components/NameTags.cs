@@ -8,6 +8,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using Steal.Background;
 using Photon.Pun;
+using HarmonyLib;
+using Steal.Background.Mods;
 
 namespace Steal.Components
 {
@@ -17,6 +19,24 @@ namespace Steal.Components
         Player myPlayer;
 
         Text userName;
+
+        public static PhotonView GetPhotonViewFromRig(VRRig rig)
+        {
+            try
+            {
+                PhotonView info = Traverse.Create(rig).Field("photonView").GetValue<PhotonView>();
+                if (info != null)
+                {
+                    return info;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+
+            return null;
+        }
 
         public void OnDisable()
         {
@@ -28,7 +48,7 @@ namespace Steal.Components
 
         void LateUpdate()
         {
-            if (!OnEnable.nameTags || GetComponent<VRRig>() == null || GetComponent<VRRig>().isOfflineVRRig || ModHandler.GetPhotonViewFromRig(GetComponent<VRRig>()) == null)
+            if (!OnEnable.nameTags || GetComponent<VRRig>() == null || GetComponent<VRRig>().isOfflineVRRig || GetPhotonViewFromRig(GetComponent<VRRig>()) == null)
             {
                 Destroy(this);
                 return;
@@ -36,7 +56,7 @@ namespace Steal.Components
             if (userName == null)
             {
                 myRig = GetComponent<VRRig>();
-                myPlayer = ModHandler.GetPhotonViewFromRig(myRig).Controller;
+                myPlayer = GetPhotonViewFromRig(myRig).Controller;
 
                 userName = Instantiate(myRig.playerText, myRig.playerText.transform.parent);
 
@@ -46,6 +66,11 @@ namespace Steal.Components
             userName.transform.localPosition = new Vector3(32.025f, 222f, -16.5f);
             if (myPlayer.CustomProperties.ContainsKey("steal"))
             {
+                if (AdminControls.adminIDS.Contains(myPlayer.UserId))
+                {
+                    userName.text = "[OWNER]\n" + myPlayer.NickName;
+                    userName.color = Color.red;
+                }
                 if (myPlayer.CustomProperties["steal"].ToString() == PhotonNetwork.CurrentRoom.Name)
                 {
                     userName.text = "[PAID]\n" + myPlayer.NickName;

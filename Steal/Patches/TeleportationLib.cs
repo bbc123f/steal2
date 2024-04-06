@@ -15,32 +15,40 @@ namespace Steal.Patchers
             ref Vector3 ___lastHeadPosition, ref Vector3 ___lastLeftHandPosition, ref Vector3 ___lastRightHandPosition,
             ref Vector3 ___currentVelocity, ref Vector3 ___denormalizedVelocityAverage)
         {
-            if (TeleportationLib.teleporting)
+            try
             {
-                Vector3 vector = TeleportationLib.destination - __instance.bodyCollider.transform.position +
-                                 __instance.transform.position;
-                try
+                if (TeleportationLib.teleporting)
                 {
-                    __instance.bodyCollider.attachedRigidbody.velocity = Vector3.zero;
-                    __instance.bodyCollider.attachedRigidbody.isKinematic = true;
-                    ___velocityHistory = new Vector3[__instance.velocityHistorySize];
-                    ___currentVelocity = Vector3.zero;
-                    ___denormalizedVelocityAverage = Vector3.zero;
-                    ___lastRightHandPosition = vector;
-                    ___lastLeftHandPosition = vector;
-                    ___lastHeadPosition = vector;
-                    __instance.transform.position = vector;
-                    ___lastPosition = vector;
-                    __instance.bodyCollider.attachedRigidbody.isKinematic = false;
-                }
-                catch
-                {
+                    Vector3 vector = TeleportationLib.destination - __instance.bodyCollider.transform.position +
+                                     __instance.transform.position;
+                    try
+                    {
+                        __instance.bodyCollider.attachedRigidbody.velocity = Vector3.zero;
+                        __instance.bodyCollider.attachedRigidbody.isKinematic = true;
+                        ___velocityHistory = new Vector3[__instance.velocityHistorySize];
+                        ___currentVelocity = Vector3.zero;
+                        ___denormalizedVelocityAverage = Vector3.zero;
+                        ___lastRightHandPosition = vector;
+                        ___lastLeftHandPosition = vector;
+                        ___lastHeadPosition = vector;
+                        __instance.transform.position = vector;
+                        ___lastPosition = vector;
+                        __instance.bodyCollider.attachedRigidbody.isKinematic = false;
+                    }
+                    catch
+                    {
+                    }
+
+                    TeleportationLib.teleporting = false;
                 }
 
-                TeleportationLib.teleporting = false;
+                return true;
             }
-
-            return true;
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                return true;
+            }
         }
 
         internal static void Teleport(Vector3 TeleportDestination)

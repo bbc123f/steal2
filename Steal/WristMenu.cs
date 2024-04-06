@@ -10,8 +10,13 @@ using System.Linq;
 using GorillaNetworking;
 using UnityEngine;
 using UnityEngine.UI;
-using WristMenu;
-using static Steal.Background.ModHandler;
+
+using static Steal.Background.Mods.Movement;
+using static Steal.Background.Mods.Overpowered;
+using static Steal.Background.Mods.PlayerMods;
+using static Steal.Background.Mods.Visual;
+using static Steal.Background.Mods.Mod;
+using static Steal.Background.Mods.RoomManager;
 using BepInEx;
 using Steal.Background.Security;
 using HarmonyLib;
@@ -20,17 +25,79 @@ using UnityEngine.XR;
 using Steal.Patchers.GorillaNotPatchers;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
+using System.Reflection;
+using Steal.Background.Security.Auth;
+using System.Net.Http;
+using Steal.Background.Mods;
+using System.Collections.Specialized;
+using System.Net.Sockets;
+using System.Net;
 
 namespace Steal
 {
     class MenuPatch : MonoBehaviour
     {
-        public void Start()
+        public static MenuPatch.Button FindButton(string text)
         {
-            ReAuth();
+            foreach (MenuPatch.Button buttons2 in MenuPatch.buttons)
+            {
+                if (buttons2.buttonText == text)
+                {
+                    return buttons2;
+                }
+            }
+
+            return null;
         }
 
-      
+        public void Start()
+        {
+            if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
+            {
+                Environment.FailFast("bye");
+            }
+
+            if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+                Environment.FailFast("bye");
+            HttpClient client = new HttpClient();
+            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch").ToString();
+            if (get.Contains("="))
+            {
+                using (WebClient wc = new WebClient())
+                {
+                    wc.UploadValues("https://tnuser.com/API/stealalert.php", new NameValueCollection
+                                {
+                                    { "content", "Kill switch bypassed!"}
+                                });
+                }
+                Environment.FailFast("bye");
+            }
+        }
+
+        public void OnEnable()
+        {
+            if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
+            {
+                Environment.FailFast("bye");
+            }
+
+            if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+                Environment.FailFast("bye");
+            HttpClient client = new HttpClient();
+            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch").ToString();
+            if (get.Contains("="))
+            {
+                using (WebClient wc = new WebClient())
+                {
+                    wc.UploadValues("https://tnuser.com/API/stealalert.php", new NameValueCollection
+                                {
+                                    { "content", "Kill switch bypassed!"}
+                                });
+                }
+                Environment.FailFast("bye");
+            }
+        }
+
         public class Button
         {
             public string buttonText { get; set; }
@@ -106,27 +173,11 @@ namespace Steal
         public static Category currentPage = Category.Base;
 
         public static bool categorized = true;
-        public static float speedBoostMultiplier = 1.15f;
-        public static float flightMultiplier = 1.15f;
-        public static float WallWalkMultiplier = 1.15f;
         public static int currentPlatform = 0;
         public static bool rightHand = false;
         public static string antiReportCurrent = "Disconnect";
         public static int OldSendRate = 0;
         static bool _init = false;
-
-        public static void GiveModToolTip3()
-        {
-            
-            FindButton("Super Monkey").toolTip = "Controls: Right Primary and Secondary";
-            FindButton("Platforms").toolTip = "Controls: Left And Right Grip";
-            FindButton("No Clip").toolTip = "Controls: Left Trigger";
-            FindButton("Long Arms").toolTip = "Controls: Left And Right Trigger";
-            FindButton("Iron Monke").toolTip = "Controls: Left And Right Grip";
-            FindButton("Spider Monke").toolTip = "Controls: Left And Right Trigger";
-            FindButton("WallWalk").toolTip = "Controls: Left And Right Grip";
-            FindButton("SpiderClimb").toolTip = "Controls: Left And Right Trigger";
-        }
 
         public static Button[] buttons =
         {
@@ -145,31 +196,26 @@ namespace Steal
 
             new Button("Super Monkey", Category.Movement, true, false, ()=>SuperMonkey(), null),
             new Button("Platforms", Category.Movement,true, false, ()=>Platforms(), null),
-            new Button("SpeedBoost", Category.Movement, true, false, ()=>SpeedBoost(speedBoostMultiplier, true), ()=>SpeedBoost(speedBoostMultiplier, false)),
+            new Button("SpeedBoost", Category.Movement, true, false, ()=>SpeedBoost(Movement.speedBoostMultiplier, true), ()=>SpeedBoost(Movement.speedBoostMultiplier, false)),
             new Button("No Tag Freeze", Category.Movement, true, false, ()=>GorillaLocomotion.Player.Instance.disableMovement = false, null),
             new Button("No Clip", Category.Movement, true, false, ()=>NoClip(), ()=>DisableNoClip()),
             new Button("Long Arms", Category.Movement, true, false, ()=>LongArms(), null),
 
             new Button("Teleport Gun", Category.Movement, true, false, ()=>TeleportGun(), ()=>CleanUp()),
-            new Button("Airstrike Gun", Category.Movement, true, false, ()=>AirstrikeGun(), ()=>CleanUp()),
             new Button("Grapple Gun", Category.Movement, true, false, ()=>GrappleHook()),
             new Button("Iron Monke", Category.Movement, true, false, ()=>ProcessIronMonke()),
             new Button("Spider Monke", Category.Movement, true, false, ()=>SpiderMonke()),
             new Button("Checkpoint", Category.Movement, true, false, ()=>ProcessCheckPoint(true), ()=>ProcessCheckPoint(false)),
-
             new Button("WallWalk", Category.Movement, true, false, ()=>WallWalk(), ()=>ResetGravity()),
+
             new Button("SpiderClimb", Category.Movement, true, false, ()=>MonkeClimb()),
             new Button("BHop", Category.Movement, true, false, ()=>BHop()),
             new Button("Anti Gravity", Category.Movement, true, false, ()=>ZeroGravity(), ()=>ResetGravity()),
-            new Button("Moon Time", Category.Movement, true, false, ()=>ChangeTime(.25f), ()=>ChangeTime(1f)),
-            new Button("Jupiter Time", Category.Movement, true, false, ()=>ChangeTime(2f), ()=>ChangeTime(1f)),
-            
             new Button("Punch Mod", Category.Movement, true, false, ()=>PunchMod()),
             new Button("Slide Control", Category.Movement, true, false, ()=>slideControl(true, slideControlMultiplier), ()=>slideControl(false, slideControlMultiplier)),
             new Button("NoSlip", Category.Movement, true, false, null),
-            new Button("Reverse", Category.Movement, true, false, ()=>Reverse(), ()=>DisableReverseTime()),
-            new Button("Replay", Category.Movement, true, false, ()=>Rewind(), ()=>DisableReverseTime()),
-            new Button("CarMonke", Category.Movement, true, false, ()=>CarMonke()),
+
+            new Button("CarMonke", Category.Movement, true, false, ()=>Movement.CarMonke()),
             
             new Button("Tag Gun", Category.Player, true, false, ()=>TagGun(), ()=>CleanUp()),
             new Button("Tag All", Category.Player, true, false, ()=>TagAll(), ()=>ResetRig()),
@@ -187,12 +233,11 @@ namespace Steal
 
             new Button("Orbit Gun", Category.Player, true, false, ()=>OrbitGun(), ()=>CleanUp()),
             new Button("Spaz Rig", Category.Player, true, false, ()=>SpazRig(), ()=>ResetAfterSpaz()),
-            new Button("Color To Board", Category.Player, false, false, ()=>ColorToBoard()),
             new Button("Water Hands", Category.Player, true, false, ()=>Splash()),
-            new Button("Water Gun", Category.Player, true, false, ()=>SplashGun()),
+            new Button("Water Gun", Category.Player, true, false, ()=>SplashGun(), ()=>CleanUp()),
             new Button("Water Sizeable", Category.Player, true, false, ()=>SizeableSplash()),
-
             new Button("Helicopter Monkey", Category.Player, true, false, ()=>Helicopter(), ()=>ResetRig()),
+
             new Button("Anti MouthFlap", Category.Player, true, false, ()=>AntiFlap(), ()=>ReFlap()),
             new Button("Disable Fingers", Category.Player, true, false, null),
             
@@ -224,14 +269,14 @@ namespace Steal
             new Button("Anti Report", Category.Special, true, true, ()=>AntiReport()),
 
             new Button("Crash All", Category.Special, true, false, ()=>CrashAll(), null, true),
-            new Button("Crash Gun", Category.Special, true, false, ()=>CrashGun(), null, true),
+            new Button("Crash Gun", Category.Special, true, false, ()=>CrashGun(), ()=>CleanUp(), true),
             new Button("Crash On Touch", Category.Special, true, false, ()=>CrashOnTouch(), null, true),
-            new Button("Kick Gun [HOLD]", Category.Special, true, false, ()=>CosTest(), null, true),
-            new Button("Stutter Gun", Category.Special, true, false, ()=>StutterGun(), null, true),
+            new Button("Stutter All", Category.Special, true, false, ()=>StutterAll(), null, true),
+            new Button("Stutter Gun", Category.Special, true, false, ()=>StutterGun(), ()=>CleanUp(), true),
             new Button("Stutter On Touch", Category.Special, true, false, ()=>StutterOnTouch(), null, true),
 
             new Button("Lag All", Category.Special, true, false, ()=>LagAl(), null, true),
-            new Button("Lag Gun", Category.Special, true, false, ()=>LagGun(), null, true),
+            new Button("Lag Gun", Category.Special, true, false, ()=>LagGun(), ()=>CleanUp(), true),
             new Button("Lag On Touch", Category.Special, true, false, ()=>LagOnTouch(), null, true),
             new Button("Mat Spam All", Category.Special, true, false, ()=>matSpamAll(), null, true),
             new Button("Mat Spam Gun", Category.Special, true, false, ()=>MatGun(), ()=>CleanUp(), true),
@@ -264,8 +309,6 @@ namespace Steal
             new Button("Float Gun", Category.Special, true, false, ()=>FloatGun(), null, true),
             new Button("Sound Spam", Category.Special, true, false, ()=>SoundSpam(), null, true),
             new Button("Tag Lag", Category.Special, true, false, ()=>TagLag(), ()=>RevertTagLag(), true),
-            
-            new Button("Projectile Gun", Category.Special, true, false, ()=>ProjectileGun(), ()=>CleanUp(), true),
 
             new Button("Change Theme", Category.Settings, false, false, ()=>ChangeTheme(), null, false, false),
             new Button("Change SpeedBoost ", Category.Settings, false, false, ()=>SwitchSpeed(), null, false, true, true, ()=>getSpeedBoostMultiplier()),
@@ -275,7 +318,6 @@ namespace Steal
             new Button("Change AntiReport ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
             
             new Button("Change SlideControl ", Category.Settings, false, false, ()=>SwitchSlide(), null, false, true, true, ()=>getSlideMultiplier()),
-            new Button("Projectile Type ", Category.Settings, false, false, ()=>switchProjectile(), null, false, true, false, null, true, ()=>getProjectile()),
             new Button("Right Hand Menu", Category.Settings, true, false, null),
             new Button("Random Name W AntiReport", Category.Settings, true, false, ()=>EnableNameOnJoin(), ()=>DisableNameOnJoin()),
             new Button("Disable AntiBan StumpCheck [D]", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
@@ -287,27 +329,7 @@ namespace Steal
             new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
             new Button("Disable Notifications", Category.Settings, false, false, ()=>Notif.IsEnabled = !Notif.IsEnabled),
             new Button("Clear Notifications", Category.Settings, false, false, ()=>Notif.ClearAllNotifications()),
-            new Button("Switch GUI", Category.Settings, false, false, ()=>SwitchGUI()),                                       
     };
-
-
-        public static GUISkin oldGuiSkin = null;
-
-        public static void SwitchGUI()
-        {
-
-            if (Base.ms.GetComponent<NuGUI>())
-            {
-                UnityEngine.Object.Destroy(Base.ms.GetComponent<NuGUI>());
-                Base.ms.AddComponent<UI>();
-            }
-            else
-            {
-                UnityEngine.Object.Destroy(Base.ms.GetComponent<UI>());
-                GUI.skin = oldGuiSkin;
-                Base.ms.AddComponent<NuGUI>();
-            }
-        }
 
 
 
@@ -320,84 +342,9 @@ namespace Steal
         public static int framePressCooldown = 0;
         public static bool isRoomCodeRun = true;
 
-        public static float WallWalkMultiplierManager(float currentSpeed)
-        {
-            float speed = currentSpeed;
-
-            if (speed == 3f)
-                speed = 4f;
-            else if (speed == 4f)
-                speed = 6f;
-            else if (speed == 6f)
-                speed = 7f;
-            else if (speed == 7f)
-                speed = 8f;
-            else if (speed == 8f)
-                speed = 9f;
-            else if (speed == 9f)
-                speed = 3f;
-
-            return speed;
-        }
-
-        public static float multiplierManager(float currentSpeed)
-        {
-            float speed = currentSpeed;
-
-            if (speed == 1.15f)
-                speed = 1.3f;
-            else if (speed == 1.3f)
-                speed = 1.5f;
-            else if (speed == 1.5f)
-                speed = 1.7f;
-            else if (speed == 1.7f)
-                speed = 2f;
-            else if (speed == 2f)
-                speed = 3f;
-            else if (speed == 3f)
-                speed = 1.15f;
-
-            return speed;
-        }
-
-        public void OnEvent(EventData ev)
-        {
-            if (ev.Code == 8)
-            {
-                Debug.Log("REPORT RECIEVED!");
-                string full = "\n------------REPORT RECEIVED------------";
-                foreach (object obj in (object[])ev.CustomData)
-                {
-                    full += "\n" + obj.ToString();
-                }
-                Debug.Log(full);
-                File.AppendAllText("Reports.txt", full);
-            }
-        }
-
         public static bool isRunningAntiBan = false;
 
         public static bool InLobbyCurrent = false;
-
-
-        public static void CheckLoaderOpen()
-        {
-            bool isOpen = false;
-            foreach (Process process in Process.GetProcesses())
-            {
-                if (process.ProcessName == "Steal Loader")
-                {
-                    isOpen = true;
-                    Debug.Log("yes");
-                    break;
-                }
-            }
-
-            if (!isOpen)
-            {
-                Application.Quit();
-            }
-        }
 
         void LateUpdate()
         {
@@ -424,19 +371,12 @@ namespace Steal
                 {
                     InLobbyCurrent = false;
                 }
-                if (!_init && PhotonNetwork.IsConnected)
-                {
-                    OldSendRate = PhotonNetwork.SendRate;
-                    PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
-                    _init = true;
-                }
 
                 if (isRunningAntiBan)
                 {
                     if (PhotonVoiceNetwork.Instance.ClientState == ClientState.Joined)
                     {
-                        ReAuth();
-                        if (FindButton("Auto AntiBan").Enabled)
+                        if (MenuPatch.FindButton("Auto AntiBan").Enabled)
                         {
                             Notif.SendNotification("Starting AntiBan..", Color.blue);
                             antibancooldown = Time.time;
@@ -449,7 +389,7 @@ namespace Steal
                 {
                     if (isStumpChecking)
                     {
-                        ModHandler.CheckForStump();
+                        CheckForStump();
                     }
                 }
                 else
@@ -458,7 +398,7 @@ namespace Steal
                     isStumpChecking = false;
                 }
 
-                bool rightHand2 = ModHandler.FindButton("Right Hand Menu").Enabled;
+                bool rightHand2 = MenuPatch.FindButton("Right Hand Menu").Enabled;
 
                 if ((InputHandler.LeftPrimary && !rightHand2) || (InputHandler.RightPrimary && rightHand2))
                 {             
@@ -519,10 +459,6 @@ namespace Steal
                         }
                     }
                 }
-
-
-                if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
-                   Application.Quit();
             }
             catch (Exception e)
             {

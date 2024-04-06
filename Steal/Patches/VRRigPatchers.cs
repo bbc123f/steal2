@@ -14,7 +14,7 @@ namespace Steal.Patchers.VRRigPatchers
     {
         public static bool Prefix()
         {
-            return (!ModHandler.FindButton("Disable Fingers").Enabled);
+            return (!MenuPatch.FindButton("Disable Fingers").Enabled);
         }
     }
     
@@ -25,7 +25,7 @@ namespace Steal.Patchers.VRRigPatchers
         {
             try
             {
-                if (ModHandler.FindButton("NoSlip").Enabled)
+                if (MenuPatch.FindButton("NoSlip").Enabled)
                     __result = 0;
             }
             catch {}
@@ -59,7 +59,7 @@ namespace Steal.Patchers.VRRigPatchers
     {
         public static bool Prefix()
         {
-            return (!ModHandler.FindButton("Anti MouthFlap").Enabled);
+            return (!MenuPatch.FindButton("Anti MouthFlap").Enabled);
         }
     }
 

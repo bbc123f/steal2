@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace WristMenu.Components
+namespace Steal.Components
 {
     internal static class StealExtensions
     {

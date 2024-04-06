@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 
-namespace Steal
+namespace Steal.Background
 {
     internal class AssetLoader : MonoBehaviour
     {

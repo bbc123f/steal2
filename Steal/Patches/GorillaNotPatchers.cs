@@ -12,6 +12,7 @@ using Photon.Realtime;
 
 namespace Steal.Patchers.GorillaNotPatchers
 {
+    /*
     
     [HarmonyPatch(typeof(GorillaNot), "LogErrorCount", MethodType.Normal)]
     public class NoLogErrorCount : MonoBehaviour
@@ -133,5 +134,5 @@ namespace Steal.Patchers.GorillaNotPatchers
     
             return false;
         }
-    }
+    }*/
 }

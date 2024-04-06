@@ -45,7 +45,6 @@ namespace Steal.Background
             pointer = null;
             Object.Destroy(lr.gameObject);
             lr = null;
-            ModHandler.isUsingGun = false;
             data = new GunLibData(false, false, false);
         }
 
@@ -53,11 +52,10 @@ namespace Steal.Background
         {
             try
             {
-                ModHandler.isUsingGun = true;
                 RaycastHit hit;
                 if (XRSettings.isDeviceActive)
                 {
-                    bool rightHand3 = ModHandler.FindButton("Right Hand Menu").Enabled;
+                    bool rightHand3 = MenuPatch.FindButton("Right Hand Menu").Enabled;
 
                     Transform controller;
                     if (!rightHand3)
@@ -249,10 +247,9 @@ namespace Steal.Background
         {
             try
             {
-                ModHandler.isUsingGun = true;
                 if (XRSettings.isDeviceActive)
                 {
-                    bool rightHand3 = ModHandler.FindButton("Right Hand Menu").Enabled;
+                    bool rightHand3 = MenuPatch.FindButton("Right Hand Menu").Enabled;
                     Transform controller;
                     if (!rightHand3)
                     {

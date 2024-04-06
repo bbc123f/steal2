@@ -2,9 +2,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
-using WristMenu;
 
-namespace Steal.Background
+
+namespace Steal.Components
 {
     public class ModsListInterface : MonoBehaviour
     {
