@@ -18,6 +18,7 @@ using UnityEngine.XR;
 using HarmonyLib;
 using GorillaTag;
 using GorillaGameModes;
+using System.Threading.Tasks;
 
 namespace Steal.Background.Mods
 {
@@ -714,8 +715,6 @@ namespace Steal.Background.Mods
         public static void AntiBan()
         {
             Debug.Log("Running...");
-
-
             PlayFabClientAPI.ExecuteCloudScript(new ExecuteCloudScriptRequest
             {
                 FunctionName = "RoomClosed",
@@ -740,8 +739,7 @@ namespace Steal.Background.Mods
             {
                 Debug.Log(error.Error);
             });
-
-            string gamemode = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Replace(GorillaComputer.instance.currentQueue, GorillaComputer.instance.currentQueue + "MODDED_MODDED_");
+            string gamemode = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Replace(GorillaComputer.instance.currentQueue, GorillaComputer.instance.currentQueue + "MODDED_MODDED_").Replace(GetGameMode(), GetGameMode() + GetGameMode());
             Hashtable hash = new Hashtable
             {
                 { "gameMode",gamemode }

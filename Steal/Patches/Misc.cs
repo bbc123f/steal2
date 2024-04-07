@@ -14,9 +14,13 @@ namespace Steal.Patchers.Misc
     [HarmonyPatch(typeof(GameObject), "CreatePrimitive", MethodType.Normal)]
     internal class GameObjectPatch
     {
+        static Shader uberShader = null;
         private static void Postfix(GameObject __result)
         {
-            __result.GetComponent<Renderer>().material.shader = Shader.Find("GorillaTag/UberShader");
+            if (uberShader == null)
+                uberShader = Shader.Find("GorillaTag/UberShader");
+
+            __result.GetComponent<Renderer>().material.shader = uberShader;
             __result.GetComponent<Renderer>().material.color = Color.black;
         }
     }
@@ -52,6 +56,16 @@ namespace Steal.Patchers.Misc
     [HarmonyPatch(typeof(GorillaNetworkPublicTestJoin2))]
     [HarmonyPatch("LateUpdate", MethodType.Normal)]
     class NoGracePeriod2
+    {
+        public static bool Prefix()
+        {
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(GorillaLocomotion.Player))]
+    [HarmonyPatch("AntiTeleportTechnology", MethodType.Normal)]
+    class AntiTeleport
     {
         public static bool Prefix()
         {

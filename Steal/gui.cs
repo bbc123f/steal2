@@ -1,8 +1,11 @@
-﻿using GorillaNetworking;
+﻿using BepInEx;
+using Cinemachine;
+using GorillaNetworking;
 using Pathfinding;
 using Photon.Pun;
 using Photon.Realtime;
 using Steal;
+using Steal.Background;
 using Steal.Background.Mods;
 using Steal.Patchers;
 using System;
@@ -32,13 +35,17 @@ namespace Steal
 
         string[] pages = new string[]
         {
-            "Home", "Search", "Room", "Movement", "Player", "Render", "Exploits", "Ghost", "Other", "Config"
+            "Home", "Search", "Room", "Movement", "Player", "Render", "Exploits", "Freecam", "Config"
         };
 
         string roomStr = "text here", searchString = "Query to search";
         public static float deltaTime, fov = 60;
 
         public static Font myFont;
+        private float speed = 10;
+        private bool campause;
+        public static bool freecam;
+        private bool fpc;
 
         public void OnEnable()
         {
@@ -62,6 +69,51 @@ namespace Steal
                 Environment.FailFast("bye");
             } 
             UILib.Init();
+        }
+
+        public void Update()
+        {
+            if (freecam)
+            {
+                Movement.AdvancedWASD(speed);
+            }
+        }
+
+        public static void MakeFPC(bool refrence)
+        {
+            if (refrence)
+            {
+                if (GorillaTagger.Instance.thirdPersonCamera && GorillaTagger.Instance.thirdPersonCamera.activeSelf)
+                {
+                    GorillaTagger.Instance.thirdPersonCamera.SetActive(false);
+                }
+            }
+            else
+            {
+                if (GorillaTagger.Instance.thirdPersonCamera && !GorillaTagger.Instance.thirdPersonCamera.activeSelf)
+                {
+                    GorillaTagger.Instance.thirdPersonCamera.SetActive(true);
+                }
+            }
+        }
+
+
+        public static void PauseCam(bool refrence)
+        {
+            if (refrence)
+            {
+                if (GorillaTagger.Instance.thirdPersonCamera && GorillaTagger.Instance.thirdPersonCamera.GetComponentInChildren<Camera>().gameObject.activeSelf)
+                {
+                    GorillaTagger.Instance.thirdPersonCamera.GetComponentInChildren<Camera>().gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                if (GorillaTagger.Instance.thirdPersonCamera && !GorillaTagger.Instance.thirdPersonCamera.GetComponentInChildren<Camera>().gameObject.activeSelf)
+                {
+                    GorillaTagger.Instance.thirdPersonCamera.GetComponentInChildren<Camera>().gameObject.SetActive(false);
+                }
+            }
         }
 
         public void OnGUI()
@@ -93,7 +145,7 @@ namespace Steal
             {
                 GUILayout.Space(5);
                 string page = pages[i];
-                if (UILib.RoundedButton(page, i, GUILayout.Width(85)))
+                if (UILib.RoundedPageButton(page, i, GUILayout.Width(85)))
                 {
                     Page = i;
                     Debug.Log("Switched to page: " + page);
@@ -107,9 +159,22 @@ namespace Steal
             switch (Page)
             {
                 case 0:
+                    /*
+                    GUI.DrawTexture(new Rect(110f, 60f, 170f, 130f), UILib.sidePannelTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(10f, 10f, 10f, 10f));
 
+                    var fontSyle = new GUIStyle("label");
+                    fontSyle.font = myFont;
+                    fontSyle.normal.textColor = Color.white;
+                    fontSyle.fontSize = 20;
+                    fontSyle.alignment = TextAnchor.MiddleLeft;
+                    var fontSyle2 = new GUIStyle("label");
+                    fontSyle2.font = myFont;
+                    fontSyle2.normal.textColor = Color.gray * 1.2f;
+                    fontSyle2.fontSize = 17;
+                    fontSyle2.alignment = TextAnchor.MiddleLeft;
+                    GUI.Label(new Rect(110, 2, 200, 45), "Welcome Back!", fontSyle);
+                    GUI.Label(new Rect(110, 25, 200, 45), "Home", fontSyle2);*/
                     GUILayout.BeginHorizontal();
-
                     roomStr = shouldHideRoom ? GUILayout.PasswordField(roomStr, '⋆', GUILayout.Width(100)) : GUILayout.TextField(roomStr, GUILayout.Width(100));
                     if (UILib.RoundedButton("HIDE", GUILayout.Width(65)))
                     {
@@ -189,7 +254,7 @@ namespace Steal
 
                             UILib.PlayerButton(player.NickName, GUILayout.Width(120), GUILayout.Height(30));
 
-                            if (UILib.RoundedButton("Teleport", GUILayout.Width(90), GUILayout.Height(30)))
+                            if (UILib.RoundedPlayerButton("Teleport", GUILayout.Width(90), GUILayout.Height(30)))
                             {
                                 TeleportationLib.Teleport(vrrig.transform.position);
                             }
@@ -198,14 +263,14 @@ namespace Steal
                             {
                                 if (!vrrig.mainSkin.material.name.Contains("fected"))
                                 {
-                                    if (UILib.RoundedButton("Tag", GUILayout.Width(90), GUILayout.Height(30)))
+                                    if (UILib.RoundedPlayerButton("Tag", GUILayout.Width(90), GUILayout.Height(30)))
                                     {
                                         PlayerMods.TagPlayer(player);
                                     }
                                 }
                                 else
                                 {
-                                    if (UILib.RoundedButton("Untag", GUILayout.Width(90), GUILayout.Height(30)))
+                                    if (UILib.RoundedPlayerButton("Untag", GUILayout.Width(90), GUILayout.Height(30)))
                                     {
                                         PlayerMods.UnTagPlayer(player);
                                     }
@@ -289,7 +354,56 @@ namespace Steal
                     GUILayout.EndScrollView();
                     break;
 
-                case 9:
+                case 7:
+
+                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                    if (UILib.RoundedButton("Freecam Mode", freecam))
+                    {
+                        Movement.previousMousePosition = UnityInput.Current.mousePosition;
+                        freecam = !freecam;
+                    }
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Speed: " + speed.ToString());
+                    GUILayout.EndHorizontal();
+                    speed = GUILayout.HorizontalSlider(speed, 0.1f, 100f);
+                    GUILayout.BeginHorizontal();
+                    if (UILib.RoundedButton("Reset Speed"))
+                    {
+                        speed = 10;
+                    }
+                    GUILayout.EndHorizontal();
+                    GUILayout.Label($"Camera Settings");
+                    GUILayout.Label($"Camera FOV: {(int)GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView}");
+                    GUILayout.Label($"Current FOV: {(int)fov}");
+                    fov = GUILayout.HorizontalSlider(fov, 1f, 179f);
+                    if (UILib.RoundedButton("First Person Camera"))
+                    {
+                        fpc = !fpc;
+                        MakeFPC(fpc);
+                    }
+                    if (UILib.RoundedButton("Set FOV"))
+                    {
+                        GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView = fov;
+                        GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera/CM vcam1").GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = fov;
+                    }
+                    if (UILib.RoundedButton("Reset FOV"))
+                    {
+                        GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView = 60f;
+                        GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera/CM vcam1").GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = 60f;
+                        fov = 60f;
+                    }
+                    if (UILib.RoundedButton("Pause Camera"))
+                    {
+                        campause = !campause;
+                        PauseCam(campause);
+                        ShowConsole.Log("Pause Camera : Is " + campause.ToString());
+                    }
+
+
+                    GUILayout.EndScrollView();
+                    break;
+
+                case 8:
 
                     scroll[0] = GUILayout.BeginScrollView(scroll[0]);
                     foreach (var bt in MenuPatch.buttons)
@@ -481,7 +595,7 @@ namespace Steal
                 return false;
             }
 
-            public static bool RoundedButton(string content, params GUILayoutOption[] options)
+            public static bool RoundedPlayerButton(string content, params GUILayoutOption[] options)
             {
                 Texture2D texture = buttonTexture;
                 var rect = GUILayoutUtility.GetRect(new GUIContent(content), GUI.skin.button, options);
@@ -496,6 +610,46 @@ namespace Steal
                 }
                 DrawTexture(rect, texture, 6);
                 DrawText(new Rect(rect.x, rect.y, rect.width, 25f), content, 12, Color.white, FontStyle.Normal, true, true);
+                return false;
+            }
+
+            public static bool RoundedButton(string content, params GUILayoutOption[] options)
+            {
+                Texture2D texture = buttonTexture;
+                var rect = GUILayoutUtility.GetRect(new GUIContent(content), GUI.skin.button, options);
+                if (rect.Contains(Event.current.mousePosition))
+                {
+                    texture = buttonHoverTexture;
+                }
+                if (rect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown)
+                {
+                    texture = buttonClickTexture;
+                    return true;
+                }
+                DrawTexture(rect, texture, 6);
+                DrawText(new Rect(rect.x, rect.y-3, rect.width, 25f), content, 12, Color.white, FontStyle.Normal, true, true);
+                return false;
+            }
+
+            public static bool RoundedButton(string content, bool refrence, params GUILayoutOption[] options)
+            {
+                Texture2D texture = buttonTexture;
+                var rect = GUILayoutUtility.GetRect(new GUIContent(content), GUI.skin.button, options);
+                if (rect.Contains(Event.current.mousePosition))
+                {
+                    texture = buttonHoverTexture;
+                }
+                if (rect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown)
+                {
+                    texture = buttonClickTexture;
+                    return true;
+                }
+                if (refrence)
+                {
+                    texture = buttonClickTexture;
+                }
+                DrawTexture(rect, texture, 6);
+                DrawText(new Rect(rect.x, rect.y - 3, rect.width, 25f), content, 12, Color.white, FontStyle.Normal, true, true);
                 return false;
             }
 
@@ -520,7 +674,7 @@ namespace Steal
                 GUI.Label(new Rect(X, Y, rect.width, rect.height), new GUIContent(text), _style);
             }
             static Rect pageButtonRect;
-            public static bool RoundedButton(string content, int i, params GUILayoutOption[] options)
+            public static bool RoundedPageButton(string content, int i, params GUILayoutOption[] options)
             {
                 if (UI.Page == i)
                 {

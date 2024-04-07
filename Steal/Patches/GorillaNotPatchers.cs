@@ -98,40 +98,4 @@ namespace Steal.Patchers.GorillaNotPatchers
             return false;
         }
     }
-    
-     [HarmonyPatch(typeof(GorillaNot), "IncrementRPCTracker", MethodType.Normal)]
-      public class NoIncrementRPCTracker : MonoBehaviour
-      {
-          static bool Prefix(in string userId, in string rpcFunction, in int callLimit)
-          {
-             return false;
-          }
-      }
-    
-    
-    
-    [HarmonyPatch(typeof(GorillaNot), "IncrementRPCCallLocal", MethodType.Normal)]
-    public class NoIncrementRPCCallLocal : MonoBehaviour
-    {
-        private static bool Prefix(PhotonMessageInfoWrapped infoWrapped, string rpcFunction)
-        {
-            //ShowConsole.Log(info.Sender.NickName + " sent rpc: " + rpcFunction);
-            return false;
-        }
-    }
-
-
-
-
-    
-    [HarmonyPatch(typeof(GorillaNot), "IncrementRPCCall", new Type[] { typeof(PhotonMessageInfo), typeof(string) })]
-    public class NoIncrementRPCCall : MonoBehaviour
-    {
-        static bool Prefix(PhotonMessageInfo info, string callingMethod = "")
-        {
-            //ShowConsole.Log($"Increment RPC: Info {info.ToString()}, callingMethod {callingMethod}");
-    
-            return false;
-        }
-    }
 }

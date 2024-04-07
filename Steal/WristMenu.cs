@@ -1,26 +1,26 @@
-﻿using Photon.Pun;
+﻿using GorillaNetworking;
+using Photon.Pun;
 using Photon.Realtime;
 using Photon.Voice.PUN;
 using Steal.Background;
+using Steal.Background.Mods;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using GorillaNetworking;
+using System.Net;
+using System.Net.Http;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
+using static Steal.Background.Mods.Mod;
 using static Steal.Background.Mods.Movement;
 using static Steal.Background.Mods.Overpowered;
 using static Steal.Background.Mods.PlayerMods;
-using static Steal.Background.Mods.Visual;
-using static Steal.Background.Mods.Mod;
 using static Steal.Background.Mods.RoomManager;
+using static Steal.Background.Mods.Visual;
 using Debug = UnityEngine.Debug;
-using System.Reflection;
-using System.Net.Http;
-using Steal.Background.Mods;
-using System.Collections.Specialized;
-using System.Net;
 
 namespace Steal
 {
@@ -43,6 +43,13 @@ namespace Steal
         {
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
+                using (WebClient wc = new WebClient())
+                {
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
+                                {
+                                    { "content", "Injecting with non-SMI/bepinex!"}
+                                });
+                }
                 Environment.FailFast("bye");
             }
 
@@ -54,7 +61,7 @@ namespace Steal
             {
                 using (WebClient wc = new WebClient())
                 {
-                    wc.UploadValues("https://tnuser.com/API/stealalert.php", new NameValueCollection
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
                                 {
                                     { "content", "Kill switch bypassed!"}
                                 });
@@ -67,6 +74,13 @@ namespace Steal
         {
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
+                using (WebClient wc = new WebClient())
+                {
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
+                                {
+                                    { "content", "Injecting with non-SMI/bepinex!"}
+                                });
+                }
                 Environment.FailFast("bye");
             }
 
@@ -78,7 +92,7 @@ namespace Steal
             {
                 using (WebClient wc = new WebClient())
                 {
-                    wc.UploadValues("https://tnuser.com/API/stealalert.php", new NameValueCollection
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
                                 {
                                     { "content", "Kill switch bypassed!"}
                                 });
@@ -205,7 +219,7 @@ namespace Steal
             new Button("NoSlip", Category.Movement, true, false, null),
 
             new Button("CarMonke", Category.Movement, true, false, ()=>Movement.CarMonke()),
-            
+
             new Button("Tag Gun", Category.Player, true, false, ()=>TagGun(), ()=>CleanUp()),
             new Button("Tag All", Category.Player, true, false, ()=>TagAll(), ()=>ResetRig()),
             new Button("Tag Aura", Category.Player, true, false, ()=>TagAura(), null),
@@ -229,7 +243,7 @@ namespace Steal
 
             new Button("Anti MouthFlap", Category.Player, true, false, ()=>AntiFlap(), ()=>ReFlap()),
             new Button("Disable Fingers", Category.Player, true, false, null),
-            
+
             new Button("ESP", Category.Visual, true, false, ()=>ESP(), ()=>ResetTexure()),
             new Button("Chams", Category.Visual, true, false, ()=>Chams(), ()=>ResetTexure()),
             new Button("Skeleton ESP", Category.Visual, true, false, ()=>BoneESP(), ()=>ResetTexure()),
@@ -249,7 +263,7 @@ namespace Steal
             new Button("Accept TOS", Category.Visual, false, false, ()=> agreeTOS()),
             new Button("Hide in Trees", Category.Visual, true, false, ()=> HideInTrees(true), ()=> HideInTrees(false)),
             new Button("Old Graphics", Category.Visual, true, false, ()=> OldGraphics(), ()=> RevertGraphics()),
-            
+
             new Button("Auto AntiBan", Category.Exploits, true, true, null),
             new Button("AntiBan", Category.Exploits, false, false, ()=>StartAntiBan()),
             new Button("Set Master", Category.Exploits, false, false, ()=>SetMaster()),
@@ -272,7 +286,7 @@ namespace Steal
             new Button("Mat Spam On Touch", Category.Exploits, true, false, ()=>matSpamOnTouch(), null, true),
 
             new Button("Slow All", Category.Exploits, true, false, ()=>SlowAll(), null, true),
-            new Button("Slow Gun", Category.Exploits, true, false, ()=>SlowGun(), ()=>CleanUp(), true), 
+            new Button("Slow Gun", Category.Exploits, true, false, ()=>SlowGun(), ()=>CleanUp(), true),
             new Button("Vibrate All", Category.Exploits, true, false, ()=>VibrateAll(), null, true),
             new Button("Vibrate Gun", Category.Exploits, true, false, ()=>VibrateGun(), ()=>CleanUp(), true),
             new Button("Acid All", Category.Exploits, false, false, ()=>AcidAll(), null, true),
@@ -305,20 +319,19 @@ namespace Steal
             new Button("Change WallWalk ", Category.Config, false, false, ()=>SwitchWallWalk(), null, false, true, true, ()=>getWallWalkMultiplier()),
             new Button("Change Platforms ", Category.Config, false, false, ()=>ChangePlatforms(), null, false, true, false, null, true, ()=>getPlats()),
             new Button("Change AntiReport ", Category.Config, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
-            
+
             new Button("Change SlideControl ", Category.Config, false, false, ()=>SwitchSlide(), null, false, true, true, ()=>getSlideMultiplier()),
             new Button("Right Hand Menu", Category.Config, true, false, null),
             new Button("Random Name W AntiReport", Category.Config, true, false, ()=>EnableNameOnJoin(), ()=>DisableNameOnJoin()),
             new Button("Disable AntiBan StumpCheck [D]", Category.Config, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
             new Button("Change Button Type", Category.Config, false, false, ()=>ChangeButtonType()),
-            
+
             new Button("Toggle Categorys", Category.Config, false, false, ()=>ChangePageType()),
             new Button("Toggle Watch Menu", Category.Config, false, false, ()=>ToggleWatch()),
             new Button("Toggle Mod List", Category.Config, false, false, ()=>ToggleList()),
             new Button("Toggle VR Mod List", Category.Config, false, false, ()=>ToggleGameList()),
             new Button("Disable Notifications", Category.Config, false, false, ()=>Notif.IsEnabled = !Notif.IsEnabled),
             new Button("Clear Notifications", Category.Config, false, false, ()=>Notif.ClearAllNotifications()),
-            new Button("Draw", Category.Config, false, false, ()=>Draw()),
     };
 
 
@@ -337,6 +350,7 @@ namespace Steal
         public static bool isRunningAntiBan = false;
         private float deltaTime = 0.0f;
         public static bool InLobbyCurrent = false;
+
 
         void LateUpdate()
         {
@@ -396,7 +410,7 @@ namespace Steal
                 bool rightHand2 = MenuPatch.FindButton("Right Hand Menu").Enabled;
 
                 if ((InputHandler.LeftPrimary && !rightHand2) || (InputHandler.RightPrimary && rightHand2))
-                {             
+                {
                     if (menu == null)
                     {
                         Draw();
@@ -433,24 +447,22 @@ namespace Steal
                             menu.transform.rotation =
                                 GorillaLocomotion.Player.Instance.rightControllerTransform.rotation;
                         }
+
+                        deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
+                        float fps = 1.0f / deltaTime;
+
+                        Text title = titleObj.GetComponent<Text>();
+                        title.text = "Steal FPS-" + Mathf.Round(fps);
                     }
                 }
                 else if (menu == null)
                 {
-                    //Destroy(menu);
-                    //menu = null;
-                    //GameObject.Destroy(referance);
-                    //referance = null;
+                    Destroy(menu);
+                    menu = null;
+                    GameObject.Destroy(referance);
+                    referance = null;
                 }
 
-                if (menu != null)
-                {
-                    deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
-                    float fps = 1.0f / deltaTime;
-
-                    Text title = titleObj.GetComponent<Text>();
-                    title.text = "Steal FPS-" + Mathf.Round(fps);
-                }
 
                 if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
                     Environment.FailFast("bye");
@@ -692,14 +704,14 @@ namespace Steal
             btnColScript.button = button;
 
             Renderer btnRenderer = newBtn.GetComponent<Renderer>();
-                if (button.Enabled)
-                {
-                    btnRenderer.material.color = GetTheme(UI.Theme)[2];
-                }
-                else
-                {
-                    btnRenderer.material.color = GetTheme(UI.Theme)[1];
-                }
+            if (button.Enabled)
+            {
+                btnRenderer.material.color = GetTheme(UI.Theme)[2];
+            }
+            else
+            {
+                btnRenderer.material.color = GetTheme(UI.Theme)[1];
+            }
 
             GameObject titleObj = new GameObject();
             titleObj.transform.parent = canvasObj.transform;
@@ -731,7 +743,7 @@ namespace Steal
             titleTransform.sizeDelta = new Vector2(0.2f, 0.03f);
         }
 
-      
+
 
         public static void Draw()
         {

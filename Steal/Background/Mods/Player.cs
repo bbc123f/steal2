@@ -605,30 +605,36 @@ namespace Steal.Background.Mods
 
         public static void Helicopter()
         {
-            var gorillaTaggerInstance = GorillaTagger.Instance;
-            var offlineVRRig = gorillaTaggerInstance.offlineVRRig;
+            try
+            {
+                var gorillaTaggerInstance = GorillaTagger.Instance;
+                var offlineVRRig = gorillaTaggerInstance.offlineVRRig;
 
-            offlineVRRig.enabled = false;
+                offlineVRRig.enabled = false;
 
-            Vector3 positionIncrement = new Vector3(0f, 0.05f, 0f);
-            Vector3 rotationIncrement = new Vector3(0f, 10f, 0f);
+                Vector3 positionIncrement = new Vector3(0f, 0.05f, 0f);
+                Vector3 rotationIncrement = new Vector3(0f, 10f, 0f);
 
-            offlineVRRig.transform.position += positionIncrement;
-            gorillaTaggerInstance.myVRRig.transform.position += positionIncrement;
+                offlineVRRig.transform.position += positionIncrement;
 
-            Quaternion newRotation = Quaternion.Euler(offlineVRRig.transform.rotation.eulerAngles + rotationIncrement);
-            offlineVRRig.transform.rotation = newRotation;
-            gorillaTaggerInstance.myVRRig.transform.rotation = newRotation;
+                Quaternion newRotation = Quaternion.Euler(offlineVRRig.transform.rotation.eulerAngles + rotationIncrement);
+                offlineVRRig.transform.rotation = newRotation;
 
-            offlineVRRig.head.rigTarget.transform.rotation = newRotation;
+                offlineVRRig.head.rigTarget.transform.rotation = newRotation;
 
-            Vector3 leftHandPosition = offlineVRRig.transform.position - offlineVRRig.transform.right;
-            Vector3 rightHandPosition = offlineVRRig.transform.position + offlineVRRig.transform.right;
-            offlineVRRig.leftHand.rigTarget.transform.position = leftHandPosition;
-            offlineVRRig.rightHand.rigTarget.transform.position = rightHandPosition;
+                Vector3 leftHandPosition = offlineVRRig.transform.position - offlineVRRig.transform.right;
+                Vector3 rightHandPosition = offlineVRRig.transform.position + offlineVRRig.transform.right;
+                offlineVRRig.leftHand.rigTarget.transform.position = leftHandPosition;
+                offlineVRRig.rightHand.rigTarget.transform.position = rightHandPosition;
 
-            offlineVRRig.leftHand.rigTarget.transform.rotation = newRotation;
-            offlineVRRig.rightHand.rigTarget.transform.rotation = newRotation;
+                offlineVRRig.leftHand.rigTarget.transform.rotation = newRotation;
+                offlineVRRig.rightHand.rigTarget.transform.rotation = newRotation;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                throw;
+            }
         }
 
         public static void OrbitGun()

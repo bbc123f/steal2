@@ -38,6 +38,12 @@ namespace Steal.Background.Mods
             }
         }
 
+        public static void FirstPerson()
+        {
+            GameObject fps = GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera");
+            fps.active = !fps.active;
+        }
+
         public static void Beacons()
         {
             foreach (VRRig vrrig in GorillaParent.instance.vrrigs)

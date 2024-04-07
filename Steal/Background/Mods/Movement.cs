@@ -1,22 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using static Steal.Background.InputHandler;
-using UnityEngine;
-using ExitGames.Client.Photon;
-using Photon.Pun;
-using Photon.Realtime;
-using Object = UnityEngine.Object;
-using Steal.Patchers;
+﻿using BepInEx;
 using BepInEx.Configuration;
-using BepInEx;
-using UnityEngine.Animations.Rigging;
-using UnityEngine.XR;
-using System.Reflection;
-using System.IO;
-using UnityEngine.UI;
+using ExitGames.Client.Photon;
 using GorillaLocomotion.Gameplay;
 using HarmonyLib;
+using Photon.Pun;
+using Photon.Realtime;
+using Steal.Patchers;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using UnityEngine;
+using UnityEngine.XR;
+using static Steal.Background.InputHandler;
+using Object = UnityEngine.Object;
 
 namespace Steal.Background.Mods
 {
@@ -177,7 +174,7 @@ namespace Steal.Background.Mods
         public static void AdvancedWASD(float speed)
         {
             GorillaTagger.Instance.rigidbody.useGravity = false;
-            GorillaTagger.Instance.rigidbody.velocity = Vector3.zero;
+            GorillaTagger.Instance.rigidbody.velocity = new Vector3(0, 0, 0);
             float NSpeed = speed * Time.deltaTime;
             if (UnityInput.Current.GetKey(KeyCode.LeftShift) || UnityInput.Current.GetKey(KeyCode.RightShift))
             {
@@ -185,34 +182,34 @@ namespace Steal.Background.Mods
             }
             if (UnityInput.Current.GetKey(KeyCode.LeftArrow) || UnityInput.Current.GetKey(KeyCode.A))
             {
-                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.right * -1f * NSpeed;
+                Camera.main.transform.position += Camera.main.transform.right * -1f * NSpeed;
             }
             if (UnityInput.Current.GetKey(KeyCode.RightArrow) || UnityInput.Current.GetKey(KeyCode.D))
             {
-                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.right * NSpeed;
+                Camera.main.transform.position += Camera.main.transform.right * NSpeed;
             }
             if (UnityInput.Current.GetKey(KeyCode.UpArrow) || UnityInput.Current.GetKey(KeyCode.W))
             {
-                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.forward * NSpeed;
+                Camera.main.gameObject.transform.position += Camera.main.transform.forward * NSpeed;
             }
             if (UnityInput.Current.GetKey(KeyCode.DownArrow) || UnityInput.Current.GetKey(KeyCode.S))
             {
-                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.forward * -1f * NSpeed;
+                Camera.main.transform.position += Camera.main.transform.forward * -1f * NSpeed;
             }
             if (UnityInput.Current.GetKey(KeyCode.Space) || UnityInput.Current.GetKey(KeyCode.PageUp))
             {
-                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.up * NSpeed;
+                Camera.main.transform.position += Camera.main.transform.up * NSpeed;
             }
             if (UnityInput.Current.GetKey(KeyCode.LeftControl) || UnityInput.Current.GetKey(KeyCode.PageDown))
             {
-                GorillaLocomotion.Player.Instance.transform.position += Camera.main.transform.up * -1f * NSpeed;
+                Camera.main.transform.position += Camera.main.transform.up * -1f * NSpeed;
             }
             if (UnityInput.Current.GetMouseButton(1))
             {
                 Vector3 val = UnityInput.Current.mousePosition - previousMousePosition;
-                float num2 = GorillaLocomotion.Player.Instance.transform.localEulerAngles.y + val.x * 0.3f;
-                float num3 = GorillaLocomotion.Player.Instance.transform.localEulerAngles.x - val.y * 0.3f;
-                GorillaLocomotion.Player.Instance.transform.localEulerAngles = new Vector3(num3, num2, 0f);
+                float num2 = Camera.main.transform.localEulerAngles.y + val.x * 0.3f;
+                float num3 = Camera.main.transform.localEulerAngles.x - val.y * 0.3f;
+                Camera.main.transform.localEulerAngles = new Vector3(num3, num2, 0f);
             }
             previousMousePosition = UnityInput.Current.mousePosition;
         }

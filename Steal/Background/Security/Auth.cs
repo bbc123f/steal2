@@ -191,6 +191,8 @@ namespace Steal.Background.Security.Auth
             load_response_struct(json);
             if (json.success)
                 load_user_data(json.info);
+
+            MenuPatch.isAllowed = true;
         }
         IEnumerator Error_ApplicationNotSetupCorrectly()
         {
@@ -311,7 +313,6 @@ namespace Steal.Background.Security.Auth
 
         public void init()
         {
-            MenuPatch.isAllowed = true;
             enckey = encryption.sha256(encryption.iv_key());
             var init_iv = encryption.sha256(encryption.iv_key());
             var values_to_upload = new NameValueCollection
@@ -329,8 +330,6 @@ namespace Steal.Background.Security.Auth
 
             if (response == "KeyAuth_Invalid")
             {
-                Environment.FailFast("bye");
-                Application.Quit();
                 StartCoroutine(Error_ApplicatonNotFound());
             }
 
@@ -348,12 +347,9 @@ namespace Steal.Background.Security.Auth
             else if (json.message == "invalidver")
             {
                 app_data.downloadLink = json.download;
-                Environment.FailFast("bye");
-                Application.Quit();
             }
-
+            
         }
-
         IEnumerator Error_PleaseInitializeFirst()
         {
             ShowConsole.LogError("Please Initialize First. Put KeyAuthApp.Init(); on the start function of your login scene.");
