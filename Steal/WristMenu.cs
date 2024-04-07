@@ -130,8 +130,8 @@ namespace Steal
             Movement,
             Player,
             Visual,
-            Special,
-            Settings
+            Exploits,
+            Config
         };
 
         public static bool isAllowed = false;
@@ -175,8 +175,8 @@ namespace Steal
             new Button("Movement", Category.Base, false, false, ()=>ChangePage(Category.Movement)),
             new Button("Player", Category.Base, false, false, ()=>ChangePage(Category.Player)),
             new Button("Visual", Category.Base, false, false, ()=>ChangePage(Category.Visual)),
-            new Button("Overpowered", Category.Base, false, false, ()=>ChangePage(Category.Special)),
-            new Button("Settings", Category.Base, false, false, ()=>ChangePage(Category.Settings)),
+            new Button("Overpowered", Category.Base, false, false, ()=>ChangePage(Category.Exploits)),
+            new Button("Settings", Category.Base, false, false, ()=>ChangePage(Category.Config)),
 
             new Button("Disconnect", Category.Room, false, false, ()=>SmartDisconnect()),
             new Button("Join Random", Category.Room, false, false, ()=>PhotonNetworkController.Instance.AttemptToJoinPublicRoom(GorillaComputer.instance.forestMapTrigger, false)),
@@ -251,74 +251,74 @@ namespace Steal
             new Button("Hide in Trees", Category.Visual, true, false, ()=> HideInTrees(true), ()=> HideInTrees(false)),
             new Button("Old Graphics", Category.Visual, true, false, ()=> OldGraphics(), ()=> RevertGraphics()),
             
-            new Button("Auto AntiBan", Category.Special, true, true, null),
-            new Button("AntiBan", Category.Special, false, false, ()=>StartAntiBan()),
-            new Button("Set Master", Category.Special, false, false, ()=>SetMaster()),
-            new Button("Identity Spoof", Category.Special, false, false, ()=>ChangeIdentity()),
-            new Button("Fraud Identity Spoof", Category.Special, false, false, ()=>ChangeRandomIdentity()),
-            new Button("Anti Report", Category.Special, true, true, ()=>AntiReport()),
+            new Button("Auto AntiBan", Category.Exploits, true, true, null),
+            new Button("AntiBan", Category.Exploits, false, false, ()=>StartAntiBan()),
+            new Button("Set Master", Category.Exploits, false, false, ()=>SetMaster()),
+            new Button("Identity Spoof", Category.Exploits, false, false, ()=>ChangeIdentity()),
+            new Button("Fraud Identity Spoof", Category.Exploits, false, false, ()=>ChangeRandomIdentity()),
+            new Button("Anti Report", Category.Exploits, true, true, ()=>AntiReport()),
 
-            new Button("Crash All", Category.Special, true, false, ()=>CrashAll(), null, true),
-            new Button("Crash Gun", Category.Special, true, false, ()=>CrashGun(), ()=>CleanUp(), true),
-            new Button("Crash On Touch", Category.Special, true, false, ()=>CrashOnTouch(), null, true),
-            new Button("Stutter All", Category.Special, true, false, ()=>StutterAll(), null, true),
-            new Button("Stutter Gun", Category.Special, true, false, ()=>StutterGun(), ()=>CleanUp(), true),
-            new Button("Stutter On Touch", Category.Special, true, false, ()=>StutterOnTouch(), null, true),
+            new Button("Crash All", Category.Exploits, true, false, ()=>CrashAll(), null, true),
+            new Button("Crash Gun", Category.Exploits, true, false, ()=>CrashGun(), ()=>CleanUp(), true),
+            new Button("Crash On Touch", Category.Exploits, true, false, ()=>CrashOnTouch(), null, true),
+            new Button("Stutter All", Category.Exploits, true, false, ()=>StutterAll(), null, true),
+            new Button("Stutter Gun", Category.Exploits, true, false, ()=>StutterGun(), ()=>CleanUp(), true),
+            new Button("Stutter On Touch", Category.Exploits, true, false, ()=>StutterOnTouch(), null, true),
 
-            new Button("Lag All", Category.Special, true, false, ()=>LagAl(), null, true),
-            new Button("Lag Gun", Category.Special, true, false, ()=>LagGun(), ()=>CleanUp(), true),
-            new Button("Lag On Touch", Category.Special, true, false, ()=>LagOnTouch(), null, true),
-            new Button("Mat Spam All", Category.Special, true, false, ()=>matSpamAll(), null, true),
-            new Button("Mat Spam Gun", Category.Special, true, false, ()=>MatGun(), ()=>CleanUp(), true),
-            new Button("Mat Spam On Touch", Category.Special, true, false, ()=>matSpamOnTouch(), null, true),
+            new Button("Lag All", Category.Exploits, true, false, ()=>LagAl(), null, true),
+            new Button("Lag Gun", Category.Exploits, true, false, ()=>LagGun(), ()=>CleanUp(), true),
+            new Button("Lag On Touch", Category.Exploits, true, false, ()=>LagOnTouch(), null, true),
+            new Button("Mat Spam All", Category.Exploits, true, false, ()=>matSpamAll(), null, true),
+            new Button("Mat Spam Gun", Category.Exploits, true, false, ()=>MatGun(), ()=>CleanUp(), true),
+            new Button("Mat Spam On Touch", Category.Exploits, true, false, ()=>matSpamOnTouch(), null, true),
 
-            new Button("Slow All", Category.Special, true, false, ()=>SlowAll(), null, true),
-            new Button("Slow Gun", Category.Special, true, false, ()=>SlowGun(), ()=>CleanUp(), true), 
-            new Button("Vibrate All", Category.Special, true, false, ()=>VibrateAll(), null, true),
-            new Button("Vibrate Gun", Category.Special, true, false, ()=>VibrateGun(), ()=>CleanUp(), true),
-            new Button("Acid All", Category.Special, false, false, ()=>AcidAll(), null, true),
-            new Button("Acid Self", Category.Special, false, false, ()=>AcidSelf(), null, true),
+            new Button("Slow All", Category.Exploits, true, false, ()=>SlowAll(), null, true),
+            new Button("Slow Gun", Category.Exploits, true, false, ()=>SlowGun(), ()=>CleanUp(), true), 
+            new Button("Vibrate All", Category.Exploits, true, false, ()=>VibrateAll(), null, true),
+            new Button("Vibrate Gun", Category.Exploits, true, false, ()=>VibrateGun(), ()=>CleanUp(), true),
+            new Button("Acid All", Category.Exploits, false, false, ()=>AcidAll(), null, true),
+            new Button("Acid Self", Category.Exploits, false, false, ()=>AcidSelf(), null, true),
 
-            new Button("Gamemode to Casual", Category.Special, false, false, ()=>changegamemode("CASUAL"), null, true),
-            new Button("Gamemode to Infection", Category.Special, false, false, ()=>changegamemode("INFECTION"), null, true),
-            new Button("Gamemode to Hunt", Category.Special, false, false, ()=>changegamemode("HUNT"), null, true),
-            new Button("Gamemode to Battle", Category.Special, false, false, ()=>changegamemode("BATTLE"), null, true),
-            new Button("Disable Network Triggers [SS]", Category.Special, false, false, ()=>DisableNetworkTriggers()),
-            new Button("Trap All In Stump", Category.Special, false, false, ()=>TrapAllInStump()),
+            new Button("Gamemode to Casual", Category.Exploits, false, false, ()=>changegamemode("CASUAL"), null, true),
+            new Button("Gamemode to Infection", Category.Exploits, false, false, ()=>changegamemode("INFECTION"), null, true),
+            new Button("Gamemode to Hunt", Category.Exploits, false, false, ()=>changegamemode("HUNT"), null, true),
+            new Button("Gamemode to Battle", Category.Exploits, false, false, ()=>changegamemode("BATTLE"), null, true),
+            new Button("Disable Network Triggers [SS]", Category.Exploits, false, false, ()=>DisableNetworkTriggers()),
+            new Button("Trap All In Stump", Category.Exploits, false, false, ()=>TrapAllInStump()),
 
-            new Button("Rope Up", Category.Special, true, false, ()=>RopeUp()),
-            new Button("Rope Down", Category.Special, true, false, ()=>RopeDown()),
-            new Button("Rope To Self", Category.Special, true, false, ()=>RopeToSelf()),
-            new Button("Rope Gun", Category.Special, true, false, ()=>RopeGun(), ()=>CleanUp()),
-            new Button("Rope Spaz", Category.Special, true, false, ()=>FlingOnRope()),
-            new Button("Rope Freeze", Category.Special, true, false, ()=>RopeFreeze()),
+            new Button("Rope Up", Category.Exploits, true, false, ()=>RopeUp()),
+            new Button("Rope Down", Category.Exploits, true, false, ()=>RopeDown()),
+            new Button("Rope To Self", Category.Exploits, true, false, ()=>RopeToSelf()),
+            new Button("Rope Gun", Category.Exploits, true, false, ()=>RopeGun(), ()=>CleanUp()),
+            new Button("Rope Spaz", Category.Exploits, true, false, ()=>FlingOnRope()),
+            new Button("Rope Freeze", Category.Exploits, true, false, ()=>RopeFreeze()),
 
-            new Button("Name Change All", Category.Special, true, false, ()=>NameAll()),
-            new Button("Name Change Gun", Category.Special, true, false, ()=>NameGun(), ()=>CleanUp()),
-            new Button("Stop Movement Gun", Category.Special, true, false, ()=>StopMovement(), null, true),
-            new Button("Float Gun", Category.Special, true, false, ()=>FloatGun(), null, true),
-            new Button("Sound Spam", Category.Special, true, false, ()=>SoundSpam(), null, true),
-            new Button("Tag Lag", Category.Special, true, false, ()=>TagLag(), ()=>RevertTagLag(), true),
+            new Button("Name Change All", Category.Exploits, true, false, ()=>NameAll()),
+            new Button("Name Change Gun", Category.Exploits, true, false, ()=>NameGun(), ()=>CleanUp()),
+            new Button("Stop Movement Gun", Category.Exploits, true, false, ()=>StopMovement(), null, true),
+            new Button("Float Gun", Category.Exploits, true, false, ()=>FloatGun(), null, true),
+            new Button("Sound Spam", Category.Exploits, true, false, ()=>SoundSpam(), null, true),
+            new Button("Tag Lag", Category.Exploits, true, false, ()=>TagLag(), ()=>RevertTagLag(), true),
 
-            new Button("Change Theme", Category.Settings, false, false, ()=>ChangeTheme(), null, false, false),
-            new Button("Change SpeedBoost ", Category.Settings, false, false, ()=>SwitchSpeed(), null, false, true, true, ()=>getSpeedBoostMultiplier()),
-            new Button("Change FlightSpeed ", Category.Settings, false, false, ()=>SwitchFlight(), null, false, true, true, ()=>getFlightMultiplier()),
-            new Button("Change WallWalk ", Category.Settings, false, false, ()=>SwitchWallWalk(), null, false, true, true, ()=>getWallWalkMultiplier()),
-            new Button("Change Platforms ", Category.Settings, false, false, ()=>ChangePlatforms(), null, false, true, false, null, true, ()=>getPlats()),
-            new Button("Change AntiReport ", Category.Settings, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
+            new Button("Change Theme", Category.Config, false, false, ()=>ChangeTheme(), null, false, false),
+            new Button("Change SpeedBoost ", Category.Config, false, false, ()=>SwitchSpeed(), null, false, true, true, ()=>getSpeedBoostMultiplier()),
+            new Button("Change FlightSpeed ", Category.Config, false, false, ()=>SwitchFlight(), null, false, true, true, ()=>getFlightMultiplier()),
+            new Button("Change WallWalk ", Category.Config, false, false, ()=>SwitchWallWalk(), null, false, true, true, ()=>getWallWalkMultiplier()),
+            new Button("Change Platforms ", Category.Config, false, false, ()=>ChangePlatforms(), null, false, true, false, null, true, ()=>getPlats()),
+            new Button("Change AntiReport ", Category.Config, false, false, ()=>switchAntiReport(), null, false, true, false, null, true, ()=>getAntiReport()),
             
-            new Button("Change SlideControl ", Category.Settings, false, false, ()=>SwitchSlide(), null, false, true, true, ()=>getSlideMultiplier()),
-            new Button("Right Hand Menu", Category.Settings, true, false, null),
-            new Button("Random Name W AntiReport", Category.Settings, true, false, ()=>EnableNameOnJoin(), ()=>DisableNameOnJoin()),
-            new Button("Disable AntiBan StumpCheck [D]", Category.Settings, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
-            new Button("Change Button Type", Category.Settings, false, false, ()=>ChangeButtonType()),
+            new Button("Change SlideControl ", Category.Config, false, false, ()=>SwitchSlide(), null, false, true, true, ()=>getSlideMultiplier()),
+            new Button("Right Hand Menu", Category.Config, true, false, null),
+            new Button("Random Name W AntiReport", Category.Config, true, false, ()=>EnableNameOnJoin(), ()=>DisableNameOnJoin()),
+            new Button("Disable AntiBan StumpCheck [D]", Category.Config, true, false, ()=>DisableStumpCheck(), ()=>EnableStumpCheck()),
+            new Button("Change Button Type", Category.Config, false, false, ()=>ChangeButtonType()),
             
-            new Button("Toggle Categorys", Category.Settings, false, false, ()=>ChangePageType()),
-            new Button("Toggle Watch Menu", Category.Settings, false, false, ()=>ToggleWatch()),
-            new Button("Toggle Mod List", Category.Settings, false, false, ()=>ToggleList()),
-            new Button("Toggle VR Mod List", Category.Settings, false, false, ()=>ToggleGameList()),
-            new Button("Disable Notifications", Category.Settings, false, false, ()=>Notif.IsEnabled = !Notif.IsEnabled),
-            new Button("Clear Notifications", Category.Settings, false, false, ()=>Notif.ClearAllNotifications()),
+            new Button("Toggle Categorys", Category.Config, false, false, ()=>ChangePageType()),
+            new Button("Toggle Watch Menu", Category.Config, false, false, ()=>ToggleWatch()),
+            new Button("Toggle Mod List", Category.Config, false, false, ()=>ToggleList()),
+            new Button("Toggle VR Mod List", Category.Config, false, false, ()=>ToggleGameList()),
+            new Button("Disable Notifications", Category.Config, false, false, ()=>Notif.IsEnabled = !Notif.IsEnabled),
+            new Button("Clear Notifications", Category.Config, false, false, ()=>Notif.ClearAllNotifications()),
     };
 
 
@@ -909,10 +909,12 @@ namespace Steal
             {
                 button.onEnable();
 
-                if (button.Page == Category.Settings)
+                if (button.Page == Category.Config)
                     RefreshMenu();
 
                 ModsList.RefreshText();
+
+                Notif.SendNotification("Executed non-toggle mod: " + button.buttonText + "!", Color.cyan);
 
                 return;
             }

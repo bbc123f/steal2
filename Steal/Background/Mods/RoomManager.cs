@@ -15,9 +15,24 @@ namespace Steal.Background.Mods
 {
     internal class RoomManager : Mod
     {
+
+        public static Texture2D ConvertToTexture2D(Texture texture)
+        {
+            Texture2D convertedTexture = new Texture2D(texture.width, texture.height);
+
+            convertedTexture.SetPixels((texture as Texture2D).GetPixels());
+
+            convertedTexture.Apply();
+
+            return convertedTexture;
+        }
+
         public override void OnJoinedRoom()
         {
             base.OnJoinedRoom();
+
+        
+
             if (MenuPatch.FindButton("Auto AntiBan").Enabled)
             {
                 MenuPatch.isRoomCodeRun = true;

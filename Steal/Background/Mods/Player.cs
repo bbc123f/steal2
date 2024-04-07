@@ -880,6 +880,17 @@ namespace Steal.Background.Mods
             GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>().tagCoolDown = 5f;
         }
 
+        public static void TagPlayer(Player player)
+        {
+            GorillaTagManager infect = GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>();
+            infect.currentInfected.Add(player);
+        }
+
+        public static void UnTagPlayer(Player player)
+        {
+            GorillaTagManager infect = GorillaGameManager.instance.gameObject.GetComponent<GorillaTagManager>();
+            infect.currentInfected.Remove(player);
+        }
         public static void TagAll()
         {
             foreach (Photon.Realtime.Player p in PhotonNetwork.PlayerListOthers)

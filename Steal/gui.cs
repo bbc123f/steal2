@@ -1,7 +1,10 @@
 ﻿using GorillaNetworking;
 using Pathfinding;
 using Photon.Pun;
+using Photon.Realtime;
 using Steal;
+using Steal.Background.Mods;
+using Steal.Patchers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,9 +27,12 @@ namespace Steal
 
         public static int Page = 0, Theme = 0;
 
+        public static Texture2D infectedTexture = null;
+
+
         string[] pages = new string[]
         {
-            "Home", "Search", "Room", "Server", "Movement", "Render", "Exploits", "Ghost", "Other", "Config"
+            "Home", "Search", "Room", "Movement", "Player", "Render", "Exploits", "Ghost", "Other", "Config"
         };
 
         string roomStr = "text here", searchString = "Query to search";
@@ -137,7 +143,7 @@ namespace Steal
                     scroll[0] = GUILayout.BeginScrollView(scroll[0]);
                     foreach (var bt in MenuPatch.buttons)
                     {
-                        if (bt.buttonText.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 && bt.Page != MenuPatch.Category.Settings && bt.Page != MenuPatch.Category.Base)
+                        if (bt.buttonText.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 && bt.Page != MenuPatch.Category.Config && bt.Page != MenuPatch.Category.Base)
                         {
                             if (UILib.RoundedToggleButton(bt.buttonText, bt))
                             {
@@ -149,12 +155,64 @@ namespace Steal
                     break;
 
                 case 2:
+
+
+                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+
+                    foreach (var bt in MenuPatch.buttons)
+                    {
+                        if (bt.Page == MenuPatch.Category.Room)
+                        {
+                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                            {
+                                MenuPatch.Toggle(bt);
+                            }
+                        }
+                    }
+
+                    GUILayout.Space(10);
+
                     if (PhotonNetwork.CurrentRoom != null)
                     {
-                        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+                        foreach (Player player in PhotonNetwork.PlayerListOthers)
                         {
-                            var player = PhotonNetwork.PlayerList[i];
-                            if (player == null) continue;
+                            VRRig vrrig = GorillaGameManager.instance.FindPlayerVRRig(player);
+                            GUILayout.BeginHorizontal();
+                            if (!vrrig.mainSkin.material.name.Contains("fected"))
+                                GUILayout.Label(UILib.ApplyColorFilter(vrrig.mainSkin.material.color), GUILayout.Width(30), GUILayout.Height(30));
+                            else
+                            {
+                                if (infectedTexture == null)
+                                    infectedTexture = RoomManager.ConvertToTexture2D(vrrig.mainSkin.material.mainTexture);
+                                GUILayout.Label(infectedTexture, GUILayout.Width(30), GUILayout.Height(30));
+                            }
+
+                            UILib.PlayerButton(player.NickName, GUILayout.Width(120), GUILayout.Height(30));
+
+                            if (UILib.RoundedButton("Teleport", GUILayout.Width(90), GUILayout.Height(30)))
+                            {
+                                TeleportationLib.Teleport(vrrig.transform.position);
+                            }
+
+                            if (PhotonNetwork.LocalPlayer.IsMasterClient)
+                            {
+                                if (!vrrig.mainSkin.material.name.Contains("fected"))
+                                {
+                                    if (UILib.RoundedButton("Tag", GUILayout.Width(90), GUILayout.Height(30)))
+                                    {
+                                        PlayerMods.TagPlayer(player);
+                                    }
+                                }
+                                else
+                                {
+                                    if (UILib.RoundedButton("Untag", GUILayout.Width(90), GUILayout.Height(30)))
+                                    {
+                                        PlayerMods.UnTagPlayer(player);
+                                    }
+                                }
+                            }
+                            GUILayout.EndHorizontal();
+                            GUILayout.Space(10);
 
                         }
                     }
@@ -162,15 +220,92 @@ namespace Steal
                     {
                         GUILayout.Label("Please join a room!");
                     }
+
+                    GUILayout.EndScrollView();
                     break;
+
 
                 case 3:
 
+                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                    foreach (var bt in MenuPatch.buttons)
+                    {
+                        if (bt.Page == MenuPatch.Category.Movement)
+                        {
+                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                            {
+                                MenuPatch.Toggle(bt);
+                            }
+                        }
+                    }
+                    GUILayout.EndScrollView();
                     break;
 
                 case 4:
 
+                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                    foreach (var bt in MenuPatch.buttons)
+                    {
+                        if (bt.Page == MenuPatch.Category.Player)
+                        {
+                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                            {
+                                MenuPatch.Toggle(bt);
+                            }
+                        }
+                    }
+                    GUILayout.EndScrollView();
                     break;
+
+                case 5:
+    
+                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                    foreach (var bt in MenuPatch.buttons)
+                    {
+                        if (bt.Page == MenuPatch.Category.Visual)
+                        {
+                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                            {
+                                MenuPatch.Toggle(bt);
+                            }
+                        }
+                    }
+                    GUILayout.EndScrollView();
+                    break;
+
+                case 6:
+
+                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                    foreach (var bt in MenuPatch.buttons)
+                    {
+                        if (bt.Page == MenuPatch.Category.Exploits)
+                        {
+                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                            {
+                                MenuPatch.Toggle(bt);
+                            }
+                        }
+                    }
+                    GUILayout.EndScrollView();
+                    break;
+
+                case 9:
+
+                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                    foreach (var bt in MenuPatch.buttons)
+                    {
+                        if (bt.Page == MenuPatch.Category.Config)
+                        {
+                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                            {
+                                MenuPatch.Toggle(bt);
+                            }
+                        }
+                    }
+                    GUILayout.EndScrollView();
+                    break;
+
+
             }
             GUILayout.EndVertical();
             GUILayout.EndArea();
@@ -276,6 +411,8 @@ namespace Steal
                 texture.Apply();
                 return texture;
             }
+
+
             private static Texture2D CreateRoundedTexture2(int size, Color color)
             {
                 Texture2D texture = new Texture2D(size, size);
@@ -297,7 +434,8 @@ namespace Steal
                 texture.Apply();
                 return texture;
             }
-            private static Texture2D CreateRoundedTexture(int size, Color color)
+
+            public static Texture2D CreateRoundedTexture(int size, Color color)
             {
                 Texture2D texture = new Texture2D(size, size);
                 Color[] colors = new Color[size * size];
@@ -357,9 +495,20 @@ namespace Steal
                     return true;
                 }
                 DrawTexture(rect, texture, 6);
+                DrawText(new Rect(rect.x, rect.y, rect.width, 25f), content, 12, Color.white, FontStyle.Normal, true, true);
+                return false;
+            }
+
+            public static bool PlayerButton(string content, params GUILayoutOption[] options)
+            {
+                Texture2D texture = buttonTexture;
+                var rect = GUILayoutUtility.GetRect(new GUIContent(content), GUI.skin.button, options);
+
                 DrawText(new Rect(rect.x, rect.y - 3, rect.width, 25f), content, 12, Color.white, FontStyle.Normal, true, true);
                 return false;
             }
+
+
             public static void DrawText(Rect rect, string text, int fontSize = 12, Color textColor = default, FontStyle fontStyle = FontStyle.Normal, bool centerX = false, bool centerY = true)
             {
                 GUIStyle _style = new GUIStyle(GUI.skin.label);
