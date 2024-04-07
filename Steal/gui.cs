@@ -16,6 +16,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static Steal.MenuPatch;
 using static Valve.VR.InteractionSystem.Sample.CustomSkeletonHelper;
 
 namespace Steal
@@ -590,8 +591,24 @@ namespace Steal
                     texture = buttonClickTexture;
                     return true;
                 }
+                string modName = button.buttonText;
+                if (button.Page == Category.Config)
+                {
+                    if (button.doesHaveMultiplier)
+                    {
+                        modName = button.buttonText + "[" + button.multiplier() + "]";
+                    }
+                    else if (button.doesHaveStringer)
+                    {
+                        modName = button.buttonText + "[" + button.stringFunc() + "]";
+                    }
+                    else
+                    {
+                        modName = button.buttonText;
+                    }
+                }
                 DrawTexture(rect, texture, 6);
-                DrawText(new Rect(rect.x, rect.y - 3, rect.width, 25f), content, 12, Color.white, FontStyle.Normal, true, true);
+                DrawText(new Rect(rect.x, rect.y - 3, rect.width, 25f), modName, 12, Color.white, FontStyle.Normal, true, true);
                 return false;
             }
 
