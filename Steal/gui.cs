@@ -85,7 +85,7 @@ namespace Steal
             GUI.DrawTexture(new Rect(0f, 0f, 100f, window.height), UILib.sidePannelTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(16f, 0f, 0f, 16f));
             GUIStyle lb = new GUIStyle(GUI.skin.label);
             lb.font = myFont;
-            GUI.Label(new Rect(10, 5, window.width, 30), "Steal.lol", lb);
+            GUI.Label(new Rect(10, 5, window.width, 30), " steal.lol", lb);
 
             GUILayout.BeginArea(new Rect(7.5f, 30, 100, window.height));
             GUILayout.BeginVertical();

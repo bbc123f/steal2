@@ -9,7 +9,6 @@ using System.Linq;
 using GorillaNetworking;
 using UnityEngine;
 using UnityEngine.UI;
-
 using static Steal.Background.Mods.Movement;
 using static Steal.Background.Mods.Overpowered;
 using static Steal.Background.Mods.PlayerMods;
@@ -319,6 +318,7 @@ namespace Steal
             new Button("Toggle VR Mod List", Category.Config, false, false, ()=>ToggleGameList()),
             new Button("Disable Notifications", Category.Config, false, false, ()=>Notif.IsEnabled = !Notif.IsEnabled),
             new Button("Clear Notifications", Category.Config, false, false, ()=>Notif.ClearAllNotifications()),
+            new Button("Draw", Category.Config, false, false, ()=>Draw()),
     };
 
 
@@ -329,17 +329,20 @@ namespace Steal
         static GameObject menu = null;
         static GameObject canvasObj = null;
         static GameObject referance = null;
+        static GameObject titleObj = null;
+
         public static int framePressCooldown = 0;
         public static bool isRoomCodeRun = true;
 
         public static bool isRunningAntiBan = false;
-
+        private float deltaTime = 0.0f;
         public static bool InLobbyCurrent = false;
 
         void LateUpdate()
         {
             try
             {
+                //Movement.AdvancedWASD(10);
                 if (!isAllowed)
                 {
                     Application.Quit();
@@ -434,10 +437,19 @@ namespace Steal
                 }
                 else if (menu == null)
                 {
-                    Destroy(menu);
-                    menu = null;
-                    GameObject.Destroy(referance);
-                    referance = null;
+                    //Destroy(menu);
+                    //menu = null;
+                    //GameObject.Destroy(referance);
+                    //referance = null;
+                }
+
+                if (menu != null)
+                {
+                    deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
+                    float fps = 1.0f / deltaTime;
+
+                    Text title = titleObj.GetComponent<Text>();
+                    title.text = "Steal FPS-" + Mathf.Round(fps);
                 }
 
                 if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
@@ -759,13 +771,13 @@ namespace Steal
                 canvas.renderMode = RenderMode.WorldSpace;
                 canvasScale.dynamicPixelsPerUnit = 1000;
 
-                GameObject titleObj = new GameObject();
+                titleObj = new GameObject();
                 titleObj.transform.parent = canvasObj.transform;
                 titleObj.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                 Text title = titleObj.AddComponent<Text>();
                 title.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
                 title.text = "Steal";
-                title.fontStyle = FontStyle.BoldAndItalic;
+                title.fontStyle = FontStyle.Italic;
                 title.color = GetTheme(UI.Theme)[3];
                 title.fontSize = 1;
                 title.alignment = TextAnchor.MiddleCenter;
