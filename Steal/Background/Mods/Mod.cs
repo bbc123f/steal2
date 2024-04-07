@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
-using BepInEx;
 using Photon.Pun;
-using Steal.Background.Security.Auth;
 using System.IO;
 using Steal.Components;
+using Steal.Background.Security;
+using Steal.Background.Security.Auth;
 
 namespace Steal.Background.Mods
 {
@@ -23,18 +21,11 @@ namespace Steal.Background.Mods
                 return;
             }
 
-            auth GetAuth = new auth(
-                name: "Steal",
-                ownerid: "RovpqveRf3",
-                secret: "28dd3f3d424e86309e9d467c19b5936e61cc0abbd55e3360a04334e6044b9144",
-                version: "1.0"
-            );
 
-            GetAuth.init();
             if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt")))
             {
                 var data = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt"));
-                GetAuth.license2(data);
+                Base.GetAuth.license2(data);
             };
             logSource = new BepInEx.Logging.ManualLogSource(this.GetType().Name);
             logSource.LogDebug("Reauthenticated!");
@@ -49,18 +40,10 @@ namespace Steal.Background.Mods
                 return;
             }
 
-            auth GetAuth = new auth(
-                name: "Steal",
-                ownerid: "RovpqveRf3",
-                secret: "28dd3f3d424e86309e9d467c19b5936e61cc0abbd55e3360a04334e6044b9144",
-                version: "1.0"
-            );
-
-            GetAuth.init();
             if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt")))
             {
                 var data = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt"));
-                GetAuth.license2(data);
+                Base.GetAuth.license2(data);
             }
             logSource.LogDebug("Reauthenticated!");
         }

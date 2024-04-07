@@ -1,5 +1,4 @@
-﻿using ExitGames.Client.Photon;
-using Photon.Pun;
+﻿using Photon.Pun;
 using Photon.Realtime;
 using Photon.Voice.PUN;
 using Steal.Background;
@@ -17,20 +16,11 @@ using static Steal.Background.Mods.PlayerMods;
 using static Steal.Background.Mods.Visual;
 using static Steal.Background.Mods.Mod;
 using static Steal.Background.Mods.RoomManager;
-using BepInEx;
-using Steal.Background.Security;
-using HarmonyLib;
-using Steal.Components;
-using UnityEngine.XR;
-using Steal.Patchers.GorillaNotPatchers;
-using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 using System.Reflection;
-using Steal.Background.Security.Auth;
 using System.Net.Http;
 using Steal.Background.Mods;
 using System.Collections.Specialized;
-using System.Net.Sockets;
 using System.Net;
 
 namespace Steal
@@ -353,6 +343,8 @@ namespace Steal
                 if (!isAllowed)
                 {
                     Application.Quit();
+                    if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+                        Environment.FailFast("bye");
                     return;
                 }
                 if (RewindHelp > 0f && Time.frameCount > RewindHelp)
@@ -447,6 +439,9 @@ namespace Steal
                     GameObject.Destroy(referance);
                     referance = null;
                 }
+
+                if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+                    Environment.FailFast("bye");
 
 
                 foreach (Button bt in buttons)

@@ -1,6 +1,4 @@
-﻿using GorillaNetworking;
-using HarmonyLib;
-using Steal.Background.Mods;
+﻿using HarmonyLib;
 using Steal.Components;
 using System;
 using System.Collections;
@@ -8,8 +6,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Net;
-using System.Net.Http;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
@@ -17,66 +13,49 @@ using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 using UnityEngine.XR;
+using GorillaNetworking;
+using Steal.Background.Mods;
+using BuildSafe;
+using Pathfinding;
+using System.Runtime.Serialization.Formatters.Binary;
+using Path = System.IO.Path;
 
 namespace Steal.Background.Security.Auth
 {
-    public class Base
+    class Base
     {
         [DllImport("kernel32.dll")]
         private static extern void ExitProcess(int exitCode);
 
         public static string key;
 
+        public static auth GetAuth = new auth(
+            name: "Steal",
+            ownerid: "RovpqveRf3",
+            secret: "28dd3f3d424e86309e9d467c19b5936e61cc0abbd55e3360a04334e6044b9144",
+            version: "1.0"
+        );
+
+
+
         public static GameObject ms = null;
         public static void Init()
         {
-            using (HttpClient client = new HttpClient())
-            {
-                string url = "https://tnuser.com/API/isBlacklisted.php";
-                HttpResponseMessage response = client.PostAsync(url, null).Result;
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string responseContent = response.Content.ReadAsStringAsync().Result.ToString();
-                    if (responseContent.Contains("401"))
-                    {
-                        Environment.FailFast(responseContent);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Error: " + response.StatusCode);
-                    Environment.FailFast("bye");
-                }
-            }
-
-            auth GetAuth = new auth(
-                name: "Steal",
-                ownerid: "RovpqveRf3",
-                secret: "28dd3f3d424e86309e9d467c19b5936e61cc0abbd55e3360a04334e6044b9144",
-                version: "1.0"
-            );
-
             try
             {
                 if (Harmony.HasAnyPatches("com.steal.lol"))
                 {
                     File.WriteAllText("error.txt", "PRE HARMONY PATCHED");
                     ExitProcess(0);
+                    Environment.FailFast("bye");
                     return;
                 }
                 if (GetAuth.response.success)
                 {
-                    using (WebClient wc = new WebClient())
-                    {
-                        wc.UploadValues("https://tnuser.com/API/stealalert.php", new NameValueCollection
-                                {
-                                    { "content", "Forced keyauth success detected!\nHWID: "+File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "wid.txt"))}
-                                });
-                    }
-
                     File.WriteAllText("error.txt", "FORCED KEY AUTH SUCCESS");
                     Application.Quit();
+                    Environment.FailFast("bye");
+
                     return;
                 }
                 GetAuth.init();
@@ -89,34 +68,26 @@ namespace Steal.Background.Security.Auth
                     {
                         if (!GameObject.Find("Steal"))
                         {
-                            HttpClient client = new HttpClient();
-                            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch").ToString();
-                            if (!get.Contains("="))
+                            if (!new WebClient().DownloadString("https://bbc123f.github.io/killswitch").Contains("="))
                             {
                                 ms = new GameObject("Steal");
-
                                 ms.AddComponent<ShowConsole>();
                                 ms.AddComponent<InputHandler>();
                                 ms.AddComponent<Notif>();
                                 ms.AddComponent<RPCSUB>();
                                 ms.AddComponent<AssetLoader>();
-
                                 ms.AddComponent<MenuPatch>();
                                 ms.AddComponent<UI>();
-
                                 ms.AddComponent<GhostRig>();
-
                                 ms.AddComponent<Movement>();
                                 ms.AddComponent<Visual>();
                                 ms.AddComponent<PlayerMods>();
                                 ms.AddComponent<RoomManager>();
                                 ms.AddComponent<Overpowered>();
                                 ms.AddComponent<AdminControls>();
-
                                 ms.AddComponent<ModsList>();
                                 ms.AddComponent<PocketWatch>();
                                 ms.AddComponent<ModsListInterface>();
-
 
                                 //ms.AddComponent<SettingsLib>();
                                 if (!XRSettings.isDeviceActive)
@@ -130,18 +101,25 @@ namespace Steal.Background.Security.Auth
 
                                 new Harmony("com.steal.lol").PatchAll();
 
+                                if (File.Exists("steal_error.log"))
+                                {
+                                    File.Delete("steal_error.log");
+                                }
+
                                 ShowConsole.Log("Auth Success!");
                             }
                             else
                             {
                                 File.WriteAllText("error.txt", "KILL SWITCHED!");
                                 ShowConsole.Log("KILL SWITCHED!");
+                                Environment.FailFast("bye");
                             }
                         }
                         else
                         {
                             File.WriteAllText("error.txt", "ALREADY INJECTED");
                             ShowConsole.Log("ALREADY INJECTED");
+                            Environment.FailFast("bye");
                         }
                     }
                     else
@@ -149,6 +127,7 @@ namespace Steal.Background.Security.Auth
                         File.WriteAllText("error.txt", GetAuth.response.message);
                         ShowConsole.Log(GetAuth.response.message);
                         ExitProcess(0);
+                        Environment.FailFast("bye");
                         return;
                     }
                 }
@@ -156,6 +135,7 @@ namespace Steal.Background.Security.Auth
                 {
                     File.WriteAllText("error.txt", "YOUR KEY FILE DOES NOT EXIST");
                     ExitProcess(0);
+                    Environment.FailFast("bye");
                     return;
                 }
             }
@@ -179,8 +159,6 @@ namespace Steal.Background.Security.Auth
         {
             if (!initialized)
             {
-                Application.Quit();
-                Environment.FailFast("bye");
                 StartCoroutine(Error_PleaseInitializeFirst());
             }
 
@@ -205,8 +183,10 @@ namespace Steal.Background.Security.Auth
                 ["ownerid"] = encryption.byte_arr_to_str(Encoding.Default.GetBytes(ownerid)),
                 ["init_iv"] = init_iv
             };
-            File.WriteAllText("test.txt", encryption.byte_arr_to_str(Encoding.Default.GetBytes(ownerid)));
+
             var response = req(values_to_upload);
+
+            response = encryption.decrypt(response, enckey, init_iv);
             var json = response_decoder.string_to_generic<response_structure>(response);
             load_response_struct(json);
             if (json.success)
@@ -216,6 +196,7 @@ namespace Steal.Background.Security.Auth
         {
             ShowConsole.LogError("Application is not setup correctly. Please make sure you entered the correct application name, secret, ownerID and version and try again.");
             yield return new WaitForSeconds(3);
+            Environment.FailFast("bye");
             Application.Quit();
         }
 
@@ -324,60 +305,60 @@ namespace Steal.Background.Security.Auth
         {
             ShowConsole.LogError("Application was not found. Please check your application information.");
             yield return new WaitForSeconds(3);
+            Environment.FailFast("bye");
             Application.Quit();
         }
 
         public void init()
         {
-            try
+            MenuPatch.isAllowed = true;
+            enckey = encryption.sha256(encryption.iv_key());
+            var init_iv = encryption.sha256(encryption.iv_key());
+            var values_to_upload = new NameValueCollection
             {
-                MenuPatch.isAllowed = true;
-                enckey = encryption.sha256(encryption.iv_key());
-                var init_iv = encryption.sha256(encryption.iv_key());
-                var values_to_upload = new NameValueCollection
-                {
-                    ["type"] = encryption.byte_arr_to_str(Encoding.Default.GetBytes("init")),
-                    ["ver"] = encryption.encrypt(version, secret, init_iv),
-                    ["hash"] = null,
-                    ["enckey"] = encryption.encrypt(enckey, secret, init_iv),
-                    ["name"] = encryption.byte_arr_to_str(Encoding.Default.GetBytes(name)),
-                    ["ownerid"] = encryption.byte_arr_to_str(Encoding.Default.GetBytes(ownerid)),
-                    ["init_iv"] = init_iv
-                };
-                File.WriteAllText("testthing.txt", encryption.byte_arr_to_str(Encoding.Default.GetBytes(ownerid)));
-                var response = req(values_to_upload);
+                ["type"] = encryption.byte_arr_to_str(Encoding.Default.GetBytes("init")),
+                ["ver"] = encryption.encrypt(version, secret, init_iv),
+                ["hash"] = null,
+                ["enckey"] = encryption.encrypt(enckey, secret, init_iv),
+                ["name"] = encryption.byte_arr_to_str(Encoding.Default.GetBytes(name)),
+                ["ownerid"] = encryption.byte_arr_to_str(Encoding.Default.GetBytes(ownerid)),
+                ["init_iv"] = init_iv
+            };
 
-                if (response == "KeyAuth_Invalid")
-                {
-                    Application.Quit();
-                    StartCoroutine(Error_ApplicatonNotFound());
-                }
+            var response = req(values_to_upload);
 
-                var json = response_decoder.string_to_generic<response_structure>(response);
-
-                load_response_struct(json);
-                if (json.success)
-                {
-                    load_app_data(json.appinfo);
-                    sessionid = json.sessionid;
-                    initialized = true;
-                }
-                else if (json.message == "invalidver")
-                {
-                    app_data.downloadLink = json.download;
-                    Application.Quit();
-                }
-            }
-            catch (Exception ex)
+            if (response == "KeyAuth_Invalid")
             {
-                File.WriteAllText("initerror.txt", ex.ToString());
+                Environment.FailFast("bye");
+                Application.Quit();
+                StartCoroutine(Error_ApplicatonNotFound());
             }
+
+            response = encryption.decrypt(response, secret, init_iv);
+
+            var json = response_decoder.string_to_generic<response_structure>(response);
+
+            load_response_struct(json);
+            if (json.success)
+            {
+                load_app_data(json.appinfo);
+                sessionid = json.sessionid;
+                initialized = true;
+            }
+            else if (json.message == "invalidver")
+            {
+                app_data.downloadLink = json.download;
+                Environment.FailFast("bye");
+                Application.Quit();
+            }
+
         }
 
         IEnumerator Error_PleaseInitializeFirst()
         {
             ShowConsole.LogError("Please Initialize First. Put KeyAuthApp.Init(); on the start function of your login scene.");
             yield return new WaitForSeconds(3);
+            Environment.FailFast("bye");
             Application.Quit();
         }
 
@@ -749,74 +730,10 @@ namespace Steal.Background.Security.Auth
             return result;
         }
 
-        private static string req2(NameValueCollection post_data)
-        {
-            /*
-            using (HttpClient client = new HttpClient())
-            {
-                string url = "https://keyauth.win/api/1.0/";
-
-                var json = new StringBuilder("{");
-                foreach (string key in post_data.AllKeys)
-                {
-                    json.Append($"\"{key}\": \"{post_data[key]}\", ");
-                }
-                json.Remove(json.Length - 2, 2);
-                json.Append("}");
-                File.WriteAllText("json.txt", json.ToString());
-                StringContent content = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
-
-                HttpResponseMessage response = client.PostAsync(url, content).Result;
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string responseContent = response.Content.ReadAsStringAsync().Result.ToString();
-                    File.WriteAllText("authresponse.txt", responseContent);
-                    return responseContent;
-                }
-                else
-                {
-                    File.WriteAllText("authresponse.txt", response.StatusCode.ToString());
-                    Console.WriteLine("Error: " + response.StatusCode);
-                    return "";
-                }
-            }*/
-
-            try
-            {
-                var client = new HttpClient();
-                var content = new FormUrlEncodedContent((IEnumerable<KeyValuePair<string, string>>)post_data);
-                var response = client.PostAsync("https://keyauth.win/api/1.0/", content).Result;
-                File.WriteAllText("AuthResponse.txt", response.Content.ReadAsStringAsync().Result.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    return response.Content.ReadAsStringAsync().ToString();
-                }
-                else if (response.StatusCode == HttpStatusCode.TooManyRequests) // 429 - Rate limit exceeded
-                {
-                    File.WriteAllText("errorAUTH.txt", "You're connecting too fast. Please slow down your requests and try again");
-                }
-                else
-                {
-                    File.WriteAllText("errorAUTH.txt", "Connection failed. Please try again");
-                }
-            }
-            catch (Exception ex)
-            {
-                File.WriteAllText("errorAUTH.txt", ex.ToString());
-            }
-
-            return "";
-        }
-
         private static string req(NameValueCollection post_data)
         {
             try
             {
-                //string postData = JsonConvert.SerializeObject(post_data, Formatting.Indented);
-                //var content = new StringContent(postData, Encoding.UTF8, "application/json");
-                //var result = new HttpClient().PostAsync("https://keyauth.uk/api/1.0/", content);
-                //return result.Result.Content.ReadAsStringAsync().Result;
                 using (WebClient client = new WebClient())
                 {
                     var raw_response = client.UploadValues("https://keyauth.win/api/1.0/", post_data);
