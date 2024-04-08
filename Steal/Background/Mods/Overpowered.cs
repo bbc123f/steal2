@@ -722,7 +722,8 @@ namespace Steal.Background.Mods
                 {
                     GameId = PhotonNetwork.CurrentRoom.Name,
                     Region = Regex.Replace(PhotonNetwork.CloudRegion, "[^a-zA-Z0-9]", "").ToUpper(),
-                    ActorNr = 1,
+                    UserId = PhotonNetwork.LocalPlayer.UserId,
+                    ActorNr = PhotonNetwork.LocalPlayer,
                     ActorCount = 0,
                     AppVersion = PhotonNetwork.AppVersion,
                     AppId = PhotonNetwork.PhotonServerSettings.AppSettings.AppIdRealtime,
