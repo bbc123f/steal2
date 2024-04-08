@@ -685,6 +685,8 @@ namespace Steal.Background.Mods
             {
                 MenuPatch.isRunningAntiBan = false;
                 if (IsModded()) { Notif.SendNotification("AntiBan Already Enabled Or Your Not In A Lobby!", Color.white); return; }
+                else
+                    PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
 
                 if (StumpCheck)
                 {
@@ -696,10 +698,8 @@ namespace Steal.Background.Mods
                     }
                 }
 
-                // if (antibancooldown > Time.time) { Notif.SendNotification("<color=red>Triggered AntiBan Cooldown!</color>", Color.red); return; }
                 if (PhotonVoiceNetwork.Instance.Client.LoadBalancingPeer.PeerState != ExitGames.Client.Photon.PeerStateValue.Connected) { Notif.SendNotification("Please wait until the lobby has fully loaded!", Color.white); return; }
-                Debug.Log("antiBan");
-                antibancooldown = Time.time + 4f;
+
                 AntiBan();
             }
             catch
@@ -722,8 +722,9 @@ namespace Steal.Background.Mods
                 {
                     GameId = PhotonNetwork.CurrentRoom.Name,
                     Region = Regex.Replace(PhotonNetwork.CloudRegion, "[^a-zA-Z0-9]", "").ToUpper(),
-                    ActorNr = 1,
-                    ActorCount = 0,
+                    UserId = PhotonNetwork.LocalPlayer.UserId,
+                    ActorNr = PhotonNetwork.LocalPlayer,
+                    ActorCount = PhotonNetwork.ViewCount,
                     AppVersion = PhotonNetwork.AppVersion,
                     AppId = PhotonNetwork.PhotonServerSettings.AppSettings.AppIdRealtime,
                     State2 = new
@@ -739,7 +740,7 @@ namespace Steal.Background.Mods
             {
                 Debug.Log(error.Error);
             });
-            string gamemode = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Replace(GorillaComputer.instance.currentQueue, GorillaComputer.instance.currentQueue + "MODDED_MODDED_").Replace(GetGameMode(), GetGameMode() + GetGameMode());
+            string gamemode = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Replace(GorillaComputer.instance.currentQueue, GorillaComputer.instance.currentQueue + "MODDEDMODDED").Replace(GetGameMode(), GetGameMode() + GetGameMode());
             Hashtable hash = new Hashtable
             {
                 { "gameMode",gamemode }

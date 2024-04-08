@@ -387,8 +387,6 @@ namespace Steal
                     {
                         if (MenuPatch.FindButton("Auto AntiBan").Enabled)
                         {
-                            Notif.SendNotification("Starting AntiBan..", Color.blue);
-                            antibancooldown = Time.time;
                             StartAntiBan();
                         }
                     }
@@ -461,6 +459,8 @@ namespace Steal
                     menu = null;
                     GameObject.Destroy(referance);
                     referance = null;
+                    Destroy(titleObj);
+                    titleObj = null;
                 }
 
 

@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\kmant\\Documents\\steal better\\steal2\\Steal\\Steal.csproj": {}
+    "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Steal.csproj": {}
   },
   "projects": {
-    "C:\\Users\\kmant\\Documents\\steal better\\steal2\\Steal\\Steal.csproj": {
+    "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Steal.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\kmant\\Documents\\steal better\\steal2\\Steal\\Steal.csproj",
+        "projectUniqueName": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Steal.csproj",
         "projectName": "Steal",
-        "projectPath": "C:\\Users\\kmant\\Documents\\steal better\\steal2\\Steal\\Steal.csproj",
-        "packagesPath": "C:\\Users\\kmant\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\kmant\\Documents\\steal better\\steal2\\Steal\\obj\\",
+        "projectPath": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Steal.csproj",
+        "packagesPath": "C:\\Users\\Sialc\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\kmant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Sialc\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -38,6 +38,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -59,7 +64,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.202\\RuntimeIdentifierGraph.json"
         }
       }
     }
