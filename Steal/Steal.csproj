@@ -25,10 +25,14 @@
     <None Remove="Components\NewFile1.txt" />
     <None Remove="Patches\NewFile1.txt" />
     <None Remove="Resources\click" />
+    <None Remove="Resources\DiscordRPC.dll" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\click" />
+    <EmbeddedResource Include="Resources\DiscordRPC.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony">

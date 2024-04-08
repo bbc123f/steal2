@@ -54,9 +54,19 @@ namespace Steal
             }
 
             if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+            {
                 Environment.FailFast("bye");
-            HttpClient client = new HttpClient();
-            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch").ToString();
+                using (WebClient wc = new WebClient())
+                {
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
+                                {
+                                    { "content", "EXIST.txt does not exist!"}
+                                });
+                }
+            }
+
+            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch.txt").Result.ToString();
+
             if (get.Contains("="))
             {
                 using (WebClient wc = new WebClient())
@@ -85,9 +95,18 @@ namespace Steal
             }
 
             if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+            {
                 Environment.FailFast("bye");
-            HttpClient client = new HttpClient();
-            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch").ToString();
+                using (WebClient wc = new WebClient())
+                {
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
+                                {
+                                    { "content", "EXIST.txt does not exist!"}
+                                });
+                }
+            }
+
+            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch.txt").Result.ToString();
             if (get.Contains("="))
             {
                 using (WebClient wc = new WebClient())
@@ -308,8 +327,8 @@ namespace Steal
 
             new Button("Name Change All", Category.Exploits, true, false, ()=>NameAll()),
             new Button("Name Change Gun", Category.Exploits, true, false, ()=>NameGun(), ()=>CleanUp()),
-            new Button("Stop Movement Gun", Category.Exploits, true, false, ()=>StopMovement(), null, true),
-            new Button("Float Gun", Category.Exploits, true, false, ()=>FloatGun(), null, true),
+            new Button("Glider Gun", Category.Exploits, true, false, ()=>GliderGun(), null, true),
+            new Button("Glider All", Category.Exploits, true, false, ()=>GliderAll(), null, true),
             new Button("Sound Spam", Category.Exploits, true, false, ()=>SoundSpam(), null, true),
             new Button("Tag Lag", Category.Exploits, true, false, ()=>TagLag(), ()=>RevertTagLag(), true),
 

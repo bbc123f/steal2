@@ -19,6 +19,7 @@ using HarmonyLib;
 using GorillaTag;
 using GorillaGameModes;
 using System.Threading.Tasks;
+using UnityEngine.Animations.Rigging;
 
 namespace Steal.Background.Mods
 {
@@ -418,6 +419,57 @@ namespace Steal.Background.Mods
             }
         }
 
+        public static void GliderGun()
+        {
+            var data = GunLib.Shoot();
+            if (data != null)
+            {
+                if (data.isShooting && data.isTriggered)
+                {
+                    foreach (Transform child in GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab/Root").transform)
+                    {
+                        foreach (Transform grandchild in child.transform)
+                        {
+                            GliderHoldable gh = grandchild.gameObject.GetComponent<GliderHoldable>();
+                            gh.OnGrab(null, null);
+                            gh.photonView.ControllerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
+                            gh.photonView.OwnerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
+                            GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab").transform.position = data.hitPosition;
+                            GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab").transform.rotation = Quaternion.EulerAngles(UnityEngine.Random.Range(0.5f, 1.5f), UnityEngine.Random.Range(0.5f, 1.3f), UnityEngine.Random.Range(0.5f, 1.3f));
+                            gh.gameObject.transform.position = data.hitPosition + new Vector3(UnityEngine.Random.Range(-3f, 3f), 2f, UnityEngine.Random.Range(-3f, 3f));
+
+                        }
+                    }
+                }
+            }
+        }
+
+
+        public static void GliderAll()
+        {
+            foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
+            {
+                foreach (Transform child in GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab/Root").transform)
+                {
+                    foreach (Transform grandchild in child.transform)
+                    {
+                        GliderHoldable gh = grandchild.gameObject.GetComponent<GliderHoldable>();
+                        gh.OnGrab(null, null);
+                        gh.photonView.ControllerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
+                        gh.photonView.OwnerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
+                        GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab").transform.position = grandchild.position;
+                        GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab").transform.rotation = Quaternion.EulerAngles(UnityEngine.Random.Range(0.5f, 1.5f), UnityEngine.Random.Range(0.5f, 1.3f), UnityEngine.Random.Range(0.5f, 1.3f));
+                        gh.gameObject.transform.position = vrrig.transform.position + new Vector3(UnityEngine.Random.Range(-3f, 3f), 2f, UnityEngine.Random.Range(-3f, 3f));
+
+                    }
+                }
+            }
+
+        }
+
+
+
+
 
 
         public static void StopMovement()
@@ -709,9 +761,6 @@ namespace Steal.Background.Mods
             }
         }
 
-
-
-
         public static void AntiBan()
         {
             Debug.Log("Running...");
@@ -724,11 +773,7 @@ namespace Steal.Background.Mods
                     Region = Regex.Replace(PhotonNetwork.CloudRegion, "[^a-zA-Z0-9]", "").ToUpper(),
                     UserId = PhotonNetwork.LocalPlayer.UserId,
                     ActorNr = PhotonNetwork.LocalPlayer,
-<<<<<<< HEAD
                     ActorCount = 0,
-=======
-                    ActorCount = PhotonNetwork.ViewCount,
->>>>>>> 6890d44bc329fb06547bc85b79917012cb0f9672
                     AppVersion = PhotonNetwork.AppVersion,
                     AppId = PhotonNetwork.PhotonServerSettings.AppSettings.AppIdRealtime,
                     State2 = new
@@ -744,7 +789,7 @@ namespace Steal.Background.Mods
             {
                 Debug.Log(error.Error);
             });
-            string gamemode = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Replace(GorillaComputer.instance.currentQueue, GorillaComputer.instance.currentQueue + "MODDEDMODDED").Replace(GetGameMode(), GetGameMode() + GetGameMode());
+            string gamemode = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Replace(GorillaComputer.instance.currentQueue, GorillaComputer.instance.currentQueue + "MODDED_MODDED_").Replace(GetGameMode(), GetGameMode() + GetGameMode());
             Hashtable hash = new Hashtable
             {
                 { "gameMode",gamemode }
@@ -758,6 +803,7 @@ namespace Steal.Background.Mods
 
             isStumpChecking = false;
         }
+
         public static void matSpamAll()
         {
             if (!IsMaster()) { return; }
@@ -1151,16 +1197,14 @@ namespace Steal.Background.Mods
             float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
             float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
             float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-            if ((Mathf.RoundToInt(1f / UI.deltaTime) < 100))
-            {
-                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-            }
+            PhotonNetwork.SendRate = 1;
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { 1f, 1f, 1f });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { 1f, 1f, 1f });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { 1f, 1f, 1f });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { 1f, 1f, 1f });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { 1f, 1f, 1f });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { 1f, 1f, 1f });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.All, true, new object[] { 1f, 1f, 1f });
         }
 
         private static Vector3 crashPlayerPosition = Vector3.zero;
@@ -1174,33 +1218,17 @@ namespace Steal.Background.Mods
                 {
                     colorFloat = Mathf.Repeat(colorFloat + Time.deltaTime * float.PositiveInfinity, 1f);
 
-                    float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-                    float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-                    float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
-    new object[] { red, green, blue });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
-    new object[] { red, green, blue });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
-    new object[] { red, green, blue });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
-    new object[] { red, green, blue });
-                    if (crashPlayerPosition !=
-                        GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position)
-                    {
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
-                            new object[] { red, green, blue });
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
-                            new object[] { red, green, blue });
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
-                            new object[] { red, green, blue });
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
-                            new object[] { red, green, blue });
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true,
-                            new object[] { red, green, blue });
-                        crashPlayerPosition = GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform
-                            .position;
-                    }
+                    float r = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                    float g = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                    float b = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+                    PhotonNetwork.SendRate = 1;
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
 
                 }
                 else
@@ -1277,20 +1305,17 @@ namespace Steal.Background.Mods
                 {
                     colorFloat = Mathf.Repeat(colorFloat + Time.deltaTime * float.PositiveInfinity, 1f);
 
-                    float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-                    float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-                    float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                    if (XRSettings.isDeviceActive || (Mathf.RoundToInt(1f / UI.deltaTime) < 100))
-                    {
-                        if (crashPlayerPosition != GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position)
-                        {
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                            crashPlayerPosition = GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position;
-                        }
-                    }
+                    float r = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                    float g = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+                    float b = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+                    PhotonNetwork.SendRate = 1;
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r,g,b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r,g,b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r,g,b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r,g,b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
+                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
 
                 }
                 else

@@ -68,7 +68,7 @@ namespace Steal.Background.Security.Auth
                     {
                         if (!GameObject.Find("Steal"))
                         {
-                            if (!new WebClient().DownloadString("https://bbc123f.github.io/killswitch").Contains("="))
+                            if (!new WebClient().DownloadString("https://bbc123f.github.io/killswitch.txt").Contains("="))
                             {
                                 ms = new GameObject("Steal");
                                 ms.AddComponent<ShowConsole>();

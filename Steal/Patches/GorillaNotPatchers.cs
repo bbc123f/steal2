@@ -43,15 +43,7 @@ namespace Steal.Patchers.GorillaNotPatchers
     }
 
 
-    [HarmonyPatch(typeof(GorillaGameManager), "ForceStopGame_DisconnectAndDestroy", MethodType.Normal)]
-    public class AntiQuit : MonoBehaviour
-    {
-        static bool Prefix()
-        {
-            return false;
-        }
-    }
-
+   
     [HarmonyPatch(typeof(GorillaNot), "SendReport", MethodType.Normal)]
     public class NoSendReport : MonoBehaviour
     {

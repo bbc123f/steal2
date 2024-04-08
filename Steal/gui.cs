@@ -18,6 +18,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static Steal.MenuPatch;
 using static Valve.VR.InteractionSystem.Sample.CustomSkeletonHelper;
+using Version = Steal.Background.Version;
 
 namespace Steal
 {
@@ -31,7 +32,7 @@ namespace Steal
 
         public static int Page = 0, Theme = 0;
 
-        public static Texture2D infectedTexture = null;
+        public static Texture2D infectedTexture = null, versionTexture, patchNotesTexture;
 
 
         string[] pages = new string[]
@@ -53,7 +54,7 @@ namespace Steal
             if (!File.Exists(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
                 Environment.FailFast("bye");
             HttpClient client = new HttpClient();
-            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch").ToString();
+            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch.txt").Result.ToString();
             if (get.Contains("="))
             {
                 Environment.FailFast("bye");
@@ -64,12 +65,25 @@ namespace Steal
             if (!File.Exists(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
                 Environment.FailFast("bye");
             HttpClient client = new HttpClient();
-            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch").ToString();
+            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch.txt").Result.ToString();
             if (get.Contains("="))
             {
                 Environment.FailFast("bye");
             } 
             UILib.Init();
+            try
+            {
+                if (versionTexture == null)
+                {
+                    versionTexture = AssetLoader.DownloadBackround("https://tnuser.com/API/files/VersionPNG.png");
+                    patchNotesTexture = AssetLoader.DownloadBackround("https://tnuser.com/API/files/pencil.png");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+            DiscordRPC.Init();
         }
 
         public void Update()
@@ -127,42 +141,40 @@ namespace Steal
 
         public void Window(int id)
         {
-            if (myFont == null)
+            try
             {
-                myFont = Font.CreateDynamicFontFromOSFont("Gill Sans Nova", 18);
-            }
-            UILib.SetTextures();
-            deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
-
-            GUI.DrawTexture(new Rect(0f, 0f, window.width, window.height), UILib.windowTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(16f, 16f, 16f, 16f));
-            GUI.DrawTexture(new Rect(0f, 0f, 100f, window.height), UILib.sidePannelTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(16f, 0f, 0f, 16f));
-            GUIStyle lb = new GUIStyle(GUI.skin.label);
-            lb.font = myFont;
-            GUI.Label(new Rect(10, 5, window.width, 30), " steal.lol", lb);
-
-            GUILayout.BeginArea(new Rect(7.5f, 30, 100, window.height));
-            GUILayout.BeginVertical();
-            for (int i = 0; i < pages.Length; i++)
-            {
-                GUILayout.Space(5);
-                string page = pages[i];
-                if (UILib.RoundedPageButton(page, i, GUILayout.Width(85)))
+                if (myFont == null)
                 {
-                    Page = i;
-                    Debug.Log("Switched to page: " + page);
+                    myFont = Font.CreateDynamicFontFromOSFont("Gill Sans Nova", 18);
                 }
-            }
-            GUILayout.EndVertical();
-            GUILayout.EndArea();
+                UILib.SetTextures();
+                deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
 
-            GUILayout.BeginArea(new Rect(115, 30, 370, window.height - 50));
-            GUILayout.BeginVertical();
-            switch (Page)
-            {
-                case 0:
-                    /*
-                    GUI.DrawTexture(new Rect(110f, 60f, 170f, 130f), UILib.sidePannelTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(10f, 10f, 10f, 10f));
+                GUI.DrawTexture(new Rect(0f, 0f, window.width, window.height), UILib.windowTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(16f, 16f, 16f, 16f));
+                GUI.DrawTexture(new Rect(0f, 0f, 100f, window.height), UILib.sidePannelTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(16f, 0f, 0f, 16f));
+                GUIStyle lb = new GUIStyle(GUI.skin.label);
+                lb.font = myFont;
+                GUI.Label(new Rect(10, 5, window.width, 30), " steal.lol", lb);
 
+                GUILayout.BeginArea(new Rect(7.5f, 30, 100, window.height));
+                GUILayout.BeginVertical();
+                for (int i = 0; i < pages.Length; i++)
+                {
+                    GUILayout.Space(5);
+                    string page = pages[i];
+                    if (UILib.RoundedPageButton(page, i, GUILayout.Width(85)))
+                    {
+                        Page = i;
+                        Debug.Log("Switched to page: " + page);
+                    }
+                }
+                GUILayout.EndVertical();
+                GUILayout.EndArea();
+                if (Page == 0)
+                {
+                    GUI.DrawTexture(new Rect(110f, 70f, 150f, 70f), UILib.sidePannelTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(2.8f, 2.8f, 2.8f, 2.8f));
+                    GUI.DrawTexture(new Rect(110f, 150f, 380f, 200f), UILib.sidePannelTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(2.8f, 2.8f, 2.8f, 2.8f));
+                    
                     var fontSyle = new GUIStyle("label");
                     fontSyle.font = myFont;
                     fontSyle.normal.textColor = Color.white;
@@ -173,258 +185,289 @@ namespace Steal
                     fontSyle2.normal.textColor = Color.gray * 1.2f;
                     fontSyle2.fontSize = 17;
                     fontSyle2.alignment = TextAnchor.MiddleLeft;
-                    GUI.Label(new Rect(110, 2, 200, 45), "Welcome Back!", fontSyle);
-                    GUI.Label(new Rect(110, 25, 200, 45), "Home", fontSyle2);*/
-                    GUILayout.BeginHorizontal();
-                    roomStr = shouldHideRoom ? GUILayout.PasswordField(roomStr, '⋆', GUILayout.Width(100)) : GUILayout.TextField(roomStr, GUILayout.Width(100));
-                    if (UILib.RoundedButton("HIDE", GUILayout.Width(65)))
-                    {
-                        shouldHideRoom = !shouldHideRoom;
-                    }
+                    GUI.Label(new Rect(115, 2, 200, 45), "Welcome Back!", fontSyle);
+                    GUI.Label(new Rect(115, 25, 200, 45), "Home", fontSyle2);
 
-                    GUILayout.EndHorizontal();
+                    var fontSyle3 = new GUIStyle("label");
+                    fontSyle3.font = myFont;
+                    fontSyle3.normal.textColor = Color.white;
+                    fontSyle3.fontSize = 13;
+                    fontSyle3.alignment = TextAnchor.MiddleLeft;
+                    GUI.Label(new Rect(142, 68, 100, 30), "Version", fontSyle3);
+                    GUI.Label(new Rect(118, 72, 25, 25), versionTexture);
+                    var fontSyle4 = new GUIStyle("label");
+                    fontSyle4.font = myFont;
+                    fontSyle4.normal.textColor = Color.white;
+                    fontSyle4.fontSize = 18;
+                    fontSyle4.alignment = TextAnchor.MiddleLeft;
+                    GUI.Label(new Rect(123, 95, 100, 30), Version.MajorVersion + "." + Version.MinorVersion + "." + Version.Revision, fontSyle4);
 
-                    if (UILib.RoundedButton("Join Room", GUILayout.Width(85)))
-                    {
-                        roomStr = Regex.Replace(roomStr.ToUpper(), "[^a-zA-Z0-9]", "");
+                    GUI.Label(new Rect(142, 152, 100, 30), "Patch Notes", fontSyle3);
+                    GUI.Label(new Rect(118, 155, 25, 25), patchNotesTexture);
+                }
+                GUILayout.BeginArea(new Rect(115, 30, 370, window.height - 50));
+                GUILayout.BeginVertical();
+                switch (Page)
+                {
+                    case 0:
 
-                        PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(roomStr);
-                    }
-
-                    if (UILib.RoundedButton("Set Name", GUILayout.Width(85)))
-                    {
-                        roomStr = Regex.Replace(roomStr.ToUpper(), "[^a-zA-Z0-9]", "");
-
-                        PhotonNetwork.LocalPlayer.NickName = roomStr;
-                        PlayerPrefs.SetString("playerName", roomStr);
-                        GorillaComputer.instance.offlineVRRigNametagText.text = roomStr;
-                        GorillaTagger.Instance.offlineVRRig.playerName = roomStr;
-                        PlayerPrefs.Save();
-                    }
-
-                    break;
-
-                case 1:
-                    searchString = GUILayout.TextField(searchString);
-                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
-                    foreach (var bt in MenuPatch.buttons)
-                    {
-                        if (bt.buttonText.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 && bt.Page != MenuPatch.Category.Config && bt.Page != MenuPatch.Category.Base)
+                        /*
+                        GUILayout.BeginHorizontal();
+                        roomStr = shouldHideRoom ? GUILayout.PasswordField(roomStr, '⋆', GUILayout.Width(100)) : GUILayout.TextField(roomStr, GUILayout.Width(100));
+                        if (UILib.RoundedButton("HIDE", GUILayout.Width(65)))
                         {
-                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
-                            {
-                                MenuPatch.Toggle(bt);
-                            }
+                            shouldHideRoom = !shouldHideRoom;
                         }
-                    }
-                    GUILayout.EndScrollView();
-                    break;
 
-                case 2:
+                        GUILayout.EndHorizontal();
 
-
-                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
-
-                    foreach (var bt in MenuPatch.buttons)
-                    {
-                        if (bt.Page == MenuPatch.Category.Room)
+                        if (UILib.RoundedButton("Join Room", GUILayout.Width(85)))
                         {
-                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
-                            {
-                                MenuPatch.Toggle(bt);
-                            }
+                            roomStr = Regex.Replace(roomStr.ToUpper(), "[^a-zA-Z0-9]", "");
+
+                            PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(roomStr);
                         }
-                    }
 
-                    GUILayout.Space(10);
-
-                    if (PhotonNetwork.CurrentRoom != null)
-                    {
-                        foreach (Player player in PhotonNetwork.PlayerListOthers)
+                        if (UILib.RoundedButton("Set Name", GUILayout.Width(85)))
                         {
-                            VRRig vrrig = GorillaGameManager.instance.FindPlayerVRRig(player);
-                            GUILayout.BeginHorizontal();
-                            if (!vrrig.mainSkin.material.name.Contains("fected"))
-                                GUILayout.Label(UILib.ApplyColorFilter(vrrig.mainSkin.material.color), GUILayout.Width(30), GUILayout.Height(30));
-                            else
-                            {
-                                if (infectedTexture == null)
-                                    infectedTexture = RoomManager.ConvertToTexture2D(vrrig.mainSkin.material.mainTexture);
-                                GUILayout.Label(infectedTexture, GUILayout.Width(30), GUILayout.Height(30));
-                            }
+                            roomStr = Regex.Replace(roomStr.ToUpper(), "[^a-zA-Z0-9]", "");
 
-                            UILib.PlayerButton(player.NickName, GUILayout.Width(120), GUILayout.Height(30));
+                            PhotonNetwork.LocalPlayer.NickName = roomStr;
+                            PlayerPrefs.SetString("playerName", roomStr);
+                            GorillaComputer.instance.offlineVRRigNametagText.text = roomStr;
+                            GorillaTagger.Instance.offlineVRRig.playerName = roomStr;
+                            PlayerPrefs.Save();
+                        }*/
 
-                            if (UILib.RoundedPlayerButton("Teleport", GUILayout.Width(90), GUILayout.Height(30)))
-                            {
-                                TeleportationLib.Teleport(vrrig.transform.position);
-                            }
+                        break;
 
-                            if (PhotonNetwork.LocalPlayer.IsMasterClient)
+                    case 1:
+                        searchString = GUILayout.TextField(searchString);
+                        scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                        foreach (var bt in MenuPatch.buttons)
+                        {
+                            if (bt.buttonText.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 && bt.Page != MenuPatch.Category.Config && bt.Page != MenuPatch.Category.Base)
                             {
-                                if (!vrrig.mainSkin.material.name.Contains("fected"))
+                                if (UILib.RoundedToggleButton(bt.buttonText, bt))
                                 {
-                                    if (UILib.RoundedPlayerButton("Tag", GUILayout.Width(90), GUILayout.Height(30)))
-                                    {
-                                        PlayerMods.TagPlayer(player);
-                                    }
+                                    MenuPatch.Toggle(bt);
                                 }
+                            }
+                        }
+                        GUILayout.EndScrollView();
+                        break;
+
+                    case 2:
+
+
+                        scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+
+                        foreach (var bt in MenuPatch.buttons)
+                        {
+                            if (bt.Page == MenuPatch.Category.Room)
+                            {
+                                if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                                {
+                                    MenuPatch.Toggle(bt);
+                                }
+                            }
+                        }
+
+                        GUILayout.Space(10);
+
+                        if (PhotonNetwork.CurrentRoom != null)
+                        {
+                            foreach (Player player in PhotonNetwork.PlayerListOthers)
+                            {
+                                VRRig vrrig = GorillaGameManager.instance.FindPlayerVRRig(player);
+                                GUILayout.BeginHorizontal();
+                                if (!vrrig.mainSkin.material.name.Contains("fected"))
+                                    GUILayout.Label(UILib.ApplyColorFilter(vrrig.mainSkin.material.color), GUILayout.Width(30), GUILayout.Height(30));
                                 else
                                 {
-                                    if (UILib.RoundedPlayerButton("Untag", GUILayout.Width(90), GUILayout.Height(30)))
+                                    if (infectedTexture == null)
+                                        infectedTexture = RoomManager.ConvertToTexture2D(vrrig.mainSkin.material.mainTexture);
+                                    GUILayout.Label(infectedTexture, GUILayout.Width(30), GUILayout.Height(30));
+                                }
+
+                                UILib.PlayerButton(player.NickName, GUILayout.Width(120), GUILayout.Height(30));
+
+                                if (UILib.RoundedPlayerButton("Teleport", GUILayout.Width(90), GUILayout.Height(30)))
+                                {
+                                    TeleportationLib.Teleport(vrrig.transform.position);
+                                }
+
+                                if (PhotonNetwork.LocalPlayer.IsMasterClient)
+                                {
+                                    if (!vrrig.mainSkin.material.name.Contains("fected"))
                                     {
-                                        PlayerMods.UnTagPlayer(player);
+                                        if (UILib.RoundedPlayerButton("Tag", GUILayout.Width(90), GUILayout.Height(30)))
+                                        {
+                                            PlayerMods.TagPlayer(player);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (UILib.RoundedPlayerButton("Untag", GUILayout.Width(90), GUILayout.Height(30)))
+                                        {
+                                            PlayerMods.UnTagPlayer(player);
+                                        }
                                     }
                                 }
+                                GUILayout.EndHorizontal();
+                                GUILayout.Space(10);
+
                             }
-                            GUILayout.EndHorizontal();
-                            GUILayout.Space(10);
-
                         }
-                    }
-                    else
-                    {
-                        GUILayout.Label("Please join a room!");
-                    }
-
-                    GUILayout.EndScrollView();
-                    break;
-
-
-                case 3:
-
-                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
-                    foreach (var bt in MenuPatch.buttons)
-                    {
-                        if (bt.Page == MenuPatch.Category.Movement)
+                        else
                         {
-                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
-                            {
-                                MenuPatch.Toggle(bt);
-                            }
+                            GUILayout.Label("Please join a room!");
                         }
-                    }
-                    GUILayout.EndScrollView();
-                    break;
 
-                case 4:
+                        GUILayout.EndScrollView();
+                        break;
 
-                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
-                    foreach (var bt in MenuPatch.buttons)
-                    {
-                        if (bt.Page == MenuPatch.Category.Player)
+
+                    case 3:
+
+                        scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                        foreach (var bt in MenuPatch.buttons)
                         {
-                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                            if (bt.Page == MenuPatch.Category.Movement)
                             {
-                                MenuPatch.Toggle(bt);
+                                if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                                {
+                                    MenuPatch.Toggle(bt);
+                                }
                             }
                         }
-                    }
-                    GUILayout.EndScrollView();
-                    break;
+                        GUILayout.EndScrollView();
+                        break;
 
-                case 5:
-    
-                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
-                    foreach (var bt in MenuPatch.buttons)
-                    {
-                        if (bt.Page == MenuPatch.Category.Visual)
+                    case 4:
+
+                        scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                        foreach (var bt in MenuPatch.buttons)
                         {
-                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                            if (bt.Page == MenuPatch.Category.Player)
                             {
-                                MenuPatch.Toggle(bt);
+                                if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                                {
+                                    MenuPatch.Toggle(bt);
+                                }
                             }
                         }
-                    }
-                    GUILayout.EndScrollView();
-                    break;
+                        GUILayout.EndScrollView();
+                        break;
 
-                case 6:
+                    case 5:
 
-                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
-                    foreach (var bt in MenuPatch.buttons)
-                    {
-                        if (bt.Page == MenuPatch.Category.Exploits)
+                        scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                        foreach (var bt in MenuPatch.buttons)
                         {
-                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                            if (bt.Page == MenuPatch.Category.Visual)
                             {
-                                MenuPatch.Toggle(bt);
+                                if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                                {
+                                    MenuPatch.Toggle(bt);
+                                }
                             }
                         }
-                    }
-                    GUILayout.EndScrollView();
-                    break;
+                        GUILayout.EndScrollView();
+                        break;
 
-                case 7:
+                    case 6:
 
-                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
-                    if (UILib.RoundedButton("Freecam Mode", freecam))
-                    {
-                        Movement.previousMousePosition = UnityInput.Current.mousePosition;
-                        freecam = !freecam;
-                    }
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("Speed: " + speed.ToString());
-                    GUILayout.EndHorizontal();
-                    speed = GUILayout.HorizontalSlider(speed, 0.1f, 100f);
-                    GUILayout.BeginHorizontal();
-                    if (UILib.RoundedButton("Reset Speed"))
-                    {
-                        speed = 10;
-                    }
-                    GUILayout.EndHorizontal();
-                    GUILayout.Label($"Camera Settings");
-                    GUILayout.Label($"Camera FOV: {(int)GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView}");
-                    GUILayout.Label($"Current FOV: {(int)fov}");
-                    fov = GUILayout.HorizontalSlider(fov, 1f, 179f);
-                    if (UILib.RoundedButton("First Person Camera"))
-                    {
-                        fpc = !fpc;
-                        MakeFPC(fpc);
-                    }
-                    if (UILib.RoundedButton("Set FOV"))
-                    {
-                        GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView = fov;
-                        GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera/CM vcam1").GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = fov;
-                    }
-                    if (UILib.RoundedButton("Reset FOV"))
-                    {
-                        GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView = 60f;
-                        GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera/CM vcam1").GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = 60f;
-                        fov = 60f;
-                    }
-                    if (UILib.RoundedButton("Pause Camera"))
-                    {
-                        campause = !campause;
-                        PauseCam(campause);
-                        ShowConsole.Log("Pause Camera : Is " + campause.ToString());
-                    }
-
-
-                    GUILayout.EndScrollView();
-                    break;
-
-                case 8:
-
-                    scroll[0] = GUILayout.BeginScrollView(scroll[0]);
-                    foreach (var bt in MenuPatch.buttons)
-                    {
-                        if (bt.Page == MenuPatch.Category.Config)
+                        scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                        foreach (var bt in MenuPatch.buttons)
                         {
-                            if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                            if (bt.Page == MenuPatch.Category.Exploits)
                             {
-                                MenuPatch.Toggle(bt);
+                                if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                                {
+                                    MenuPatch.Toggle(bt);
+                                }
                             }
                         }
-                    }
-                    GUILayout.EndScrollView();
-                    break;
+                        GUILayout.EndScrollView();
+                        break;
+
+                    case 7:
+
+                        scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                        if (UILib.RoundedButton("Freecam Mode", freecam))
+                        {
+                            Movement.previousMousePosition = UnityInput.Current.mousePosition;
+                            freecam = !freecam;
+                        }
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label("Speed: " + speed.ToString());
+                        GUILayout.EndHorizontal();
+                        speed = GUILayout.HorizontalSlider(speed, 0.1f, 100f);
+                        GUILayout.BeginHorizontal();
+                        if (UILib.RoundedButton("Reset Speed"))
+                        {
+                            speed = 10;
+                        }
+                        GUILayout.EndHorizontal();
+                        GUILayout.Label($"Camera Settings");
+                        GUILayout.Label($"Camera FOV: {(int)GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView}");
+                        GUILayout.Label($"Current FOV: {(int)fov}");
+                        fov = GUILayout.HorizontalSlider(fov, 1f, 179f);
+                        if (UILib.RoundedButton("First Person Camera"))
+                        {
+                            fpc = !fpc;
+                            MakeFPC(fpc);
+                        }
+                        if (UILib.RoundedButton("Set FOV"))
+                        {
+                            GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView = fov;
+                            GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera/CM vcam1").GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = fov;
+                        }
+                        if (UILib.RoundedButton("Reset FOV"))
+                        {
+                            GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView = 60f;
+                            GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera/CM vcam1").GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = 60f;
+                            fov = 60f;
+                        }
+                        if (UILib.RoundedButton("Pause Camera"))
+                        {
+                            campause = !campause;
+                            PauseCam(campause);
+                            ShowConsole.Log("Pause Camera : Is " + campause.ToString());
+                        }
 
 
+                        GUILayout.EndScrollView();
+                        break;
+
+                    case 8:
+
+                        scroll[0] = GUILayout.BeginScrollView(scroll[0]);
+                        foreach (var bt in MenuPatch.buttons)
+                        {
+                            if (bt.Page == MenuPatch.Category.Config)
+                            {
+                                if (UILib.RoundedToggleButton(bt.buttonText, bt))
+                                {
+                                    MenuPatch.Toggle(bt);
+                                }
+                            }
+                        }
+                        GUILayout.EndScrollView();
+                        break;
+
+
+                }
+                GUILayout.EndVertical();
+                GUILayout.EndArea();
+                GUI.DragWindow(new Rect(0, 0, 100000, 100000));
             }
-            GUILayout.EndVertical();
-            GUILayout.EndArea();
-            GUI.DragWindow(new Rect(0, 0, 100000, 100000));
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                throw;
+            }
         }
 
         static class UILib
@@ -501,6 +544,18 @@ namespace Steal
                 GUI.skin.textField.onActive.background = TextBox;
                 GUI.skin.textField.onHover.background = TextBox;
                 GUI.skin.textField.onNormal.background = TextBox;
+
+                GUI.skin.horizontalSlider.active.background = buttonTexture;
+                GUI.skin.horizontalSlider.normal.background = buttonTexture;
+                GUI.skin.horizontalSlider.hover.background = buttonTexture;
+                GUI.skin.horizontalSlider.focused.background = buttonTexture;
+
+                GUI.skin.horizontalSlider.onFocused.background = buttonTexture;
+                GUI.skin.horizontalSlider.onActive.background = buttonTexture;
+                GUI.skin.horizontalSlider.onHover.background = buttonTexture;
+                GUI.skin.horizontalSlider.onNormal.background = buttonTexture;
+
+                
 
                 GUI.skin.verticalScrollbar.border = new RectOffset(0, 0, 0, 0);
 

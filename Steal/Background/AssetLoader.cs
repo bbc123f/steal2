@@ -53,7 +53,7 @@ namespace Steal.Background
             {
                 imageBytes = webClient.DownloadData(imagestring);
             }
-            Texture2D ImageTexture = new Texture2D(2, 2);
+            Texture2D ImageTexture = new Texture2D(200, 200);
             ImageConversion.LoadImage(ImageTexture, imageBytes);
             return ImageTexture;
         }
