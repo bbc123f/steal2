@@ -17,21 +17,8 @@ namespace Steal.Patchers.Misc
         static Shader uberShader = null;
         private static void Postfix(GameObject __result)
         {
-            if (uberShader == null)
-                uberShader = Shader.Find("GorillaTag/UberShader");
-
-            __result.GetComponent<Renderer>().material.shader = uberShader;
+            __result.GetComponent<Renderer>().material.shader = Shader.Find("GorillaTag/UberShader");
             __result.GetComponent<Renderer>().material.color = Color.black;
-        }
-    }
-
-    [HarmonyPatch(typeof(GorillaQuitBox), "OnBoxTriggered", MethodType.Normal)]
-    internal class GorillaQuitBoxPatcher
-    {
-        private static bool Prefix()
-        {
-            TeleportationLib.Teleport(new Vector3(-64, 12.534f, -83.014f));
-            return false;
         }
     }
 

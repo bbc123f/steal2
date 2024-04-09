@@ -406,7 +406,12 @@ namespace Steal
                     {
                         if (MenuPatch.FindButton("Auto AntiBan").Enabled)
                         {
+                            Debug.Log("antiban");
                             StartAntiBan();
+                        }
+                        else
+                        {
+                            Debug.Log("no antiban");
                         }
                     }
                 }

@@ -735,7 +735,6 @@ namespace Steal.Background.Mods
         {
             try
             {
-                MenuPatch.isRunningAntiBan = false;
                 if (IsModded()) 
                 {
                     PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
@@ -753,13 +752,12 @@ namespace Steal.Background.Mods
                         return;
                     }
                 }
-                if (Time.time > antibancooldown) { return; }
+
                 if (PhotonVoiceNetwork.Instance.Client.LoadBalancingPeer.PeerState != ExitGames.Client.Photon.PeerStateValue.Connected) { Notif.SendNotification("Please wait until the lobby has fully loaded!", Color.white); return; }
-                antibancooldown = Time.time + 10;
                 AntiBan();
             }
             catch
-            {//
+            {
                 Debug.LogError("Unknown Error!");
                 throw;
             }
@@ -767,6 +765,8 @@ namespace Steal.Background.Mods
 
         public static void AntiBan()
         {
+            isStumpChecking = false;
+            MenuPatch.isRunningAntiBan = false;
             Debug.Log("Running...");
             PlayFabClientAPI.ExecuteCloudScript(new ExecuteCloudScriptRequest
             {
@@ -797,7 +797,8 @@ namespace Steal.Background.Mods
 
             PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
 
-            isStumpChecking = false;
+            MenuPatch.isRunningAntiBan = false;
+            antibancooldown = Time.time + 10;
         }
 
         public static void matSpamAll()
@@ -1179,12 +1180,14 @@ namespace Steal.Background.Mods
             float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
             float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
             float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+
+
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+
+
             if ((Mathf.RoundToInt(1f / UI.deltaTime) < 100))
             {
-                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
                 GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
                 GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
                 GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
@@ -1220,6 +1223,8 @@ namespace Steal.Background.Mods
                 }
             }
         }
+
+
 
         private static Dictionary<Player, Vector3> crashedPlayers = new Dictionary<Player, Vector3>();
         private static bool changeNameOnJoin;
