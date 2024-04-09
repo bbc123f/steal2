@@ -21,6 +21,7 @@ using static Steal.Background.Mods.PlayerMods;
 using static Steal.Background.Mods.RoomManager;
 using static Steal.Background.Mods.Visual;
 using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 namespace Steal
 {
@@ -210,6 +211,7 @@ namespace Steal
             new Button("Overpowered", Category.Base, false, false, ()=>ChangePage(Category.Exploits)),
             new Button("Settings", Category.Base, false, false, ()=>ChangePage(Category.Config)),
 
+            new Button("Disconnect", Category.Room, false, false, ()=>SmartDisconnect()),
             new Button("Disconnect", Category.Room, false, false, ()=>SmartDisconnect()),
             new Button("Join Random", Category.Room, false, false, ()=>PhotonNetworkController.Instance.AttemptToJoinPublicRoom(GorillaComputer.instance.forestMapTrigger, false)),
             new Button("Create Public", Category.Room, false, false, ()=>CreatePublicRoom()),
@@ -477,9 +479,9 @@ namespace Steal
                         title.text = "Steal FPS-" + Mathf.Round(fps);
                     }
                 }
-                else if (menu == null)
+                else if (menu != null)
                 {
-                    Destroy(menu);
+                    GameObject.Destroy(menu);
                     menu = null;
                     GameObject.Destroy(referance);
                     referance = null;
@@ -962,6 +964,7 @@ namespace Steal
 
                 ModsList.RefreshText();
 
+                Notif.ClearAllNotifications();
                 Notif.SendNotification("Executed non-toggle mod: " + button.buttonText + "!", Color.cyan);
 
                 return;
