@@ -146,6 +146,7 @@ namespace Steal.Background.Security.Auth
         }
     }
 
+
     internal class Data
     {
         public string Username { get; set; }

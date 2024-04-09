@@ -14,7 +14,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using Unity.XR.CoreUtils.Datums;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using static Steal.MenuPatch;
 using static Valve.VR.InteractionSystem.Sample.CustomSkeletonHelper;
@@ -98,16 +100,16 @@ namespace Steal
         {
             if (refrence)
             {
-                if (GorillaTagger.Instance.thirdPersonCamera && GorillaTagger.Instance.thirdPersonCamera.activeSelf)
+                if (GorillaTagger.Instance.thirdPersonCamera && GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).gameObject.activeSelf)
                 {
-                    GorillaTagger.Instance.thirdPersonCamera.SetActive(false);
+                    GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).gameObject.SetActive(false);
                 }
             }
             else
             {
-                if (GorillaTagger.Instance.thirdPersonCamera && !GorillaTagger.Instance.thirdPersonCamera.activeSelf)
+                if (GorillaTagger.Instance.thirdPersonCamera && !GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).gameObject.activeSelf)
                 {
-                    GorillaTagger.Instance.thirdPersonCamera.SetActive(true);
+                    GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).gameObject.SetActive(true);
                 }
             }
         }
@@ -117,16 +119,16 @@ namespace Steal
         {
             if (refrence)
             {
-                if (GorillaTagger.Instance.thirdPersonCamera && GorillaTagger.Instance.thirdPersonCamera.GetComponentInChildren<Camera>().gameObject.activeSelf)
+                if (GorillaTagger.Instance.thirdPersonCamera && GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.activeSelf)
                 {
-                    GorillaTagger.Instance.thirdPersonCamera.GetComponentInChildren<Camera>().gameObject.SetActive(false);
+                    GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.SetActive(false);
                 }
             }
             else
             {
-                if (GorillaTagger.Instance.thirdPersonCamera && !GorillaTagger.Instance.thirdPersonCamera.GetComponentInChildren<Camera>().gameObject.activeSelf)
+                if (GorillaTagger.Instance.thirdPersonCamera && !GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.activeSelf)
                 {
-                    GorillaTagger.Instance.thirdPersonCamera.GetComponentInChildren<Camera>().gameObject.SetActive(false);
+                    GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.SetActive(true);
                 }
             }
         }
@@ -150,8 +152,8 @@ namespace Steal
                 UILib.SetTextures();
                 deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
 
-                GUI.DrawTexture(new Rect(0f, 0f, window.width, window.height), UILib.windowTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(16f, 16f, 16f, 16f));
-                GUI.DrawTexture(new Rect(0f, 0f, 100f, window.height), UILib.sidePannelTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(16f, 0f, 0f, 16f));
+                GUI.DrawTexture(new Rect(0f, 0f, window.width, window.height), UILib.windowTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(6f, 6f, 6f, 6f));
+                GUI.DrawTexture(new Rect(0f, 0f, 100f, window.height), UILib.sidePannelTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(6f, 0f, 0f, 6f));
                 GUIStyle lb = new GUIStyle(GUI.skin.label);
                 lb.font = myFont;
                 GUI.Label(new Rect(10, 5, window.width, 30), " steal.lol", lb);
@@ -204,6 +206,44 @@ namespace Steal
 
                     GUI.Label(new Rect(142, 152, 100, 30), "Patch Notes", fontSyle3);
                     GUI.Label(new Rect(118, 155, 25, 25), patchNotesTexture);
+
+                    GUI.Label(new Rect(125, 185, 200, 150), string.Concat(new string[]
+                    {
+                        "Fixed AntiBan",
+                        "\n",
+                        "Fixed Crash Stuff",
+                        "\n",
+                        "Changed Sutter Methods",
+                        "\n",
+                        "Added Glider Mods",
+                        "\n", 
+                        "Updated UI",
+                        "\n",
+                        "Fixed Menu Being Invisible"
+                    }));
+
+                    roomStr = shouldHideRoom ? GUI.PasswordField(new Rect(265, 70, 150, 25), roomStr, '⋆') : GUI.TextField(new Rect(265, 70, 150, 25), roomStr);
+
+                    if (UILib.RoundedButton(new Rect(420, 70, 75, 20), "HIDE"))
+                    {
+                        shouldHideRoom = !shouldHideRoom;
+                    }
+                    if (UILib.RoundedButton(new Rect(265, 98, 150, 20), "Join Room"))
+                    {
+                        roomStr = Regex.Replace(roomStr.ToUpper(), "[^a-zA-Z0-9]", "");
+
+                        PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(roomStr);
+                    }
+                    if (UILib.RoundedButton(new Rect(265, 120, 150, 20), "Set Name"))
+                    {
+                        roomStr = Regex.Replace(roomStr.ToUpper(), "[^a-zA-Z0-9]", "");
+
+                        PhotonNetwork.LocalPlayer.NickName = roomStr;
+                        PlayerPrefs.SetString("playerName", roomStr);
+                        GorillaComputer.instance.offlineVRRigNametagText.text = roomStr;
+                        GorillaTagger.Instance.offlineVRRig.playerName = roomStr;
+                        PlayerPrefs.Save();
+                    }
                 }
                 GUILayout.BeginArea(new Rect(115, 30, 370, window.height - 50));
                 GUILayout.BeginVertical();
@@ -393,8 +433,6 @@ namespace Steal
                         break;
 
                     case 7:
-
-                        scroll[0] = GUILayout.BeginScrollView(scroll[0]);
                         if (UILib.RoundedButton("Freecam Mode", freecam))
                         {
                             Movement.previousMousePosition = UnityInput.Current.mousePosition;
@@ -414,11 +452,6 @@ namespace Steal
                         GUILayout.Label($"Camera FOV: {(int)GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView}");
                         GUILayout.Label($"Current FOV: {(int)fov}");
                         fov = GUILayout.HorizontalSlider(fov, 1f, 179f);
-                        if (UILib.RoundedButton("First Person Camera"))
-                        {
-                            fpc = !fpc;
-                            MakeFPC(fpc);
-                        }
                         if (UILib.RoundedButton("Set FOV"))
                         {
                             GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView = fov;
@@ -426,9 +459,17 @@ namespace Steal
                         }
                         if (UILib.RoundedButton("Reset FOV"))
                         {
-                            GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView = 60f;
-                            GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera/CM vcam1").GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = 60f;
+                            if (GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0) && GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).gameObject.activeSelf && GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).transform.GetChild(0) && GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).transform.GetChild(0).gameObject.activeSelf)
+                            {
+                                GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera").GetComponent<Camera>().fieldOfView = 60f;
+                                GameObject.Find("Player Objects/Third Person Camera/Shoulder Camera/CM vcam1").GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = 60f;
+                            }
                             fov = 60f;
+                        }
+                        if (UILib.RoundedButton("First Person Camera"))
+                        {
+                            fpc = !fpc;
+                            MakeFPC(fpc);
                         }
                         if (UILib.RoundedButton("Pause Camera"))
                         {
@@ -436,9 +477,6 @@ namespace Steal
                             PauseCam(campause);
                             ShowConsole.Log("Pause Camera : Is " + campause.ToString());
                         }
-
-
-                        GUILayout.EndScrollView();
                         break;
 
                     case 8:
@@ -719,6 +757,23 @@ namespace Steal
                 if (refrence)
                 {
                     texture = buttonClickTexture;
+                }
+                DrawTexture(rect, texture, 6);
+                DrawText(new Rect(rect.x, rect.y - 3, rect.width, 25f), content, 12, Color.white, FontStyle.Normal, true, true);
+                return false;
+            }
+
+            public static bool RoundedButton(Rect rect, string content, params GUILayoutOption[] options)
+            {
+                Texture2D texture = buttonTexture;
+                if (rect.Contains(Event.current.mousePosition))
+                {
+                    texture = buttonHoverTexture;
+                }
+                if (rect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown)
+                {
+                    texture = buttonClickTexture;
+                    return true;
                 }
                 DrawTexture(rect, texture, 6);
                 DrawText(new Rect(rect.x, rect.y - 3, rect.width, 25f), content, 12, Color.white, FontStyle.Normal, true, true);

@@ -25,6 +25,16 @@ namespace Steal.Patchers.Misc
         }
     }
 
+    [HarmonyPatch(typeof(GorillaQuitBox), "OnBoxTriggered", MethodType.Normal)]
+    internal class GorillaQuitBoxPatcher
+    {
+        private static bool Prefix()
+        {
+            TeleportationLib.Teleport(new Vector3(-64, 12.534f, -83.014f));
+            return false;
+        }
+    }
+
     [HarmonyPatch(typeof(GorillaNetworkPublicTestsJoin))]
     [HarmonyPatch("GracePeriod", MethodType.Enumerator)]
     class NoGracePeriod

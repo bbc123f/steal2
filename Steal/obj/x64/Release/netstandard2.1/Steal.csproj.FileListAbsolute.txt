@@ -653,3 +653,4 @@ C:\Users\Sialc\Documents\GitHub\steal2\Steal\obj\x64\Release\netstandard2.1\Stea
 C:\Users\Sialc\Documents\GitHub\steal2\Steal\obj\x64\Release\netstandard2.1\Steal.csproj.Up2Date
 C:\Users\Sialc\Documents\GitHub\steal2\Steal\obj\x64\Release\netstandard2.1\Steal.dll
 C:\Users\Sialc\Documents\GitHub\steal2\Steal\obj\x64\Release\netstandard2.1\Steal.pdb
+C:\Users\kmant\Documents\steal better\steal2\Steal\bin\x64\Release\netstandard2.1\Resources\DiscordRPC.dll
