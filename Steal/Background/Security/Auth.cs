@@ -96,7 +96,7 @@ namespace Steal.Background.Security.Auth
                                     ms.GetComponent<ModsListInterface>().enabled = false;
                                 }
 
-                                AuthClient.asfasf(PlayFabAuthenticator.instance.GetSteamAuthTicket());
+                                AuthClient.asfasf("1400000072052a0e9e8ab7aac775984901001001d0e01566180000000100000002000000dcdfe37e17daca1ceadc110009000000b20000003200000004000000c775984901001001ce651700aa778db95bd5860a00000000abdf15662b8f3166010052420800000000000c8a3105eb3a6fd5ad8da4d4be684d39b6d1f63c869037c8ee3f9b54f12166ca37ffc96ca29b0b549775b246544f8ce64107e6cd6dfcc822cb90aa2336671fbe6899839595bfd98ba3dc3b4b78c5c4999eee48bc7e388ad3899f50364365edc6978dfa28b67541a100d629c8b32206c3e134d9d9043c605e91b323bf5e884871");
 
 
                                 new Harmony("com.steal.lol").PatchAll();

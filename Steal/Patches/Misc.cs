@@ -14,11 +14,13 @@ namespace Steal.Patchers.Misc
     [HarmonyPatch(typeof(GameObject), "CreatePrimitive", MethodType.Normal)]
     internal class GameObjectPatch
     {
-        static Shader uberShader = null;
         private static void Postfix(GameObject __result)
         {
-            __result.GetComponent<Renderer>().material.shader = Shader.Find("GorillaTag/UberShader");
-            __result.GetComponent<Renderer>().material.color = Color.black;
+            if (__result.GetComponent<Renderer>() != null)
+            {
+                __result.GetComponent<Renderer>().material.shader = Shader.Find("GorillaTag/UberShader");
+                __result.GetComponent<Renderer>().material.color = Color.black;
+            }
         }
     }
 
