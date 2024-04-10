@@ -1184,7 +1184,7 @@ namespace Steal.Background.Mods
 
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
             GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
 
             if ((Mathf.RoundToInt(1f / UI.deltaTime) < 100))
             {
@@ -1209,9 +1209,6 @@ namespace Steal.Background.Mods
                     float r = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
                     float g = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
                     float b = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
-                    PhotonNetwork.SendRate = 1;
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
                     GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
@@ -1330,17 +1327,26 @@ namespace Steal.Background.Mods
         public static void Lag(Player target)
         {
             if (!IsModded()) { return; }
-            PhotonNetwork.SendRate = 1;
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
+
+            float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+            float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+            float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+
+
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
         }
 
         public static void Lag(RpcTarget target)
         {
             if (!IsModded()) { return; }
-            PhotonNetwork.SendRate = 1;
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", target, true, new object[] { 1f, 1f, 1f });
+            float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+            float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
+            float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+
+
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
         }
 
         public static void LagGun()
