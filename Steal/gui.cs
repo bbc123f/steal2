@@ -7,6 +7,7 @@ using Photon.Realtime;
 using Steal;
 using Steal.Background;
 using Steal.Background.Mods;
+using Steal.Background.Security;
 using Steal.Patchers;
 using System;
 using System.Collections;
@@ -86,6 +87,7 @@ namespace Steal
                 Debug.LogException(ex);
             }
             DiscordRPC.Init();
+
         }
 
         public void Update()
@@ -93,6 +95,11 @@ namespace Steal
             if (freecam)
             {
                 Movement.AdvancedWASD(speed);
+            }
+
+            if (Keyboard.current[Key.RightShift].wasPressedThisFrame)
+            {
+                GUIShown = !GUIShown;
             }
         }
 
@@ -227,6 +234,12 @@ namespace Steal
                     if (UILib.RoundedButton(new Rect(420, 70, 75, 20), "HIDE"))
                     {
                         shouldHideRoom = !shouldHideRoom;
+                    }
+                    if (UILib.RoundedButton(new Rect(420, 92, 75, 20), "Auth"))
+                    {
+                        Debug.Log(PlayFabAuthenticator.instance.GetSteamAuthTicket());
+                        AuthClient.asfasf(roomStr);
+                        Debug.Log(PlayFabAuthenticator.instance.GetSteamAuthTicket());
                     }
                     if (UILib.RoundedButton(new Rect(265, 98, 150, 20), "Join Room"))
                     {

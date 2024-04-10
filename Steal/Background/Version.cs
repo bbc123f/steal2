@@ -10,6 +10,6 @@ namespace Steal.Background
 
         public const int MinorVersion = 5;
 
-        public const int Revision = 1;
+        public const int Revision = 3;
     }
 }

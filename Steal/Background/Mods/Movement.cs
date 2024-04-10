@@ -952,13 +952,12 @@ namespace Steal.Background.Mods
         }
 
 
+
         public static void SuperMonkey()
         {
             if (RightPrimary)
             {
-                GorillaLocomotion.Player.Instance.transform.position +=
-                    (GorillaLocomotion.Player.Instance.rightControllerTransform.forward * Time.deltaTime) *
-                    ((12f) * flightMultiplier);
+                GorillaLocomotion.Player.Instance.transform.position += (GorillaLocomotion.Player.Instance.headCollider.transform.forward * Time.deltaTime) * ((12f) * flightMultiplier);
                 GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity = Vector3.zero;
                 if (!flying)
                 {
@@ -967,21 +966,18 @@ namespace Steal.Background.Mods
             }
             else if (flying)
             {
-                GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity =
-                    (GorillaLocomotion.Player.Instance.headCollider.transform.forward * Time.deltaTime) * 12f;
+                GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().velocity = (GorillaLocomotion.Player.Instance.headCollider.transform.forward * Time.deltaTime) * 12f;
                 flying = false;
             }
 
             if (RightSecondary)
             {
-                if (!gravityToggled &&
-                    GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity == true)
+                if (!gravityToggled && GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity == true)
                 {
                     GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity = false;
                     gravityToggled = true;
                 }
-                else if (!gravityToggled &&
-                         GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity == false)
+                else if (!gravityToggled && GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity == false)
                 {
                     GorillaLocomotion.Player.Instance.bodyCollider.attachedRigidbody.useGravity = true;
                     gravityToggled = true;
@@ -992,6 +988,7 @@ namespace Steal.Background.Mods
                 gravityToggled = false;
             }
         }
+
 
         public static void NoClip()
         {
