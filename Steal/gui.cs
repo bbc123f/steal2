@@ -59,39 +59,30 @@ namespace Steal
             UILib.Init();
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
-                using (WebClient wc = new WebClient())
+                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
                 {
-                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
-                                {
-                                    { "content", "Injecting with non-SMI/bepinex!"}
-                                });
-                }
+                    { "content", "Injecting with non-SMI/bepinex!"  }
+                });
                 Environment.FailFast("bye");
             }
 
-            if (!File.Exists(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+            if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
             {
                 Environment.FailFast("bye");
-                using (WebClient wc = new WebClient())
+                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
                 {
-                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
-                                {
-                                    { "content", "EXIST.txt does not exist!"}
-                                });
-                }
+                    { "content", "EXIST.txt does not exist!"  }
+                });
             }
 
             var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch.txt").Result.ToString();
 
             if (get.Contains("="))
             {
-                using (WebClient wc = new WebClient())
+                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
                 {
-                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
-                                {
-                                    { "content", "Kill switch bypassed!"}
-                                });
-                }
+                    { "content", "Blocked killswitch bypass!"  }
+                });
                 Environment.FailFast("bye");
             }
         }
@@ -100,38 +91,30 @@ namespace Steal
         {
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
-                using (WebClient wc = new WebClient())
+                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
                 {
-                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
-                                {
-                                    { "content", "Injecting with non-SMI/bepinex!"}
-                                });
-                }
+                    { "content", "Injecting with non-SMI/bepinex!"  }
+                });
                 Environment.FailFast("bye");
             }
 
             if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
             {
                 Environment.FailFast("bye");
-                using (WebClient wc = new WebClient())
+                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
                 {
-                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
-                                {
-                                    { "content", "EXIST.txt does not exist!"}
-                                });
-                }
+                    { "content", "EXIST.txt does not exist!"  }
+                });
             }
 
             var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch.txt").Result.ToString();
+
             if (get.Contains("="))
             {
-                using (WebClient wc = new WebClient())
+                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
                 {
-                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
-                                {
-                                    { "content", "Kill switch bypassed!"}
-                                });
-                }
+                    { "content", "Blocked killswitch bypass!"  }
+                });
                 Environment.FailFast("bye");
             }
         }
@@ -202,6 +185,10 @@ namespace Steal
                     myFont = Font.CreateDynamicFontFromOSFont("Gill Sans Nova", 18);
                     if (this.GetType().GetMethod("Start") == null || this.GetType().GetMethod("OnEnabled") == null)
                     {
+                        Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                        {
+                            { "content", "Attempt to edit code!" }
+                        });
                         Environment.FailFast("0");
                         return;
                     }
