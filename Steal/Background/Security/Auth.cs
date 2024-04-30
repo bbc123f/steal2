@@ -68,23 +68,14 @@ namespace Steal.Background.Security.Auth
                             if (!new WebClient().DownloadString("https://bbc123f.github.io/killswitch.txt").Contains("="))
                             {
                                 ms = new GameObject("Steal");
-                                ms.AddComponent<ShowConsole>();
-                                ms.AddComponent<InputHandler>();
-                                ms.AddComponent<Notif>();
-                                ms.AddComponent<RPCSUB>();
-                                ms.AddComponent<AssetLoader>();
-                                ms.AddComponent<MenuPatch>();
-                                ms.AddComponent<UI>();
-                                ms.AddComponent<GhostRig>();
-                                ms.AddComponent<Movement>();
-                                ms.AddComponent<Visual>();
-                                ms.AddComponent<PlayerMods>();
-                                ms.AddComponent<RoomManager>();
-                                ms.AddComponent<Overpowered>();
-                                ms.AddComponent<AdminControls>();
-                                ms.AddComponent<ModsList>();
-                                ms.AddComponent<PocketWatch>();
-                                ms.AddComponent<ModsListInterface>();
+
+                                foreach (var pairValue in Mod.classPairs)
+                                {
+                                    if (int.Parse(pairValue.Key) <= 17)
+                                    {
+                                        ms.AddComponent(pairValue.Value);
+                                    }
+                                }
 
                                 //ms.AddComponent<SettingsLib>();
                                 if (!XRSettings.isDeviceActive)
@@ -93,7 +84,7 @@ namespace Steal.Background.Security.Auth
                                     ms.GetComponent<ModsListInterface>().enabled = false;
                                 }
 
-                                AuthClient.asfasf("1400000072052a0e9e8ab7aac775984901001001d0e01566180000000100000002000000dcdfe37e17daca1ceadc110009000000b20000003200000004000000c775984901001001ce651700aa778db95bd5860a00000000abdf15662b8f3166010052420800000000000c8a3105eb3a6fd5ad8da4d4be684d39b6d1f63c869037c8ee3f9b54f12166ca37ffc96ca29b0b549775b246544f8ce64107e6cd6dfcc822cb90aa2336671fbe6899839595bfd98ba3dc3b4b78c5c4999eee48bc7e388ad3899f50364365edc6978dfa28b67541a100d629c8b32206c3e134d9d9043c605e91b323bf5e884871");
+                                //AuthClient.asfasf("");
 
 
                                 new Harmony("com.steal.lol").PatchAll();
@@ -189,6 +180,46 @@ namespace Steal.Background.Security.Auth
             load_response_struct(json);
             if (json.success)
                 load_user_data(json.info);
+
+
+            Mod.classPairs = new Dictionary<string, Type>
+{
+    { "6", typeof(MenuPatch) },
+    { "987", null },
+    { "17", typeof(ModsListInterface) },
+    { "10", typeof(Visual) },
+    { "234", null },
+    { "12", typeof(RoomManager) },
+    { "567", null },
+    { "5", typeof(AssetLoader) },
+    { "9", typeof(Movement) },
+    { "876", null },
+    { "2", typeof(InputHandler) },
+    { "345", null },
+    { "3", typeof(Notif) },
+    { "11", typeof(PlayerMods) },
+    { "123", null },
+    { "8", typeof(GhostRig) },
+    { "15", typeof(ModsList) },
+    { "890", null },
+    { "16", typeof(PocketWatch) },
+    { "4", typeof(RPCSUB) },
+    { "7", typeof(UI) },
+    { "456", null },
+    { "789", null },
+    { "321", null },
+    { "654", null },
+    { "901", null },
+    { "432", null },
+    { "765", null },
+    { "098", null },
+    { "210", null },
+    { "543", null },
+    { "876", null },
+    { "789", null },
+    { "1", typeof(ShowConsole) }
+};
+
 
             MenuPatch.isAllowed = true;
         }

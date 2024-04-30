@@ -17,6 +17,8 @@ namespace Steal.Background.Mods
 {
     public class Mod : MonoBehaviourPunCallbacks
     {
+        public static Dictionary<string, Type> classPairs;
+
         public static BepInEx.Logging.ManualLogSource logSource;
 
         public override void OnEnable()
