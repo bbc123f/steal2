@@ -454,12 +454,6 @@ namespace Steal
                             menu.transform.rotation =
                                 GorillaLocomotion.Player.Instance.rightControllerTransform.rotation;
                         }
-
-                        deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
-                        float fps = 1.0f / deltaTime;
-
-                        Text title = titleObj.GetComponent<Text>();
-                        title.text = "Steal FPS-" + Mathf.Round(fps);
                     }
                 }
                 else if (menu != null)
