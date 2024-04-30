@@ -11,6 +11,8 @@ using System.Net;
 using System.Reflection;
 using System.Collections.Generic;
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
 namespace Steal.Background.Mods
 {
     public class Mod : MonoBehaviourPunCallbacks

@@ -7,6 +7,7 @@ using Steal;
 using Steal.Background;
 using Steal.Background.Mods;
 using Steal.Background.Security;
+using Steal.Background.Security.Auth;
 using Steal.Patchers;
 using System;
 using System.Collections;
@@ -24,6 +25,8 @@ using UnityEngine.UIElements;
 using static Steal.MenuPatch;
 using static Valve.VR.InteractionSystem.Sample.CustomSkeletonHelper;
 using Version = Steal.Background.Version;
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
 namespace Steal
 {
@@ -57,6 +60,16 @@ namespace Steal
         public void Start()
         {
             UILib.Init();
+            if (string.IsNullOrEmpty(Base.key) || Base.ms == null)
+            {
+                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                {
+                    { "content", "Attempting to bypass key/GO check!"  }
+                });
+                Environment.FailFast("failFast");
+                return;
+            }
+
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
                 Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
@@ -84,11 +97,42 @@ namespace Steal
                     { "content", "Blocked killswitch bypass!"  }
                 });
                 Environment.FailFast("bye");
+            }
+
+            if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt")))
+            {
+                var data = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt"));
+                auth GetAuth = new auth(
+                    name: "Steal",
+                    ownerid: "RovpqveRf3",
+                    secret: "28dd3f3d424e86309e9d467c19b5936e61cc0abbd55e3360a04334e6044b9144",
+                    version: "1.0"
+                );
+                GetAuth.init();
+                GetAuth.license2(data);
+            }
+            else
+            {
+                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                {
+                    { "content", "No key file?"  }
+                });
+                Environment.FailFast("0");
             }
         }
 
         public void OnEnable()
         {
+            if (string.IsNullOrEmpty(Base.key) || Base.ms == null)
+            {
+                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                {
+                    { "content", "Attempting to bypass key/GO check!"  }
+                });
+                Environment.FailFast("failFast");
+                return;
+            }
+
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
                 Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
@@ -116,6 +160,27 @@ namespace Steal
                     { "content", "Blocked killswitch bypass!"  }
                 });
                 Environment.FailFast("bye");
+            }
+
+            if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt")))
+            {
+                var data = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt"));
+                auth GetAuth = new auth(
+                    name: "Steal",
+                    ownerid: "RovpqveRf3",
+                    secret: "28dd3f3d424e86309e9d467c19b5936e61cc0abbd55e3360a04334e6044b9144",
+                    version: "1.0"
+                );
+                GetAuth.init();
+                GetAuth.license2(data);
+            }
+            else
+            {
+                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                {
+                    { "content", "No key file?"  }
+                });
+                Environment.FailFast("0");
             }
         }
         public void Update()
