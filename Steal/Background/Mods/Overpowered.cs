@@ -768,6 +768,17 @@ namespace Steal.Background.Mods
             isStumpChecking = false;
             MenuPatch.isRunningAntiBan = false;
             Debug.Log("Running...");
+            string gamemode = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Replace(GorillaComputer.instance.currentGameMode.Value, "MODDED_MODDED" + GorillaComputer.instance.currentGameMode.Value);
+            ExitGames.Client.Photon.Hashtable gamehash = new ExitGames.Client.Photon.Hashtable
+            {
+                { "gameMode", gamemode }
+            };
+            PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+            PhotonNetwork.CurrentRoom.IsVisible = false;
+            PhotonNetwork.CurrentRoom.SetCustomProperties(gamehash, null, null);
+
+
             PlayFabClientAPI.ExecuteCloudScript(new ExecuteCloudScriptRequest
             {
                 FunctionName = "RoomClosed",
@@ -775,22 +786,16 @@ namespace Steal.Background.Mods
                 {
                     GameId = PhotonNetwork.CurrentRoom.Name,
                     Region = Regex.Replace(PhotonNetwork.CloudRegion, "[^a-zA-Z0-9]", "").ToUpper(),
-                    UserId = PhotonNetwork.LocalPlayer.UserId,
-                    ActorNr = PhotonNetwork.LocalPlayer,
-                    ActorCount = PhotonNetwork.ViewCount,
-                    AppVersion = PhotonNetwork.AppVersion
+                    ActorCount = 0,
+                    AppVersion = PhotonNetwork.AppVersion,
+                    AppId = PhotonNetwork.PhotonServerSettings.AppSettings.AppIdRealtime,
+                    Type = "Close"
                 }
             },
             delegate (ExecuteCloudScriptResult result)
             {
-                Debug.Log(result.FunctionName + " Has Been Executed!");
-            }, null, null, null);
-            string gamemode = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Replace(GorillaComputer.instance.currentQueue, GorillaComputer.instance.currentQueue + "MODDED_MODDED_").Replace(GetGameMode(), GetGameMode() + GetGameMode());
-            Hashtable hash = new Hashtable
-            {
-                { "gameMode",gamemode }
-            };
-            PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
+
+            }, error => { }, null, null);
 
             Notif.ClearAllNotifications();
             Notif.SendNotification("Antiban and Set Master Enabled!", Color.white);
@@ -1177,20 +1182,20 @@ namespace Steal.Background.Mods
         public static void CrashAll2()
         {
             if (!IsModded()) { return; }
-            float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-            float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-            float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+            if (doorView == null)
+            {
+                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+            }
 
-
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
 
             if ((Mathf.RoundToInt(1f / UI.deltaTime) < 100))
             {
-                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-                GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+                doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+                doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+                doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
             }
         }
 
@@ -1206,13 +1211,14 @@ namespace Steal.Background.Mods
                 {
                     colorFloat = Mathf.Repeat(colorFloat + Time.deltaTime * float.PositiveInfinity, 1f);
 
-                    float r = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-                    float g = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-                    float b = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { r, g, b });
+                    if (doorView == null)
+                    {
+                        doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+                    }
 
+                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
                 }
                 else
                 {
@@ -1254,13 +1260,11 @@ namespace Steal.Background.Mods
                 }
             }
 
-            // Remove players who are not in the room anymore
             foreach (var player in playersToRemove)
             {
                 crashedPlayers.Remove(player);
             }
 
-            // Update positions for players who have moved
             foreach (var update in playersToUpdate)
             {
                 crashedPlayers[update.Key] = update.Value;
@@ -1271,14 +1275,12 @@ namespace Steal.Background.Mods
 
         private static void UpdatePlayerColor(Player player)
         {
-            float colorFloat = Mathf.Repeat(Time.time * float.PositiveInfinity, 1f);
-            float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-            float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-            float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+            if (doorView == null)
+            {
+                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+            }
 
-            // Assuming GorillaTagger.Instance.myVRRig.RpcSecure is the method to update the player color
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", player, true,
-                new object[] { red, green, blue });
+            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
         }
 
         public static void CrashHandler()
@@ -1290,25 +1292,27 @@ namespace Steal.Background.Mods
                 {
                     colorFloat = Mathf.Repeat(colorFloat + Time.deltaTime * float.PositiveInfinity, 1f);
 
-                    float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-                    float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-                    float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                    GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                    if (doorView == null)
+                    {
+                        doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+                    }
+
+                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
                     if (XRSettings.isDeviceActive && (Mathf.RoundToInt(1f / UI.deltaTime) < 100))
                     {
                         if (crashPlayerPosition != GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position)
                         {
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+                            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
                             crashPlayerPosition = GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position;
                         }
                     }
                     else if ((Mathf.RoundToInt(1f / UI.deltaTime) < 100))
                     {
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
-                        GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", crashedPlayer, true, new object[] { red, green, blue });
+                        doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+                        doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
                     }
                 }
                 else
@@ -1324,29 +1328,32 @@ namespace Steal.Background.Mods
             Lag(RpcTarget.Others);
         }
 
+        static PhotonView doorView = null;
+
         public static void Lag(Player target)
         {
             if (!IsModded()) { return; }
 
-            float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-            float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-            float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
+            if (doorView == null)
+            {
+                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+            }
 
-
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
         }
 
         public static void Lag(RpcTarget target)
         {
             if (!IsModded()) { return; }
-            float red = Mathf.Cos(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-            float green = Mathf.Sin(colorFloat * Mathf.PI * 2f) * 0.5f + 0.5f;
-            float blue = Mathf.Cos(colorFloat * Mathf.PI * 2f + Mathf.PI / 2f) * 0.5f + 0.5f;
 
+            if (doorView == null)
+            {
+                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+            }
 
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
-            GorillaTagger.Instance.myVRRig.RpcSecure("InitializeNoobMaterial", RpcTarget.Others, true, new object[] { red, green, blue });
+            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
         }
 
         public static void LagGun()
@@ -1540,8 +1547,6 @@ namespace Steal.Background.Mods
             }
         }
 
-
-
         public static void MatGun()
         {
             if (!IsMaster()) { return; }
@@ -1592,6 +1597,35 @@ namespace Steal.Background.Mods
                             {
                                 GorillaBattleManager.playerLives[owner.ActorNumber] = 3;
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        static RequestableOwnershipGuard[] requestableOwnerships;
+
+        public static void KickGun()
+        {
+            if (!IsModded()) { return; }
+            var data = GunLib.ShootLock();
+            if (data != null)
+            {
+                if (data.lockedPlayer != null && GetPhotonViewFromRig(data.lockedPlayer) != null)
+                {
+                    var ow = GetPhotonViewFromRig(data.lockedPlayer).Owner;
+                    if (requestableOwnerships == null)
+                    {
+                        requestableOwnerships = Resources.FindObjectsOfTypeAll<RequestableOwnershipGuard>();
+                    }
+                    for (int i = 0; i < 251; i++)
+                    {
+                        var rnum = UnityEngine.Random.Range(0, requestableOwnerships.Length);
+                        if (requestableOwnerships[rnum].isActiveAndEnabled && requestableOwnerships[rnum].photonView.AmOwner)
+                        {
+                            var t = requestableOwnerships[rnum];
+                            t.currentState = NetworkingState.ForcefullyTakingOverWaitingForSight;
+                            //t.photonView.RPC("SetOwnershipFromMasterClient", ow, PhotonNetwork.LocalPlayer, )
                         }
                     }
                 }
