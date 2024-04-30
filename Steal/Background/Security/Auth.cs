@@ -29,20 +29,17 @@ namespace Steal.Background.Security.Auth
 
         public static string key;
 
-        public static auth GetAuth = new auth(
-            name: "Steal",
-            ownerid: "RovpqveRf3",
-            secret: "28dd3f3d424e86309e9d467c19b5936e61cc0abbd55e3360a04334e6044b9144",
-            version: "1.0"
-        );
-
-
-
         public static GameObject ms = null;
         public static void Init()
         {
             try
             {
+                auth GetAuth = new auth(
+                    name: "Steal",
+                    ownerid: "RovpqveRf3",
+                    secret: "28dd3f3d424e86309e9d467c19b5936e61cc0abbd55e3360a04334e6044b9144",
+                    version: "1.0"
+                );
                 if (Harmony.HasAnyPatches("com.steal.lol"))
                 {
                     File.WriteAllText("error.txt", "PRE HARMONY PATCHED");
