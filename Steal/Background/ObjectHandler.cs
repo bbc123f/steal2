@@ -7,9 +7,18 @@ namespace Steal.Background
 {
     internal class ObjectHandler
     {
-        static List<GameObject> cachedObjects = new List<GameObject>();
+        static List<UnityEngine.Object> cachedObjects = new List<UnityEngine.Object>();
 
-        static List<GameObject[]> searchedObjects = new List<GameObject[]>();
+        static List<UnityEngine.Object[]> searchedObjects = new List<UnityEngine.Object[]>();
+
+        static List<Component[]> components = new List<Component[]>();
+
+        public static UnityEngine.Object[] GetObjectsOfType<T>()
+        {
+            var list = GameObject.FindObjectsOfType(typeof(T));
+            searchedObjects.Add(list);
+            return list;
+        }
 
     }
 }

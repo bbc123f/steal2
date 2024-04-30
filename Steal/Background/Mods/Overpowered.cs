@@ -444,23 +444,32 @@ namespace Steal.Background.Mods
             }
         }
 
+        static GliderHoldable[] holdables = null;
 
         public static void GliderAll()
         {
-            foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
+            if (holdables == null)
             {
-                foreach (Transform child in GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab/Root").transform)
+                holdables = Resources.FindObjectsOfTypeAll<GliderHoldable>();
+            }
+            for (int i = 0; i < GorillaParent.instance.vrrigs.Count; i++)
+            {
+                if (holdables[i] != null)
                 {
-                    foreach (Transform grandchild in child.transform)
+                    var view = holdables[i].GetComponent<PhotonView>();
+                    if (view != null && view.AmOwner)
                     {
-                        GliderHoldable gh = grandchild.gameObject.GetComponent<GliderHoldable>();
-                        gh.OnGrab(null, null);
-                        gh.photonView.ControllerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
-                        gh.photonView.OwnerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
-                        GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab").transform.position = grandchild.position;
-                        GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab").transform.rotation = Quaternion.EulerAngles(UnityEngine.Random.Range(0.5f, 1.5f), UnityEngine.Random.Range(0.5f, 1.3f), UnityEngine.Random.Range(0.5f, 1.3f));
-                        gh.gameObject.transform.position = vrrig.transform.position + new Vector3(UnityEngine.Random.Range(-3f, 3f), 2f, UnityEngine.Random.Range(-3f, 3f));
-
+                        var hold = holdables[i];
+                        hold.transform.position = GorillaParent.instance.vrrigs[i].transform.position;
+                    }
+                    else if (view != null)
+                    {
+                        Traverse.Create(holdables[i]).Field("ownershipGuard").GetValue<RequestableOwnershipGuard>().RequestOwnershipImmediately(delegate
+                        {
+                            Debug.Log("Force ownership failed!");
+                            Debug.Log("Attempting to request it..");
+                            view.RequestOwnership();
+                        });
                     }
                 }
             }
