@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using Cinemachine;
 using GorillaNetworking;
-using Pathfinding;
 using Photon.Pun;
 using Photon.Realtime;
 using Steal;
@@ -12,8 +11,11 @@ using Steal.Patchers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
+using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Unity.XR.CoreUtils.Datums;
 using UnityEngine;
@@ -52,44 +54,86 @@ namespace Steal
         public static bool freecam;
         private bool fpc;
 
-        public void OnEnable()
-        {
-            if (!File.Exists(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
-                Environment.FailFast("bye");
-            HttpClient client = new HttpClient();
-            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch.txt").Result.ToString();
-            if (get.Contains("="))
-            {
-                Environment.FailFast("bye");
-            }
-        }
         public void Start()
         {
-            if (!File.Exists(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+            if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
+            {
+                using (WebClient wc = new WebClient())
+                {
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
+                                {
+                                    { "content", "Injecting with non-SMI/bepinex!"}
+                                });
+                }
                 Environment.FailFast("bye");
-            HttpClient client = new HttpClient();
+            }
+
+            if (!File.Exists(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+            {
+                Environment.FailFast("bye");
+                using (WebClient wc = new WebClient())
+                {
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
+                                {
+                                    { "content", "EXIST.txt does not exist!"}
+                                });
+                }
+            }
+
+            var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch.txt").Result.ToString();
+
+            if (get.Contains("="))
+            {
+                using (WebClient wc = new WebClient())
+                {
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
+                                {
+                                    { "content", "Kill switch bypassed!"}
+                                });
+                }
+                Environment.FailFast("bye");
+            }
+        }
+
+        public void OnEnable()
+        {
+            if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
+            {
+                using (WebClient wc = new WebClient())
+                {
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
+                                {
+                                    { "content", "Injecting with non-SMI/bepinex!"}
+                                });
+                }
+                Environment.FailFast("bye");
+            }
+
+            if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
+            {
+                Environment.FailFast("bye");
+                using (WebClient wc = new WebClient())
+                {
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
+                                {
+                                    { "content", "EXIST.txt does not exist!"}
+                                });
+                }
+            }
+
             var get = new HttpClient().GetStringAsync("https://bbc123f.github.io/killswitch.txt").Result.ToString();
             if (get.Contains("="))
             {
-                Environment.FailFast("bye");
-            } 
-            UILib.Init();
-            try
-            {
-                if (versionTexture == null)
+                using (WebClient wc = new WebClient())
                 {
-                    versionTexture = AssetLoader.DownloadBackround("https://tnuser.com/API/files/VersionPNG.png");
-                    patchNotesTexture = AssetLoader.DownloadBackround("https://tnuser.com/API/files/pencil.png");
+                    wc.UploadValues("https://tnuser.com/API/alertHool.php", new NameValueCollection
+                                {
+                                    { "content", "Kill switch bypassed!"}
+                                });
                 }
+                Environment.FailFast("bye");
             }
-            catch (Exception ex)
-            {
-                Debug.LogException(ex);
-            }
-            DiscordRPC.Init();
-
         }
-
         public void Update()
         {
             if (freecam)
@@ -155,6 +199,11 @@ namespace Steal
                 if (myFont == null)
                 {
                     myFont = Font.CreateDynamicFontFromOSFont("Gill Sans Nova", 18);
+                    if (this.GetType().GetMethod("Start") == null || this.GetType().GetMethod("OnEnabled") == null)
+                    {
+                        Environment.FailFast("0");
+                        return;
+                    }
                 }
                 UILib.SetTextures();
                 deltaTime += (Time.deltaTime - deltaTime) * 0.1f;

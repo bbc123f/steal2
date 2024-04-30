@@ -384,14 +384,6 @@ namespace Steal
                     Environment.FailFast("bye");
                     return;
                 }
-
-                if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
-                {
-                    File.WriteAllText("error.txt", "DOESNT EXIST");
-                    Environment.FailFast("bye");
-                    Application.Quit();
-                }
-
                 if (RewindHelp > 0f && Time.frameCount > RewindHelp)
                 {
                     RewindHelp = 0f;
