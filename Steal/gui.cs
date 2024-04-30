@@ -56,6 +56,7 @@ namespace Steal
 
         public void Start()
         {
+            UILib.Init();
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
                 using (WebClient wc = new WebClient())
