@@ -19,6 +19,9 @@ using BuildSafe;
 using Pathfinding;
 using System.Runtime.Serialization.Formatters.Binary;
 using Path = System.IO.Path;
+using System.Threading.Tasks;
+using System.Net.Http;
+using static SteamVR_Utils.Event;
 
 namespace Steal.Background.Security.Auth
 {
@@ -34,6 +37,43 @@ namespace Steal.Background.Security.Auth
         {
             try
             {
+                Mod.classPairs = new Dictionary<string, Type>
+{
+    { "6", typeof(MenuPatch) },
+    { "345987", null },
+    { "17", typeof(ModsListInterface) },
+    { "10", typeof(Visual) },
+    { "2734", null },
+    { "12", typeof(RoomManager) },
+    { "5657", null },
+    { "5433", null },
+    { "8762", null },
+    { "783459", null },
+    { "5", typeof(AssetLoader) },
+    { "9", typeof(Movement) },
+    { "8376", null },
+    { "2", typeof(InputHandler) },
+    { "345", null },
+    { "3", typeof(Notif) },
+    { "11", typeof(PlayerMods) },
+    { "1243", null },
+    { "7389", null },
+    { "3261", null },
+    { "6534", null },
+    { "8", typeof(GhostRig) },
+    { "15", typeof(ModsList) },
+    { "8590", null },
+    { "16", typeof(PocketWatch) },
+    { "4", typeof(RPCSUB) },
+    { "2901", null },
+    { "4632", null },
+    { "7365", null },
+    { "7", typeof(UI) },
+    { "45346", null },
+    { "09658", null },
+    { "2530", null },
+    { "1", typeof(ShowConsole) }
+};
                 auth GetAuth = new auth(
                     name: "Steal",
                     ownerid: "RovpqveRf3",
@@ -71,7 +111,7 @@ namespace Steal.Background.Security.Auth
 
                                 foreach (var pairValue in Mod.classPairs)
                                 {
-                                    if (int.Parse(pairValue.Key) <= 17)
+                                    if (pairValue.Value != null)
                                     {
                                         ms.AddComponent(pairValue.Value);
                                     }
@@ -144,84 +184,67 @@ namespace Steal.Background.Security.Auth
     public class auth : MonoBehaviour
     {
         public string name, ownerid, secret, version;
-        public void license2(string username)
+        public async Task license2(string username)
         {
-            if (!initialized)
+            try
             {
-                StartCoroutine(Error_PleaseInitializeFirst());
+                if (!initialized)
+                {
+                    StartCoroutine(Error_PleaseInitializeFirst());
+                }
+
+
+                string hwid = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "wid.txt"));
+
+
+
+                var init_iv = encryption.sha256(encryption.iv_key());
+
+                string f = encryption.encrypt(hwid, enckey, init_iv);
+
+                //File.WriteAllText("error2.txt", f);
+
+                var values_to_upload = new
+                {
+                    type = encryption.byte_arr_to_str(Encoding.Default.GetBytes("license")),
+                    key = encryption.encrypt(username, enckey, init_iv),
+                    hwid = hwid,
+                    sessionid = encryption.byte_arr_to_str(Encoding.Default.GetBytes(sessionid)),
+                    name = encryption.byte_arr_to_str(Encoding.Default.GetBytes(name)),
+                    ownerid = encryption.byte_arr_to_str(Encoding.Default.GetBytes(ownerid)),
+                    init_iv = init_iv
+                };
+
+                string parsedResponse = "";
+                var ensureTLS = new HttpClientHandler().SslProtocols = System.Security.Authentication.SslProtocols.13;
+                using (HttpClient client = new HttpClient())
+                {
+                    var jsonContent = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(values_to_upload), Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await client.PostAsync("https://steal.tnuser.com/hooks/auth.php", jsonContent);
+                    parsedResponse = response.Content.ReadAsStringAsync().Result;
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        File.WriteAllText("error.txt", "Authentication error - " + Convert.ToBase64String(Encoding.UTF8.GetBytes("Response: " + response.StatusCode.ToString())));
+                        Environment.FailFast("bye");
+                    }
+                }
+
+                parsedResponse = encryption.decrypt(parsedResponse, enckey, init_iv);
+                File.WriteAllText("sasdasss.txt", "response " + parsedResponse);
+                var json = response_decoder.string_to_generic<response_structure>(parsedResponse);
+                load_response_struct(json);
+                if (json.success)
+                    load_user_data(json.info);
+
+
+                MenuPatch.isAllowed = true;
             }
-
-
-            string hwid = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "wid.txt"));
-
-
-
-            var init_iv = encryption.sha256(encryption.iv_key());
-
-            string f = encryption.encrypt(hwid, enckey, init_iv);
-
-            //File.WriteAllText("error2.txt", f);
-
-            var values_to_upload = new NameValueCollection
+            catch (Exception ex)
             {
-                ["type"] = encryption.byte_arr_to_str(Encoding.Default.GetBytes("license")),
-                ["key"] = encryption.encrypt(username, enckey, init_iv),
-                ["hwid"] = hwid,
-                ["sessionid"] = encryption.byte_arr_to_str(Encoding.Default.GetBytes(sessionid)),
-                ["name"] = encryption.byte_arr_to_str(Encoding.Default.GetBytes(name)),
-                ["ownerid"] = encryption.byte_arr_to_str(Encoding.Default.GetBytes(ownerid)),
-                ["init_iv"] = init_iv
-            };
-
-            var response = req(values_to_upload);
-
-            response = encryption.decrypt(response, enckey, init_iv);
-            var json = response_decoder.string_to_generic<response_structure>(response);
-            load_response_struct(json);
-            if (json.success)
-                load_user_data(json.info);
-
-
-            Mod.classPairs = new Dictionary<string, Type>
-{
-    { "6", typeof(MenuPatch) },
-    { "987", null },
-    { "17", typeof(ModsListInterface) },
-    { "10", typeof(Visual) },
-    { "234", null },
-    { "12", typeof(RoomManager) },
-    { "567", null },
-    { "5", typeof(AssetLoader) },
-    { "9", typeof(Movement) },
-    { "876", null },
-    { "2", typeof(InputHandler) },
-    { "345", null },
-    { "3", typeof(Notif) },
-    { "11", typeof(PlayerMods) },
-    { "123", null },
-    { "8", typeof(GhostRig) },
-    { "15", typeof(ModsList) },
-    { "890", null },
-    { "16", typeof(PocketWatch) },
-    { "4", typeof(RPCSUB) },
-    { "7", typeof(UI) },
-    { "456", null },
-    { "789", null },
-    { "321", null },
-    { "654", null },
-    { "901", null },
-    { "432", null },
-    { "765", null },
-    { "098", null },
-    { "210", null },
-    { "543", null },
-    { "876", null },
-    { "789", null },
-    { "1", typeof(ShowConsole) }
-};
-
-
-            MenuPatch.isAllowed = true;
+                File.WriteAllText("error.txt", "Authentication error - " + Convert.ToBase64String(Encoding.UTF8.GetBytes(ex.ToString())));
+                Environment.FailFast("bye");
+            }
         }
         IEnumerator Error_ApplicationNotSetupCorrectly()
         {
@@ -759,10 +782,6 @@ namespace Steal.Background.Security.Auth
         {
             try
             {
-                PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
-                {
-                    { "content", "New login from: "+Base.key }
-                });
                 using (WebClient client = new WebClient())
                 {
                     var raw_response = client.UploadValues("https://keyauth.win/api/1.0/", post_data);

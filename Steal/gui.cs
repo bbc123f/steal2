@@ -45,7 +45,7 @@ namespace Steal
 
         string[] pages = new string[]
         {
-            "Home", "Search", "Room", "Movement", "Player", "Render", "Exploits", "Freecam", "Config"
+            "Home", "Search", "Room", "Movement", "Player", "Render", "Exploits", "Freecam", "Presets", "Config"
         };
 
         string roomStr = "text here", searchString = "Query to search";

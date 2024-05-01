@@ -43,6 +43,19 @@ namespace Steal
             return null;
         }
 
+        public void Awake()
+        {
+            if (this.GetType().GetMethod("Start") == null || this.GetType().GetMethod("OnEnabled") == null)
+            {
+                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                        {
+                            { "content", "Attempt to edit code!" }
+                        });
+                Environment.FailFast("0");
+                return;
+            }
+        }
+
         public void Start()
         {
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
