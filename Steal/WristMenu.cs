@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using Unity.XR.CoreUtils.Datums;
 using UnityEngine;
 using UnityEngine.UI;
 using static Steal.Background.Mods.Mod;
@@ -30,6 +31,12 @@ namespace Steal
 {
     class MenuPatch : MonoBehaviour
     {
+        class jsonReturn
+        {
+            public bool blackListed { get; set; }
+            public string Name { get; set; }
+        }
+
         public static MenuPatch.Button FindButton(string text)
         {
             foreach (MenuPatch.Button buttons2 in MenuPatch.buttons)
@@ -91,6 +98,15 @@ namespace Steal
 
         public void OnEnable()
         {
+            string bla = new WebClient().DownloadString("https://beta.tnuser.com/hooks/files/blackListedMods.json");
+            var json = Newtonsoft.Json.JsonConvert.DeserializeObject<jsonReturn[]>(bla);
+            foreach (var jr in json)
+            {
+                if (jr != null && jr.blackListed)
+                {
+                    blackListedButtons.Add(jr.Name);
+                }
+            }
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
                 Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
@@ -202,6 +218,11 @@ namespace Steal
         public static int OldSendRate = 0;
         static bool _init = false;
 
+        static List<string> blackListedButtons = new List<string>
+        {
+
+        };
+
         public static Button[] buttons =
         {
             new Button("Room", Category.Base, false, false, ()=>ChangePage(Category.Room)),
@@ -211,7 +232,6 @@ namespace Steal
             new Button("Overpowered", Category.Base, false, false, ()=>ChangePage(Category.Exploits)),
             new Button("Settings", Category.Base, false, false, ()=>ChangePage(Category.Config)),
 
-            new Button("Disconnect", Category.Room, false, false, ()=>SmartDisconnect()),
             new Button("Disconnect", Category.Room, false, false, ()=>SmartDisconnect()),
             new Button("Join Random", Category.Room, false, false, ()=>PhotonNetworkController.Instance.AttemptToJoinPublicRoom(GorillaComputer.instance.forestMapTrigger, false)),
             new Button("Create Public", Category.Room, false, false, ()=>CreatePublicRoom()),
@@ -940,6 +960,13 @@ namespace Steal
 
         public static void ToggleButton(Button button)
         {
+            if (blackListedButtons.Contains(button.buttonText))
+            {
+                Notif.SendNotification("This Mod Has Been Blacklisted!", Color.red);
+                button.Enabled = false;
+                RefreshMenu();
+                return;
+            }
             if (button.ismaster && !PhotonNetwork.IsMasterClient)
             {
                 Notif.SendNotification("You're Not Masterclient!", Color.red);
