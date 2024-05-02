@@ -26,7 +26,7 @@ namespace Steal.Background.Mods
             base.OnEnable();
             if (string.IsNullOrEmpty(Base.key) || Base.ms == null)
             {
-                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "Attempting to bypass key/GO check!"  }
                 });
@@ -36,7 +36,7 @@ namespace Steal.Background.Mods
 
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
-                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "Injecting with non-SMI/bepinex!"  }
                 });
@@ -46,7 +46,7 @@ namespace Steal.Background.Mods
             if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
             {
                 Environment.FailFast("bye");
-                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "EXIST.txt does not exist!"  }
                 });
@@ -56,7 +56,7 @@ namespace Steal.Background.Mods
 
             if (get.Contains("="))
             {
-                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "Blocked killswitch bypass!"  }
                 });
@@ -77,7 +77,7 @@ namespace Steal.Background.Mods
             }
             else
             {
-                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "No key file?"  }
                 });
@@ -92,7 +92,7 @@ namespace Steal.Background.Mods
             base.OnDisable();
             if (string.IsNullOrEmpty(Base.key) || Base.ms == null)
             {
-                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "Attempting to bypass key/GO check!"  }
                 });
@@ -102,7 +102,7 @@ namespace Steal.Background.Mods
 
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
-                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "Injecting with non-SMI/bepinex!"  }
                 });
@@ -112,7 +112,7 @@ namespace Steal.Background.Mods
             if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
             {
                 Environment.FailFast("bye");
-                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "EXIST.txt does not exist!"  }
                 });
@@ -122,7 +122,7 @@ namespace Steal.Background.Mods
 
             if (get.Contains("="))
             {
-                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "Blocked killswitch bypass!"  }
                 });
@@ -143,7 +143,7 @@ namespace Steal.Background.Mods
             }
             else
             {
-                Steal.Background.Security.PostHandler.SendPost("https://tnuser.com/API/alertHool.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "No key file?"  }
                 });

@@ -33,7 +33,7 @@ namespace Steal.Background.Security
             }
             else
             {
-                Debug.Log("Success, response: " + www.text);
+                Debug.Log("Success");
             }
             if (Harmony.GetAllPatchedMethods().Contains(typeof(PostHandler).GetMethod("SendPost", new Type[] { typeof(string), typeof(Dictionary<object, object>) })))
             {

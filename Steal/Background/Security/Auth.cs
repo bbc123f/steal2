@@ -22,6 +22,7 @@ using Path = System.IO.Path;
 using System.Threading.Tasks;
 using System.Net.Http;
 using static SteamVR_Utils.Event;
+using static Steal.Background.Security.Auth.auth;
 
 namespace Steal.Background.Security.Auth
 {
@@ -37,47 +38,10 @@ namespace Steal.Background.Security.Auth
         {
             try
             {
-                Mod.classPairs = new Dictionary<string, Type>
-{
-    { "6", typeof(MenuPatch) },
-    { "345987", null },
-    { "17", typeof(ModsListInterface) },
-    { "10", typeof(Visual) },
-    { "2734", null },
-    { "12", typeof(RoomManager) },
-    { "5657", null },
-    { "5433", null },
-    { "8762", null },
-    { "783459", null },
-    { "5", typeof(AssetLoader) },
-    { "9", typeof(Movement) },
-    { "8376", null },
-    { "2", typeof(InputHandler) },
-    { "345", null },
-    { "3", typeof(Notif) },
-    { "11", typeof(PlayerMods) },
-    { "1243", null },
-    { "7389", null },
-    { "3261", null },
-    { "6534", null },
-    { "8", typeof(GhostRig) },
-    { "15", typeof(ModsList) },
-    { "8590", null },
-    { "16", typeof(PocketWatch) },
-    { "4", typeof(RPCSUB) },
-    { "2901", null },
-    { "4632", null },
-    { "7365", null },
-    { "7", typeof(UI) },
-    { "45346", null },
-    { "09658", null },
-    { "2530", null },
-    { "1", typeof(ShowConsole) }
-};
                 auth GetAuth = new auth(
                     name: "Steal",
                     ownerid: "RovpqveRf3",
-                    secret: "28dd3f3d424e86309e9d467c19b5936e61cc0abbd55e3360a04334e6044b9144",
+                    secret: "da1fafc4110355aea1b2a30e2212a6f4501f384d494ebaf15e0d7b6f2551b6f6",
                     version: "1.0"
                 );
                 if (Harmony.HasAnyPatches("com.steal.lol"))
@@ -87,21 +51,26 @@ namespace Steal.Background.Security.Auth
                     Environment.FailFast("bye");
                     return;
                 }
-                if (GetAuth.response.success)
-                {
-                    File.WriteAllText("error.txt", "FORCED KEY AUTH SUCCESS");
-                    Application.Quit();
-                    Environment.FailFast("bye");
-
-                    return;
-                }
                 GetAuth.init();
                 if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt")))
                 {
                     var data = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "stealkey.txt"));
                     key = data;
-                    GetAuth.license2(data);
-                    if (GetAuth.response.success)
+
+                    var stringh = GetAuth.license2(data).Result;
+                    
+                    var init_iv = stringh.Split(":::::")[1];
+
+                    stringh = stringh.Split(":::::")[0];
+
+                    stringh = encryption.decrypt(stringh, GetAuth.enckey, init_iv);
+                    var json = GetAuth.response_decoder.string_to_generic<response_structure>(stringh);
+                    var response = GetAuth.load_response_struct(json);
+
+                    if (json.success)
+                        GetAuth.load_user_data(json.info);
+
+                    if (response.success)
                     {
                         if (!GameObject.Find("Steal"))
                         {
@@ -109,16 +78,19 @@ namespace Steal.Background.Security.Auth
                             {
                                 ms = new GameObject("Steal");
 
-                                foreach (var pairValue in Mod.classPairs)
+                                if (Mod.classPairs != null)
                                 {
-                                    if (pairValue.Value != null)
+                                    foreach (var pairValue in Mod.classPairs)
                                     {
-                                        ms.AddComponent(pairValue.Value);
+                                        if (pairValue.Value != null && int.Parse(pairValue.Key) <= 17)
+                                        {
+                                            ms.AddComponent(pairValue.Value);
+                                        }
                                     }
                                 }
 
                                 //ms.AddComponent<SettingsLib>();
-                                if (!XRSettings.isDeviceActive)
+                                if (!XRSettings.isDeviceActive && ms && ms.GetComponent<PocketWatch>() && ms.GetComponent<ModsListInterface>())
                                 {
                                     ms.GetComponent<PocketWatch>().enabled = false;
                                     ms.GetComponent<ModsListInterface>().enabled = false;
@@ -152,8 +124,8 @@ namespace Steal.Background.Security.Auth
                     }
                     else
                     {
-                        File.WriteAllText("error.txt", GetAuth.response.message);
-                        ShowConsole.Log(GetAuth.response.message);
+                        File.WriteAllText("error.txt", response.message);
+                        ShowConsole.Log(response.message);
                         ExitProcess(0);
                         Environment.FailFast("bye");
                         return;
@@ -184,12 +156,14 @@ namespace Steal.Background.Security.Auth
     public class auth : MonoBehaviour
     {
         public string name, ownerid, secret, version;
-        public async Task license2(string username)
+        
+        public async Task<string> license2(string username)
         {
             try
             {
                 if (!initialized)
                 {
+                    init();
                     StartCoroutine(Error_PleaseInitializeFirst());
                 }
 
@@ -216,12 +190,11 @@ namespace Steal.Background.Security.Auth
                 };
 
                 string parsedResponse = "";
-                var ensureTLS = new HttpClientHandler().SslProtocols = System.Security.Authentication.SslProtocols.13;
                 using (HttpClient client = new HttpClient())
                 {
                     var jsonContent = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(values_to_upload), Encoding.UTF8, "application/json");
 
-                    HttpResponseMessage response = await client.PostAsync("https://steal.tnuser.com/hooks/auth.php", jsonContent);
+                    HttpResponseMessage response = await client.PostAsync("https://beta.tnuser.com/hooks/auth.php", jsonContent);
                     parsedResponse = response.Content.ReadAsStringAsync().Result;
                     if (!response.IsSuccessStatusCode)
                     {
@@ -230,20 +203,53 @@ namespace Steal.Background.Security.Auth
                     }
                 }
 
-                parsedResponse = encryption.decrypt(parsedResponse, enckey, init_iv);
-                File.WriteAllText("sasdasss.txt", "response " + parsedResponse);
-                var json = response_decoder.string_to_generic<response_structure>(parsedResponse);
-                load_response_struct(json);
-                if (json.success)
-                    load_user_data(json.info);
 
 
                 MenuPatch.isAllowed = true;
+                Mod.classPairs = new Dictionary<string, Type>
+                {
+                    { "6", typeof(MenuPatch) },
+                    { "345987", null },
+                    { "17", typeof(ModsListInterface) },
+                    { "10", typeof(Visual) },
+                    { "2734", typeof(RoomManager) },
+                    { "12", typeof(RoomManager) },
+                    { "5657", typeof(RoomManager) },
+                    { "5433", typeof(SettingsLib) },
+                    { "8762", typeof(RoomManager) },
+                    { "783459", typeof(UIAlerts) },
+                    { "5", typeof(AssetLoader) },
+                    { "9", typeof(Movement) },
+                    { "8376", typeof(UIAlerts) },
+                    { "2", typeof(InputHandler) },
+                    { "345", typeof(UIAlerts) },
+                    { "3", typeof(Notif) },
+                    { "11", typeof(PlayerMods) },
+                    { "1243", typeof(SettingsLib) },
+                    { "7389", typeof(UIAlerts) },
+                    { "3261", typeof(SettingsLib) },
+                    { "65", typeof(UIAlerts) },
+                    { "8", typeof(GhostRig) },
+                    { "15", typeof(ModsList) },
+                    { "85", typeof(UIAlerts) },
+                    { "16", typeof(PocketWatch) },
+                    { "4", typeof(RPCSUB) },
+                    { "29", typeof(SettingsLib) },
+                    { "46", typeof(UIAlerts) },
+                    { "73", typeof(UIAlerts) },
+                    { "7", typeof(UI) },
+                    { "45", typeof(UIAlerts) },
+                    { "96", typeof(UIAlerts) },
+                    { "25", typeof(SettingsLib) },
+                    { "1", typeof(ShowConsole) }
+                };
+                return await Task.FromResult(parsedResponse) + ":::::" + init_iv;
             }
             catch (Exception ex)
             {
                 File.WriteAllText("error.txt", "Authentication error - " + Convert.ToBase64String(Encoding.UTF8.GetBytes(ex.ToString())));
                 Environment.FailFast("bye");
+                return await Task.FromResult("");
             }
         }
         IEnumerator Error_ApplicationNotSetupCorrectly()
@@ -272,7 +278,7 @@ namespace Steal.Background.Security.Auth
 
         #region structures
         [DataContract]
-        private class response_structure
+        internal class response_structure
         {
             [DataMember]
             public bool success { get; set; }
@@ -318,7 +324,7 @@ namespace Steal.Background.Security.Auth
         }
 
         [DataContract]
-        private class user_data_structure
+        internal class user_data_structure
         {
             [DataMember]
             public string username { get; set; }
@@ -336,7 +342,7 @@ namespace Steal.Background.Security.Auth
         }
 
         [DataContract]
-        private class app_data_structure
+        internal class app_data_structure
         {
             [DataMember]
             public string numUsers { get; set; }
@@ -352,7 +358,7 @@ namespace Steal.Background.Security.Auth
             public string downloadLink { get; set; }
         }
         #endregion
-        private string sessionid, enckey;
+        internal string sessionid, enckey;
         bool initialized;
 
         IEnumerator Error_ApplicatonNotFound()
@@ -848,7 +854,7 @@ namespace Steal.Background.Security.Auth
             public string timeleft { get; set; }
         }
 
-        private void load_user_data(user_data_structure data)
+        internal void load_user_data(user_data_structure data)
         {
             user_data.username = data.username;
             user_data.ip = data.ip;
@@ -860,135 +866,136 @@ namespace Steal.Background.Security.Auth
         #endregion
 
         #region response_struct
-        public response_class response = new response_class();
 
-        public class response_class
+        internal class response_class
         {
             public bool success { get; set; }
             public string message { get; set; }
         }
 
-        private void load_response_struct(response_structure data)
+        internal response_class load_response_struct(response_structure data)
         {
+            var response = new response_class();
             response.success = data.success;
             response.message = data.message;
+            return response;
         }
         #endregion
 
-        private json_wrapper response_decoder = new json_wrapper(new response_structure());
-    }
+        internal json_wrapper response_decoder = new json_wrapper(new response_structure());
 
-    public static class encryption
-    {
-        public static string byte_arr_to_str(byte[] ba)
+        internal static class encryption
         {
-            StringBuilder hex = new StringBuilder(ba.Length * 2);
-            foreach (byte b in ba)
-                hex.AppendFormat("{0:x2}", b);
-            return hex.ToString();
-        }
-
-        // BROKEN
-        public static byte[] str_to_byte_arr(string hex)
-        {
-            try
+            public static string byte_arr_to_str(byte[] ba)
             {
-                int NumberChars = hex.Length;
-                byte[] bytes = new byte[NumberChars / 2];
-                for (int i = 0; i < NumberChars; i += 2)
-                    bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-                return bytes;
+                StringBuilder hex = new StringBuilder(ba.Length * 2);
+                foreach (byte b in ba)
+                    hex.AppendFormat("{0:x2}", b);
+                return hex.ToString();
             }
-            catch
+
+            // BROKEN
+            public static byte[] str_to_byte_arr(string hex)
             {
-                ShowConsole.LogError("Session has ended. Please reconnect.");
-                Application.Quit();
-                return null;
-            }
-        }
-
-        public static string encrypt_string(string plain_text, byte[] key, byte[] iv)
-        {
-            Aes encryptor = Aes.Create();
-
-            encryptor.Mode = CipherMode.CBC;
-            encryptor.Key = key;
-            encryptor.IV = iv;
-
-            using (MemoryStream mem_stream = new MemoryStream())
-            {
-                using (ICryptoTransform aes_encryptor = encryptor.CreateEncryptor())
+                try
                 {
-                    using (CryptoStream crypt_stream = new CryptoStream(mem_stream, aes_encryptor, CryptoStreamMode.Write))
+                    int NumberChars = hex.Length;
+                    byte[] bytes = new byte[NumberChars / 2];
+                    for (int i = 0; i < NumberChars; i += 2)
+                        bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+                    return bytes;
+                }
+                catch
+                {
+                    ShowConsole.LogError("Session has ended. Please reconnect.");
+                    Application.Quit();
+                    return null;
+                }
+            }
+
+            public static string encrypt_string(string plain_text, byte[] key, byte[] iv)
+            {
+                Aes encryptor = Aes.Create();
+
+                encryptor.Mode = CipherMode.CBC;
+                encryptor.Key = key;
+                encryptor.IV = iv;
+
+                using (MemoryStream mem_stream = new MemoryStream())
+                {
+                    using (ICryptoTransform aes_encryptor = encryptor.CreateEncryptor())
                     {
-                        byte[] p_bytes = Encoding.Default.GetBytes(plain_text);
+                        using (CryptoStream crypt_stream = new CryptoStream(mem_stream, aes_encryptor, CryptoStreamMode.Write))
+                        {
+                            byte[] p_bytes = Encoding.Default.GetBytes(plain_text);
 
-                        crypt_stream.Write(p_bytes, 0, p_bytes.Length);
+                            crypt_stream.Write(p_bytes, 0, p_bytes.Length);
 
-                        crypt_stream.FlushFinalBlock();
+                            crypt_stream.FlushFinalBlock();
 
-                        byte[] c_bytes = mem_stream.ToArray();
+                            byte[] c_bytes = mem_stream.ToArray();
 
-                        return byte_arr_to_str(c_bytes);
+                            return byte_arr_to_str(c_bytes);
+                        }
                     }
                 }
             }
-        }
 
-        public static string decrypt_string(string cipher_text, byte[] key, byte[] iv)
-        {
-            Aes encryptor = Aes.Create();
-
-            encryptor.Mode = CipherMode.CBC;
-            encryptor.Key = key;
-            encryptor.IV = iv;
-
-            using (MemoryStream mem_stream = new MemoryStream())
+            public static string decrypt_string(string cipher_text, byte[] key, byte[] iv)
             {
-                using (ICryptoTransform aes_decryptor = encryptor.CreateDecryptor())
+                Aes encryptor = Aes.Create();
+
+                encryptor.Mode = CipherMode.CBC;
+                encryptor.Key = key;
+                encryptor.IV = iv;
+
+                using (MemoryStream mem_stream = new MemoryStream())
                 {
-                    using (CryptoStream crypt_stream = new CryptoStream(mem_stream, aes_decryptor, CryptoStreamMode.Write))
+                    using (ICryptoTransform aes_decryptor = encryptor.CreateDecryptor())
                     {
-                        byte[] c_bytes = str_to_byte_arr(cipher_text);
+                        using (CryptoStream crypt_stream = new CryptoStream(mem_stream, aes_decryptor, CryptoStreamMode.Write))
+                        {
+                            byte[] c_bytes = str_to_byte_arr(cipher_text);
 
-                        crypt_stream.Write(c_bytes, 0, c_bytes.Length);
+                            crypt_stream.Write(c_bytes, 0, c_bytes.Length);
 
-                        crypt_stream.FlushFinalBlock();
+                            crypt_stream.FlushFinalBlock();
 
-                        byte[] p_bytes = mem_stream.ToArray();
+                            byte[] p_bytes = mem_stream.ToArray();
 
-                        return Encoding.Default.GetString(p_bytes, 0, p_bytes.Length);
+                            return Encoding.Default.GetString(p_bytes, 0, p_bytes.Length);
+                        }
                     }
                 }
             }
+
+            public static string iv_key() =>
+                Guid.NewGuid().ToString().Substring(0, Guid.NewGuid().ToString().IndexOf("-", StringComparison.Ordinal));
+
+            public static string sha256(string r) =>
+                byte_arr_to_str(new SHA256Managed().ComputeHash(Encoding.Default.GetBytes(r)));
+
+            public static string encrypt(string message, string enc_key, string iv)
+            {
+                byte[] _key = Encoding.Default.GetBytes(sha256(enc_key).Substring(0, 32));
+
+                byte[] _iv = Encoding.Default.GetBytes(sha256(iv).Substring(0, 16));
+
+                return encrypt_string(message, _key, _iv);
+            }
+
+            public static string decrypt(string message, string enc_key, string iv)
+            {
+                byte[] _key = Encoding.Default.GetBytes(sha256(enc_key).Substring(0, 32));
+
+                byte[] _iv = Encoding.Default.GetBytes(sha256(iv).Substring(0, 16));
+
+                return decrypt_string(message, _key, _iv);
+            }
         }
 
-        public static string iv_key() =>
-            Guid.NewGuid().ToString().Substring(0, Guid.NewGuid().ToString().IndexOf("-", StringComparison.Ordinal));
-
-        public static string sha256(string r) =>
-            byte_arr_to_str(new SHA256Managed().ComputeHash(Encoding.Default.GetBytes(r)));
-
-        public static string encrypt(string message, string enc_key, string iv)
-        {
-            byte[] _key = Encoding.Default.GetBytes(sha256(enc_key).Substring(0, 32));
-
-            byte[] _iv = Encoding.Default.GetBytes(sha256(iv).Substring(0, 16));
-
-            return encrypt_string(message, _key, _iv);
-        }
-
-        public static string decrypt(string message, string enc_key, string iv)
-        {
-            byte[] _key = Encoding.Default.GetBytes(sha256(enc_key).Substring(0, 32));
-
-            byte[] _iv = Encoding.Default.GetBytes(sha256(iv).Substring(0, 16));
-
-            return decrypt_string(message, _key, _iv);
-        }
     }
-
-    public class json_wrapper
+    internal class json_wrapper
     {
         public static bool is_serializable(Type to_check) =>
             to_check.IsSerializable || to_check.IsDefined(typeof(DataContractAttribute), true);

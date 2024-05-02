@@ -77,7 +77,7 @@ namespace Steal.Background
         }
         public static void LogError(object message)
         {
-            //dismiss
+            LogERR(message);
         }
     }
 }
