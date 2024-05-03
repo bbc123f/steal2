@@ -1,4 +1,6 @@
 ﻿using GorillaNetworking;
+using System;
+using Newtonsoft.Json;
 using Photon.Pun;
 using Photon.Realtime;
 using Photon.Voice.PUN;
@@ -24,6 +26,7 @@ using static Steal.Background.Mods.RoomManager;
 using static Steal.Background.Mods.Visual;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
+using BoingKit;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
@@ -33,8 +36,8 @@ namespace Steal
     {
         class jsonReturn
         {
-            public bool blackListed { get; set; }
-            public string Name { get; set; }
+            public string title { get; set; }
+            public bool blacklisted { get; set; }
         }
 
         public static MenuPatch.Button FindButton(string text)
@@ -99,12 +102,19 @@ namespace Steal
         public void OnEnable()
         {
             string bla = new WebClient().DownloadString("https://beta.tnuser.com/hooks/files/blackListedMods.json");
-            var json = Newtonsoft.Json.JsonConvert.DeserializeObject<jsonReturn[]>(bla);
-            foreach (var jr in json)
+            jsonReturn[] person = null;
+            using (StringReader stringReader = new StringReader(bla))
             {
-                if (jr != null && jr.blackListed)
+                using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
                 {
-                    blackListedButtons.Add(jr.Name);
+                    person = JsonSerializer.CreateDefault().Deserialize<jsonReturn[]>(jsonReader);
+                }
+            }
+            foreach (var jr in person)
+            {
+                if (jr != null && jr.blacklisted)
+                {
+                    blackListedButtons.Add(jr.title);
                 }
             }
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))

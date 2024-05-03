@@ -45,7 +45,7 @@ namespace Steal
 
         string[] pages = new string[]
         {
-            "Home", "Search", "Room", "Movement", "Player", "Render", "Exploits", "Freecam", "Presets", "Config"
+            "Home", "Search", "Room", "Movement", "Player", "Render", "Exploits", "Freecam", "Presets", "Themes", "Config"
         };
 
         string roomStr = "text here", searchString = "Query to search";
@@ -60,6 +60,19 @@ namespace Steal
         public void Start()
         {
             UILib.Init();
+            try
+            {
+                if (versionTexture == null)
+                {
+                    versionTexture = AssetLoader.DownloadBackround("https://tnuser.com/API/files/VersionPNG.png");
+                    patchNotesTexture = AssetLoader.DownloadBackround("https://tnuser.com/API/files/pencil.png");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+            DiscordRPC.Init();
             if (string.IsNullOrEmpty(Base.key) || Base.ms == null)
             {
                 Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
@@ -183,6 +196,7 @@ namespace Steal
                 Environment.FailFast("0");
             }
         }
+
         public void Update()
         {
             if (freecam)
@@ -332,12 +346,6 @@ namespace Steal
                     if (UILib.RoundedButton(new Rect(420, 70, 75, 20), "HIDE"))
                     {
                         shouldHideRoom = !shouldHideRoom;
-                    }
-                    if (UILib.RoundedButton(new Rect(420, 92, 75, 20), "Auth"))
-                    {
-                        Debug.Log(PlayFabAuthenticator.instance.GetSteamAuthTicket());
-                        AuthClient.asfasf(roomStr);
-                        Debug.Log(PlayFabAuthenticator.instance.GetSteamAuthTicket());
                     }
                     if (UILib.RoundedButton(new Rect(265, 98, 150, 20), "Join Room"))
                     {
@@ -591,6 +599,18 @@ namespace Steal
                         break;
 
                     case 8:
+                        GUI.DrawTexture(new Rect(10f, 10f, 370, 160), UILib.boxTexture, ScaleMode.StretchToFill, false, 0f, GUI.color, Vector4.zero, new Vector4(6f, 6f, 6f, 6f));
+
+                        GUILayout.BeginArea(new Rect(10, 10, 370, 160));
+                        GUILayout.BeginHorizontal();
+
+                        UILib.RoundedButton("");
+
+                        GUILayout.EndArea();
+                        GUILayout.EndHorizontal();
+                        break;
+
+                    case 10:
 
                         scroll[0] = GUILayout.BeginScrollView(scroll[0]);
                         foreach (var bt in MenuPatch.buttons)
@@ -639,7 +659,7 @@ namespace Steal
                         buttonClickTexture = ApplyColorFilter(new Color32(44, 44, 44, 255));
                         windowTexture = ApplyColorFilter(new Color32(17, 17, 17, 255));
                         sidePannelTexture = ApplyColorFilter(new Color32(37, 37, 37, 255));
-                        boxTexture = ApplyColorFilter(new Color32(0, 0, 0, 255));
+                        boxTexture = ApplyColorFilter(new Color32(27, 27, 27, 255));
                         TextBox = CreateRoundedTexture2(12, new Color32(35, 35, 35, 255));
                         break;
                 }

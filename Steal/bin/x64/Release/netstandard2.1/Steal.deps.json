@@ -45,6 +45,12 @@
           "PlayFab": "0.0.0.0",
           "SteamVR": "0.0.0.0",
           "SteamVR_Actions": "0.0.0.0",
+          "System.Configuration": "4.0.0.0",
+          "System.Data.DataSetExtensions": "4.0.0.0",
+          "System.EnterpriseServices": "4.0.0.0",
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0.0",
+          "System.Security": "4.0.0.0",
+          "System.ServiceModel.Internals": "0.0.0.0",
           "Unity.Addressables": "0.0.0.0",
           "Unity.AI.Navigation": "0.0.0.0",
           "Unity.Animation.Rigging": "0.0.0.0",
@@ -433,6 +439,54 @@
           "SteamVR_Actions.dll": {
             "assemblyVersion": "0.0.0.0",
             "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "System.Configuration/4.0.0.0": {
+        "runtime": {
+          "System.Configuration.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.57.0"
+          }
+        }
+      },
+      "System.Data.DataSetExtensions/4.0.0.0": {
+        "runtime": {
+          "System.Data.DataSetExtensions.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.57.0"
+          }
+        }
+      },
+      "System.EnterpriseServices/4.0.0.0": {
+        "runtime": {
+          "System.EnterpriseServices.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.57.0"
+          }
+        }
+      },
+      "System.Runtime.CompilerServices.Unsafe/6.0.0.0": {
+        "runtime": {
+          "System.Runtime.CompilerServices.Unsafe.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "System.Security/4.0.0.0": {
+        "runtime": {
+          "System.Security.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.57.0"
+          }
+        }
+      },
+      "System.ServiceModel.Internals/0.0.0.0": {
+        "runtime": {
+          "System.ServiceModel.Internals.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "4.6.57.0"
           }
         }
       },
@@ -1268,6 +1322,14 @@
           }
         }
       },
+      "AA.Mothership/0.0.0.0": {
+        "runtime": {
+          "AA.Mothership.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
       "VoiceSDK.Runtime/0.0.0.0": {
         "runtime": {
           "VoiceSDK.Runtime.dll": {
@@ -1321,14 +1383,6 @@
           "Meta.WitAi.TTS.dll": {
             "assemblyVersion": "0.0.0.0",
             "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "System.Runtime.CompilerServices.Unsafe/6.0.0.0": {
-        "runtime": {
-          "System.Runtime.CompilerServices.Unsafe.dll": {
-            "assemblyVersion": "6.0.0.0",
-            "fileVersion": "6.0.21.52210"
           }
         }
       },
@@ -1548,6 +1602,36 @@
       "sha512": ""
     },
     "SteamVR_Actions/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Configuration/4.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Data.DataSetExtensions/4.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.EnterpriseServices/4.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Runtime.CompilerServices.Unsafe/6.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Security/4.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.ServiceModel.Internals/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
@@ -2072,6 +2156,11 @@
       "serviceable": false,
       "sha512": ""
     },
+    "AA.Mothership/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
     "VoiceSDK.Runtime/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
@@ -2103,11 +2192,6 @@
       "sha512": ""
     },
     "Meta.WitAi.TTS/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "System.Runtime.CompilerServices.Unsafe/6.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
