@@ -54,7 +54,7 @@ namespace Steal.Background
             Log(str);
             try
             {
-                VersionJSON[] jsons = Newtonsoft.Json.JsonConvert.DeserializeObject<VersionJSON[]>(new WebClient().DownloadString("https://tnuser.com/API/files/StealVersion.json"));
+                VersionJSON[] jsons = Newtonsoft.Json.JsonConvert.DeserializeObject<VersionJSON[]>(new WebClient().DownloadString("https://chingchong.cloud/steal/assets/StealVersion.json"));
                 var json = jsons[0];
                 if (int.Parse(json.Revisions) > Version.Revision || int.Parse(json.Major) > Version.MajorVersion || int.Parse(json.Minor) > Version.MinorVersion)
                 {

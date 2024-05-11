@@ -1,6 +1,8 @@
 ﻿using HarmonyLib;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -11,8 +13,15 @@ using UnityEngine;
 
 namespace Steal.Background.Security
 {
-    public class PostHandler
+    public class PostHandler : MonoBehaviour
     {
+        public static PostHandler Instance { get; private set; }
+
+        public static void Init()
+        {
+            Instance = new PostHandler();
+        }
+
         public static async Task<byte[]> SendPost(string uri, Dictionary<object, object> data)
         {
             WWWForm form = new WWWForm();
@@ -42,24 +51,21 @@ namespace Steal.Background.Security
             return www.bytes;
         }
 
-        public static async Task PostReq2(string url, object items)
+        public static Task<HttpResponseMessage> PostReq2(string url, object items)
         {
             using (HttpClient client = new HttpClient())
             {
                 var jsonContent = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(items), Encoding.UTF8, "application/json");
-
                 try
                 {
-                    HttpResponseMessage response = await client.PostAsync(url, jsonContent);
+                    HttpResponseMessage response = client.PostAsync(url, jsonContent).Result;
 
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        throw new Exception($"Error: {response.StatusCode} - {response.ReasonPhrase}");
-                    }
+                    return Task.FromResult(response);
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"An error occurred: {ex.Message}");
+                    Debug.LogException(ex);
+                    return null;
                 }
             }
         }

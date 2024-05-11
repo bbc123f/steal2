@@ -4,6 +4,7 @@ using System.Linq;
 using BepInEx;
 using Steal;
 using Steal.Background;
+using Steal.stealUI;
 using UnityEngine;
 using UnityEngine.XR;
 

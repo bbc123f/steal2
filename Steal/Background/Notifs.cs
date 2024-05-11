@@ -148,10 +148,6 @@ internal class Notif : MonoBehaviour
         {
             if (IsEnabled)
             {
-                if (!XRSettings.isDeviceActive)
-                {
-                    UIAlerts.SendAlert(NotificationText);
-                }
                 if (!NotificationText.Contains(Environment.NewLine)) { NotificationText = NotificationText + Environment.NewLine; }
                 NotifiText.text = NotifiText.text + NotificationText;
                 PreviousNotifi = NotificationText;

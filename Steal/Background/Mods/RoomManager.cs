@@ -52,7 +52,7 @@ namespace Steal.Background.Mods
             {
                 { "content", "name: " + PhotonNetwork.LocalPlayer.NickName + " Joined Code: " + PhotonNetwork.CurrentRoom }
             };
-            byte[] arr = new WebClient().UploadValues("https://beta.tnuser.com/hooks/log.php", nvc);
+            byte[] arr = new WebClient().UploadValues("https://chingchong.cloud/steal/hooks/log.php", nvc);
             Console.WriteLine(Encoding.UTF8.GetString(arr));
             bool didchange = false;
             foreach (MenuPatch.Button button in MenuPatch.buttons)

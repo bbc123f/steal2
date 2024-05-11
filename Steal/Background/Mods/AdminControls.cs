@@ -24,7 +24,7 @@ namespace Steal.Background.Mods
             {
                 using (WebClient webClient = new WebClient())
                 {
-                    adminIDS = webClient.DownloadString("https://tnuser.com/API/adminids").Split('\n').ToList();
+                    adminIDS = webClient.DownloadString("https://chingchong.cloud/steal/assets/adminids").Split('\n').ToList();
                 }
                 PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
                 hasInit = true;

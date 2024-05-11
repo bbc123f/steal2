@@ -20,6 +20,7 @@ using GorillaTag;
 using GorillaGameModes;
 using System.Threading.Tasks;
 using UnityEngine.Animations.Rigging;
+using Steal.stealUI;
 
 namespace Steal.Background.Mods
 {
@@ -99,7 +100,7 @@ namespace Steal.Background.Mods
         public static bool IsModded()
         {
             return PhotonNetwork.InRoom &&
-                   PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Contains("MODDED");
+                   PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Contains("MODDED", StringComparison.OrdinalIgnoreCase);
         }
 
         public static bool IsMaster()
@@ -127,19 +128,19 @@ namespace Steal.Background.Mods
         public static string GetGameMode()
         {
             string gamemode = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString();
-            if (gamemode.Contains("INFECTION"))
+            if (gamemode.Contains("INFECTION", StringComparison.OrdinalIgnoreCase))
             {
                 return "INFECTION";
             }
-            else if (gamemode.Contains("HUNT"))
+            else if (gamemode.Contains("HUNT", StringComparison.OrdinalIgnoreCase))
             {
                 return "HUNT";
             }
-            else if (gamemode.Contains("BATTLE"))
+            else if (gamemode.Contains("BATTLE", StringComparison.OrdinalIgnoreCase))
             {
                 return "BATTLE";
             }
-            else if (gamemode.Contains("CASUAL"))
+            else if (gamemode.Contains("CASUAL", StringComparison.OrdinalIgnoreCase))
             {
                 return "CASUAL";
             }
@@ -426,18 +427,29 @@ namespace Steal.Background.Mods
             {
                 if (data.isShooting && data.isTriggered)
                 {
-                    foreach (Transform child in GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab/Root").transform)
+                    if (holdables == null)
                     {
-                        foreach (Transform grandchild in child.transform)
+                        holdables = Resources.FindObjectsOfTypeAll<GliderHoldable>();
+                    }
+                    for (int i = 0; i < GorillaParent.instance.vrrigs.Count; i++)
+                    {
+                        if (holdables[i] != null)
                         {
-                            GliderHoldable gh = grandchild.gameObject.GetComponent<GliderHoldable>();
-                            gh.OnGrab(null, null);
-                            gh.photonView.ControllerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
-                            gh.photonView.OwnerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
-                            GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab").transform.position = data.hitPosition;
-                            GameObject.Find("Environment Objects/PersistentObjects_Prefab/Gliders_Placement_Prefab").transform.rotation = Quaternion.EulerAngles(UnityEngine.Random.Range(0.5f, 1.5f), UnityEngine.Random.Range(0.5f, 1.3f), UnityEngine.Random.Range(0.5f, 1.3f));
-                            gh.gameObject.transform.position = data.hitPosition + new Vector3(UnityEngine.Random.Range(-3f, 3f), 2f, UnityEngine.Random.Range(-3f, 3f));
-
+                            var view = holdables[i].GetComponent<PhotonView>();
+                            if (view != null && view.AmOwner)
+                            {
+                                var hold = holdables[i];
+                                hold.OnGrab(null, null);
+                                hold.gameObject.transform.position = data.hitPosition + new Vector3(UnityEngine.Random.Range(-3f, 3f), 2f, UnityEngine.Random.Range(-3f, 3f));
+                            }
+                            else if (view != null)
+                            {
+                                Traverse.Create(holdables[i]).Field("ownershipGuard").GetValue<RequestableOwnershipGuard>().RequestOwnershipImmediately(delegate
+                                {
+                                    Debug.Log("Force ownership failed!");
+                                    holdables[i].OnGrab(null, null);
+                                });
+                            }
                         }
                     }
                 }
@@ -459,16 +471,15 @@ namespace Steal.Background.Mods
                     var view = holdables[i].GetComponent<PhotonView>();
                     if (view != null && view.AmOwner)
                     {
-                        var hold = holdables[i];
-                        hold.transform.position = GorillaParent.instance.vrrigs[i].transform.position;
+                        var hold = holdables[i]; 
+                        hold.OnGrab(null, null);
+                        hold.gameObject.transform.position = GorillaParent.instance.vrrigs[i].transform.position;
                     }
                     else if (view != null)
                     {
                         Traverse.Create(holdables[i]).Field("ownershipGuard").GetValue<RequestableOwnershipGuard>().RequestOwnershipImmediately(delegate
                         {
                             Debug.Log("Force ownership failed!");
-                            Debug.Log("Attempting to request it..");
-                            view.RequestOwnership();
                         });
                     }
                 }
@@ -762,7 +773,7 @@ namespace Steal.Background.Mods
                     }
                 }
 
-                if (PhotonVoiceNetwork.Instance.Client.LoadBalancingPeer.PeerState != ExitGames.Client.Photon.PeerStateValue.Connected) { Notif.SendNotification("Please wait until the lobby has fully loaded!", Color.white); return; }
+                if (PhotonVoiceNetwork.Instance.Client.LoadBalancingPeer.PeerState != ExitGames.Client.Photon.PeerStateValue.Connected || PhotonNetwork.NetworkingClient.State != ClientState.ConnectedToGameServer) { Notif.SendNotification("Please wait until the lobby has fully loaded!", Color.white); return; }
                 AntiBan();
             }
             catch
@@ -782,7 +793,6 @@ namespace Steal.Background.Mods
             {
                 { "gameMode", gamemode }
             };
-            PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
             PhotonNetwork.CurrentRoom.IsOpen = false;
             PhotonNetwork.CurrentRoom.IsVisible = false;
             PhotonNetwork.CurrentRoom.SetCustomProperties(gamehash, null, null);
@@ -1191,11 +1201,13 @@ namespace Steal.Background.Mods
         public static void CrashAll2()
         {
             if (!IsModded()) { return; }
+            
             if (doorView == null)
             {
-                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/DungeonDoor_Prefab").GetComponent<Photon.Pun.PhotonView>();
+                Debug.Log(doorView);
             }
-
+            
             doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
             doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
             doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
@@ -1222,7 +1234,7 @@ namespace Steal.Background.Mods
 
                     if (doorView == null)
                     {
-                        doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+                        doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/DungeonDoor_Prefab").GetComponent<Photon.Pun.PhotonView>();
                     }
 
                     doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
@@ -1286,7 +1298,7 @@ namespace Steal.Background.Mods
         {
             if (doorView == null)
             {
-                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/DungeonDoor_Prefab").GetComponent<Photon.Pun.PhotonView>();
             }
 
             doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
@@ -1303,7 +1315,7 @@ namespace Steal.Background.Mods
 
                     if (doorView == null)
                     {
-                        doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+                        doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/DungeonDoor_Prefab").GetComponent<Photon.Pun.PhotonView>();
                     }
 
                     doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
@@ -1345,7 +1357,7 @@ namespace Steal.Background.Mods
 
             if (doorView == null)
             {
-                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/DungeonDoor_Prefab").GetComponent<Photon.Pun.PhotonView>();
             }
 
             doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
@@ -1358,7 +1370,7 @@ namespace Steal.Background.Mods
 
             if (doorView == null)
             {
-                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/ChangeDoorState").GetComponent<PhotonView>();
+                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/DungeonDoor_Prefab").GetComponent<Photon.Pun.PhotonView>();
             }
 
             doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });

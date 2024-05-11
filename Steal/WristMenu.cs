@@ -27,6 +27,7 @@ using static Steal.Background.Mods.Visual;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 using BoingKit;
+using Steal.stealUI;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
@@ -58,7 +59,7 @@ namespace Steal
             if (this.GetType().GetMethod("Start") == null || this.GetType().GetMethod("OnEnable") == null)
             {
 
-                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://chingchong.cloud/steal/hooks/alert.php", new Dictionary<object, object>
                         {
                             { "content", "Attempt to edit code!" }
                         });
@@ -71,7 +72,7 @@ namespace Steal
         {
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
-                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://chingchong.cloud/steal/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "Injecting with non-SMI/bepinex!"  }
                 });
@@ -81,7 +82,7 @@ namespace Steal
             if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
             {
                 Environment.FailFast("bye");
-                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://chingchong.cloud/steal/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "EXIST.txt does not exist!"  }
                 });
@@ -91,7 +92,7 @@ namespace Steal
 
             if (get.Contains("="))
             {
-                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://chingchong.cloud/steal/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "Blocked killswitch bypass!"  }
                 });
@@ -101,7 +102,7 @@ namespace Steal
 
         public void OnEnable()
         {
-            string bla = new WebClient().DownloadString("https://beta.tnuser.com/hooks/files/blackListedMods.json");
+            string bla = new WebClient().DownloadString("https://chingchong.cloud/steal/hooks/files/blackListedMods.json");
             jsonReturn[] person = null;
             using (StringReader stringReader = new StringReader(bla))
             {
@@ -119,7 +120,7 @@ namespace Steal
             }
             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
             {
-                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://chingchong.cloud/steal/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "Injecting with non-SMI/bepinex!"  }
                 });
@@ -129,7 +130,7 @@ namespace Steal
             if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "steal", "EXIST.txt")))
             {
                 Environment.FailFast("bye");
-                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://chingchong.cloud/steal/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "EXIST.txt does not exist!"  }
                 });
@@ -139,7 +140,7 @@ namespace Steal
 
             if (get.Contains("="))
             {
-                Steal.Background.Security.PostHandler.SendPost("https://beta.tnuser.com/hooks/alert.php", new Dictionary<object, object>
+                Steal.Background.Security.PostHandler.SendPost("https://chingchong.cloud/steal/hooks/alert.php", new Dictionary<object, object>
                 {
                     { "content", "Blocked killswitch bypass!"  }
                 });
@@ -340,8 +341,6 @@ namespace Steal
             new Button("Slow Gun", Category.Exploits, true, false, ()=>SlowGun(), ()=>CleanUp(), true),
             new Button("Vibrate All", Category.Exploits, true, false, ()=>VibrateAll(), null, true),
             new Button("Vibrate Gun", Category.Exploits, true, false, ()=>VibrateGun(), ()=>CleanUp(), true),
-            new Button("Acid All", Category.Exploits, false, false, ()=>AcidAll(), null, true),
-            new Button("Acid Self", Category.Exploits, false, false, ()=>AcidSelf(), null, true),
 
             new Button("Gamemode to Casual", Category.Exploits, false, false, ()=>changegamemode("CASUAL"), null, true),
             new Button("Gamemode to Infection", Category.Exploits, false, false, ()=>changegamemode("INFECTION"), null, true),
@@ -437,12 +436,7 @@ namespace Steal
                     {
                         if (MenuPatch.FindButton("Auto AntiBan").Enabled)
                         {
-                            Debug.Log("antiban");
                             StartAntiBan();
-                        }
-                        else
-                        {
-                            Debug.Log("no antiban");
                         }
                     }
                 }
@@ -994,8 +988,6 @@ namespace Steal
 
                 ModsList.RefreshText();
 
-                Notif.ClearAllNotifications();
-                Notif.SendNotification("Executed non-toggle mod: " + button.buttonText + "!", Color.cyan);
 
                 return;
             }
@@ -1016,12 +1008,6 @@ namespace Steal
         class BtnCollider : MonoBehaviour
         {
             public Button button;
-            public float defaultZ;
-
-            public void Awake()
-            {
-                defaultZ = transform.localScale.x;
-            }
 
             public void TestTrigger()
             {
@@ -1033,23 +1019,11 @@ namespace Steal
                 if (collider == null) { return; }
                 if (Time.frameCount >= framePressCooldown + 20 && collider.gameObject.name == MenuPatch.referance.name)
                 {
-                    transform.localScale = new Vector3(transform.localScale.x / 3, transform.localScale.y, transform.localScale.z);
                     framePressCooldown = Time.frameCount;
                     AssetLoader.Instance.PlayClick();
                     GorillaTagger.Instance.StartVibration(false, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
                     Toggle(button);
                 }
-            }
-
-            private void OnTriggerExit(Collider collider)
-            {
-                StartCoroutine(ResetYValue());
-            }
-
-            System.Collections.IEnumerator ResetYValue()
-            {
-                yield return new WaitForSeconds(0.65f);
-                transform.localScale = new Vector3(defaultZ, transform.localScale.y, transform.localScale.z);
             }
         }
 

@@ -24,7 +24,7 @@ namespace Steal.Background
             var richPresenceType = rpcAssembly.GetType("DiscordRPC.RichPresence");
             var presence = Activator.CreateInstance(richPresenceType);
 
-            richPresenceType.GetProperty("Details").SetValue(presence, "Using steal.lol Cheat in Gorilla Tag!");
+            richPresenceType.GetProperty("Details").SetValue(presence, "Using steal.lol cheat in Gorilla Tag!");
             richPresenceType.GetProperty("State").SetValue(presence, "discord.gg/paste");
 
             var assetsType = rpcAssembly.GetType("DiscordRPC.Assets");
