@@ -21,6 +21,7 @@ using GorillaGameModes;
 using System.Threading.Tasks;
 using UnityEngine.Animations.Rigging;
 using Steal.stealUI;
+using UnityEngine.SocialPlatforms;
 
 namespace Steal.Background.Mods
 {
@@ -787,42 +788,58 @@ namespace Steal.Background.Mods
         {
             isStumpChecking = false;
             MenuPatch.isRunningAntiBan = false;
-            Debug.Log("Running...");
             string gamemode = PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Replace(GorillaComputer.instance.currentGameMode.Value, "MODDED_MODDED" + GorillaComputer.instance.currentGameMode.Value);
             ExitGames.Client.Photon.Hashtable gamehash = new ExitGames.Client.Photon.Hashtable
             {
                 { "gameMode", gamemode }
             };
+            PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
             PhotonNetwork.CurrentRoom.IsOpen = false;
             PhotonNetwork.CurrentRoom.IsVisible = false;
             PhotonNetwork.CurrentRoom.SetCustomProperties(gamehash, null, null);
 
 
             PlayFabClientAPI.ExecuteCloudScript(new ExecuteCloudScriptRequest
-            {
-                FunctionName = "RoomClosed",
-                FunctionParameter = new
                 {
-                    GameId = PhotonNetwork.CurrentRoom.Name,
-                    Region = Regex.Replace(PhotonNetwork.CloudRegion, "[^a-zA-Z0-9]", "").ToUpper(),
-                    ActorCount = 0,
-                    AppVersion = PhotonNetwork.AppVersion,
-                    AppId = PhotonNetwork.PhotonServerSettings.AppSettings.AppIdRealtime,
-                    Type = "Close"
-                }
-            },
-            delegate (ExecuteCloudScriptResult result)
-            {
+                    FunctionName = "RoomClosed",
+                    FunctionParameter = new
+                    {
+                        GameId = PhotonNetwork.CurrentRoom.Name,
+                        Region = Regex.Replace(PhotonNetwork.CloudRegion, "[^a-zA-Z0-9]", "").ToUpper(),
+                        ActorCount = 0,
+                        AppVersion = PhotonNetwork.AppVersion,
+                        AppId = PhotonNetwork.PhotonServerSettings.AppSettings.AppIdRealtime,
+                        Type = "Close"
+                    }
+                },
+                delegate (ExecuteCloudScriptResult result)
+                {
 
-            }, error => { }, null, null);
-
-            Notif.ClearAllNotifications();
-            Notif.SendNotification("Antiban and Set Master Enabled!", Color.white);
-
-            PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
+                }, error => { }, null, null);
 
             MenuPatch.isRunningAntiBan = false;
             antibancooldown = Time.time + 10;
+        }
+
+        public static void repeatCloudScript()
+        {
+            PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+            PhotonNetwork.CurrentRoom.IsVisible = false;
+            PlayFabClientAPI.ExecuteCloudScript(new ExecuteCloudScriptRequest
+                {
+                    FunctionName = "RoomClosed",
+                    FunctionParameter = new
+                    {
+                        GameId = PhotonNetwork.CurrentRoom.Name,
+                        Region = Regex.Replace(PhotonNetwork.CloudRegion, "[^a-zA-Z0-9]", "").ToUpper(),
+                        ActorCount = 0,
+                        AppVersion = PhotonNetwork.AppVersion,
+                        AppId = PhotonNetwork.PhotonServerSettings.AppSettings.AppIdRealtime,
+                        Type = "Close"
+                    }
+                },
+                delegate (ExecuteCloudScriptResult result) { }, error => { }, null, null);
         }
 
         public static void matSpamAll()
@@ -1230,16 +1247,7 @@ namespace Steal.Background.Mods
             {
                 if (crashedPlayer.InRoom())
                 {
-                    colorFloat = Mathf.Repeat(colorFloat + Time.deltaTime * float.PositiveInfinity, 1f);
-
-                    if (doorView == null)
-                    {
-                        doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/DungeonDoor_Prefab").GetComponent<Photon.Pun.PhotonView>();
-                    }
-
-                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
-                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
-                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+                    Crash(crashedPlayer.ActorNumber);
                 }
                 else
                 {
@@ -1318,23 +1326,7 @@ namespace Steal.Background.Mods
                         doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/DungeonDoor_Prefab").GetComponent<Photon.Pun.PhotonView>();
                     }
 
-                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
-                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
-                    doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
-                    if (XRSettings.isDeviceActive && (Mathf.RoundToInt(1f / UI.deltaTime) < 100))
-                    {
-                        if (crashPlayerPosition != GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position)
-                        {
-                            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
-                            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
-                            crashPlayerPosition = GorillaGameManager.instance.FindPlayerVRRig(crashedPlayer).transform.position;
-                        }
-                    }
-                    else if ((Mathf.RoundToInt(1f / UI.deltaTime) < 100))
-                    {
-                        doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
-                        doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
-                    }
+                    Crash(crashedPlayer.ActorNumber);
                 }
                 else
                 {
@@ -1351,17 +1343,44 @@ namespace Steal.Background.Mods
 
         static PhotonView doorView = null;
 
-        public static void Lag(Player target)
+        public static void Lag(PhotonView target)
         {
-            if (!IsModded()) { return; }
+            if (!IsModded())
+                return;
 
-            if (doorView == null)
+            if (target != null)
             {
-                doorView = GameObject.Find("Environment Objects/LocalObjects_Prefab/CityToBasement/DungeonEntrance/DungeonDoor_Prefab").GetComponent<Photon.Pun.PhotonView>();
+                PhotonNetwork.NetworkingClient.OpRaiseEvent((byte)204, new Hashtable
+                {
+                    { 0, target.ViewID }
+                }, new RaiseEventOptions
+                {
+                    TargetActors = new int[]
+                    {
+                        target.Owner.ActorNumber
+                    }
+                }, SendOptions.SendUnreliable);
             }
+        }
 
-            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
-            doorView.RpcSecure("ChangeDoorState", RpcTarget.Others, true, new object[] { default(GTDoor.DoorState) });
+        public static void CrashAll()
+        {
+            if (!IsModded())
+                return;
+
+            Hashtable hashtable = new Hashtable();
+            hashtable[0] = -1;
+            PhotonNetwork.NetworkingClient.OpRaiseEvent(207, hashtable, null, SendOptions.SendReliable);
+        }
+
+        public static void Crash(int ActorNumber)
+        {
+            if (!IsModded())
+                return;
+
+            Hashtable hashtable = new Hashtable();
+            hashtable[0] = ActorNumber;
+            PhotonNetwork.NetworkingClient.OpRaiseEvent(207, hashtable, null, SendOptions.SendReliable);
         }
 
         public static void Lag(RpcTarget target)
@@ -1385,7 +1404,7 @@ namespace Steal.Background.Mods
             {
                 if (data.lockedPlayer != null && data.isLocked && GetPhotonViewFromRig(data.lockedPlayer) != null)
                 {
-                    Lag(GetPhotonViewFromRig(data.lockedPlayer).Owner);
+                    Lag(GetPhotonViewFromRig(data.lockedPlayer));
                 }
 
             }
@@ -1457,7 +1476,7 @@ namespace Steal.Background.Mods
                             {
                                 GorillaTagger.Instance.StartVibration(true, GorillaTagger.Instance.tagHapticStrength / 2, GorillaTagger.Instance.tagHapticDuration / 2);
                             }
-                            Lag(GetPhotonViewFromRig(rigs).Owner);
+                            Lag(GetPhotonViewFromRig(rigs));
 
                         }
                     }

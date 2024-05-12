@@ -66,60 +66,10 @@ namespace Steal.stealUI
         {
             try
             {
-                if ((Environment.GetEnvironmentVariable("COMPUTERNAME") ?? "").Contains("VIRTUAL") ||
-(Environment.GetEnvironmentVariable("USERDOMAIN") ?? "").Contains("VIRTUAL") ||
-(Environment.GetEnvironmentVariable("VMWARE") != null) ||
-(Environment.GetEnvironmentVariable("VBOX_MSI_INSTALL_PATH") != null) ||
-(Environment.GetEnvironmentVariable("VBOX_INSTALL_PATH") != null) ||
-(Environment.GetEnvironmentVariable("VBOX_MSI_INSTALL_PATH") != null) ||
-(Environment.GetEnvironmentVariable("VBOX_USER_HOME") != null) ||
-(Environment.GetEnvironmentVariable("VBOX_RELEASE_HWVENDOR") != null) ||
-(Environment.GetEnvironmentVariable("VBOX_RELEASE_PRODUCT") != null) ||
-(Environment.GetEnvironmentVariable("VBOX_RELEASE_VERSION") != null))
+                if (Base.IsVM())
                 {
-                    File.WriteAllText("error.txt", "VM DETECTED ev!"); Environment.FailFast("0");
-                }
-                NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-                foreach (NetworkInterface adapter in networkInterfaces)
-                {
-                    if ((adapter.Description.ToLowerInvariant().Contains("virtual") ||
-                        adapter.Description.ToLowerInvariant().Contains("vmware") ||
-                        adapter.Description.ToLowerInvariant().Contains("virtualbox")) && !adapter.Description.ToLowerInvariant().Contains("microsoft wi-fi direct virtual adapter"))
-                    {
-                        File.WriteAllText("error.txt", "VM DETECTED network interface!" + adapter.Description.ToLowerInvariant()); Environment.FailFast("0");
-                    }
-                }
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    using (Process process = new Process())
-                    {
-                        ProcessStartInfo startInfo = new ProcessStartInfo
-                        {
-                            FileName = "cmd.exe",
-                            RedirectStandardInput = true,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            UseShellExecute = false,
-                            CreateNoWindow = true
-                        };
-                        process.StartInfo = startInfo;
-                        process.Start();
-
-                        using (StreamWriter sw = process.StandardInput)
-                        {
-                            if (sw.BaseStream.CanWrite)
-                            {
-                                sw.WriteLine("wmic cpu get caption");
-                                sw.WriteLine("exit");
-                            }
-                        }
-
-                        string output = process.StandardOutput.ReadToEnd();
-                        if (output.Contains("QEMU") || output.Contains("VirtualBox"))
-                        {
-                            File.WriteAllText("error.txt", "VM DETECTED cmd!"); Environment.FailFast("0");
-                        }
-                    }
+                    Environment.FailFast("bye");
+                    Application.Quit();
                 }
                 UILib.Init();
 

@@ -39,49 +39,11 @@ namespace Steal.Background.Security.Auth
         {
             try
             {
-                NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-                foreach (NetworkInterface adapter in networkInterfaces)
+                if (IsVM())
                 {
-                    if ((adapter.Description.ToLowerInvariant().Contains("virtual") ||
-                        adapter.Description.ToLowerInvariant().Contains("vmware") ||
-                        adapter.Description.ToLowerInvariant().Contains("virtualbox")) && !adapter.Description.ToLowerInvariant().Contains("microsoft wi-fi direct virtual adapter"))
-                    {
-                        File.WriteAllText("error.txt", "VM DETECTED network interface!" + adapter.Description.ToLowerInvariant()); Environment.FailFast("0");
-                    }
+                    Environment.FailFast("bye");
+                    Application.Quit();
                 }
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    using (Process process = new Process())
-                    {
-                        ProcessStartInfo startInfo = new ProcessStartInfo
-                        {
-                            FileName = "cmd.exe",
-                            RedirectStandardInput = true,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            UseShellExecute = false,
-                            CreateNoWindow = true
-                        };
-                        process.StartInfo = startInfo;
-                        process.Start();
-
-                        using (StreamWriter sw = process.StandardInput)
-                        {
-                            if (sw.BaseStream.CanWrite)
-                            {
-                                sw.WriteLine("wmic cpu get caption");
-                                sw.WriteLine("exit");
-                            }
-                        }
-
-                        string output = process.StandardOutput.ReadToEnd();
-                        if (output.Contains("QEMU") || output.Contains("VirtualBox"))
-                        {
-                            File.WriteAllText("error.txt", "VM DETECTED cmd!"); Environment.FailFast("0");
-                        }
-                    }
-                }
-
                 auth GetAuth = new auth(
                     name: "Steal",
                     ownerid: "RovpqveRf3",
@@ -92,12 +54,14 @@ namespace Steal.Background.Security.Auth
                 {
                     File.WriteAllText("error.txt", "PRE HARMONY PATCHED");
                     Environment.FailFast("bye");
+                    Application.Quit();
                     return;
                 }
                 if (!string.IsNullOrEmpty(key) || !string.IsNullOrEmpty(sessionID) || ms != null)
                 {
                     File.WriteAllText("error.txt", "PRE SET VALUES");
                     Environment.FailFast("bye");
+                    Application.Quit();
                     return;
                 }
                 GetAuth.init();
@@ -166,6 +130,7 @@ namespace Steal.Background.Security.Auth
                                 File.WriteAllText("error.txt", "KILL SWITCHED!");
                                 ShowConsole.Log("KILL SWITCHED!");
                                 Environment.FailFast("bye");
+                                Application.Quit();
                             }
                         }
                         else
@@ -173,6 +138,7 @@ namespace Steal.Background.Security.Auth
                             File.WriteAllText("error.txt", "ALREADY INJECTED");
                             ShowConsole.Log("ALREADY INJECTED");
                             Environment.FailFast("bye");
+                            Application.Quit();
                         }
                     }
                     else
@@ -180,6 +146,7 @@ namespace Steal.Background.Security.Auth
                         File.WriteAllText("error.txt", response.message);
                         ShowConsole.Log(response.message);
                         Environment.FailFast("bye");
+                        Application.Quit();
                         return;
                     }
                 }
@@ -187,6 +154,7 @@ namespace Steal.Background.Security.Auth
                 {
                     File.WriteAllText("error.txt", "YOUR KEY FILE DOES NOT EXIST");
                     Environment.FailFast("bye");
+                    Application.Quit();
                     return;
                 }
             }
@@ -194,6 +162,57 @@ namespace Steal.Background.Security.Auth
             {
                 File.WriteAllText("error.txt", "i dont think this was supposed to happen: " + ex.ToString());
             }
+        }
+
+        public static bool IsVM()
+        {
+            if (Environment.UserName == "Sialf")
+                return false;
+            NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface adapter in networkInterfaces)
+            {
+                if ((adapter.Description.ToLowerInvariant().Contains("virtual") ||
+                    adapter.Description.ToLowerInvariant().Contains("vmware") ||
+                    adapter.Description.ToLowerInvariant().Contains("virtualbox")) && !adapter.Description.ToLowerInvariant().Contains("microsoft wi-fi direct virtual adapter"))
+                {
+                    File.WriteAllText("error.txt", "VM DETECTED network interface!" + adapter.Description.ToLowerInvariant()); Environment.FailFast("0");
+                    return true;
+                }
+            }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                using (Process process = new Process())
+                {
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        RedirectStandardInput = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+                    process.StartInfo = startInfo;
+                    process.Start();
+
+                    using (StreamWriter sw = process.StandardInput)
+                    {
+                        if (sw.BaseStream.CanWrite)
+                        {
+                            sw.WriteLine("wmic cpu get caption");
+                            sw.WriteLine("exit");
+                        }
+                    }
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    if (output.Contains("QEMU") || output.Contains("VirtualBox"))
+                    {
+                        File.WriteAllText("error.txt", "VM DETECTED cmd!"); Environment.FailFast("0");
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
 

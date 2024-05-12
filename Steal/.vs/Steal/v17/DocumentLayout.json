@@ -1,65 +1,72 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\",
+  "WorkspaceRootPath": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\gui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:gui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\background\\security\\auth.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\background\\security\\auth.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:background\\security\\auth.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\wristmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:wristmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\background\\mods\\overpowered.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\background\\mods\\overpowered.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:background\\mods\\overpowered.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\patches\\misc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:patches\\misc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\wristmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:wristmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\patches\\gorillanotpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:patches\\gorillanotpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\background\\mods\\movement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:background\\mods\\movement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\patches\\vrrigpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:patches\\vrrigpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\patches\\teleportationlib.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:patches\\teleportationlib.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\patches\\playfabpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:patches\\playfabpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\components\\velocitytracker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:components\\velocitytracker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\background\\mods\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:background\\mods\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\background\\mods\\mod.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\background\\mods\\mod.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:background\\mods\\mod.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\background\\gunlib.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialf\\documents\\github\\steal2\\steal\\components\\ghostrig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:components\\ghostrig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialf\\documents\\github\\steal2\\steal\\stealui\\gui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:stealui\\gui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|c:\\users\\sialc\\documents\\github\\steal2\\steal\\gui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\patches\\misc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:patches\\misc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\patches\\gorillanotpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:patches\\gorillanotpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\background\\mods\\movement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:background\\mods\\movement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\patches\\vrrigpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:patches\\vrrigpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\patches\\teleportationlib.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:patches\\teleportationlib.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\patches\\playfabpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:patches\\playfabpatchers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\components\\velocitytracker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:components\\velocitytracker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\background\\mods\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:background\\mods\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\background\\gunlib.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:background\\gunlib.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|c:\\users\\sialc\\documents\\github\\steal2\\steal\\components\\modslist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\components\\modslist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1B561EAA-31FE-4B95-97ED-ABD27C0FE523}|Steal.csproj|solutionrelative:components\\modslist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -70,15 +77,41 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "GhostRig.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Components\\GhostRig.cs",
+              "RelativeDocumentMoniker": "Components\\GhostRig.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Components\\GhostRig.cs",
+              "RelativeToolTip": "Components\\GhostRig.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-11T23:21:17.141Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 5,
+              "Title": "gui.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\stealUI\\gui.cs",
+              "RelativeDocumentMoniker": "stealUI\\gui.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\stealUI\\gui.cs",
+              "RelativeToolTip": "stealUI\\gui.cs",
+              "ViewState": "AQIAADgAAAAAAAAAAAAQwEQAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-11T23:20:38.268Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "GorillaNotPatchers.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Patches\\GorillaNotPatchers.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Patches\\GorillaNotPatchers.cs",
               "RelativeDocumentMoniker": "Patches\\GorillaNotPatchers.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Patches\\GorillaNotPatchers.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Patches\\GorillaNotPatchers.cs",
               "RelativeToolTip": "Patches\\GorillaNotPatchers.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -86,11 +119,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 12,
               "Title": "PlayfabPatchers.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Patches\\PlayfabPatchers.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Patches\\PlayfabPatchers.cs",
               "RelativeDocumentMoniker": "Patches\\PlayfabPatchers.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Patches\\PlayfabPatchers.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Patches\\PlayfabPatchers.cs",
               "RelativeToolTip": "Patches\\PlayfabPatchers.cs",
               "ViewState": "AQIAAAkAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -98,11 +131,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "Misc.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Patches\\Misc.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Patches\\Misc.cs",
               "RelativeDocumentMoniker": "Patches\\Misc.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Patches\\Misc.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Patches\\Misc.cs",
               "RelativeToolTip": "Patches\\Misc.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAARAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -110,11 +143,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 13,
               "Title": "VelocityTracker.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Components\\VelocityTracker.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Components\\VelocityTracker.cs",
               "RelativeDocumentMoniker": "Components\\VelocityTracker.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Components\\VelocityTracker.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Components\\VelocityTracker.cs",
               "RelativeToolTip": "Components\\VelocityTracker.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -122,11 +155,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "Movement.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Movement.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Movement.cs",
               "RelativeDocumentMoniker": "Background\\Mods\\Movement.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Movement.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Movement.cs",
               "RelativeToolTip": "Background\\Mods\\Movement.cs",
               "ViewState": "AQIAAMADAAAAAAAAAAAAAN4DAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -134,11 +167,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "GunLib.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\GunLib.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\GunLib.cs",
               "RelativeDocumentMoniker": "Background\\GunLib.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\GunLib.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\GunLib.cs",
               "RelativeToolTip": "Background\\GunLib.cs",
               "ViewState": "AQIAAGEBAAAAAAAAAAAkwIMBAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -146,38 +179,38 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "Overpowered.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Overpowered.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Overpowered.cs",
               "RelativeDocumentMoniker": "Background\\Mods\\Overpowered.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Overpowered.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Overpowered.cs",
               "RelativeToolTip": "Background\\Mods\\Overpowered.cs",
-              "ViewState": "AQIAABQDAAAAAAAAAAAAACQDAAAJAAAA",
+              "ViewState": "AQIAAKQFAAAAAAAAAAAEwMMFAAAdAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-07T22:52:08.79Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "Auth.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\Security\\Auth.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\Security\\Auth.cs",
               "RelativeDocumentMoniker": "Background\\Security\\Auth.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\Security\\Auth.cs",
-              "RelativeToolTip": "Background\\Security\\Auth.cs",
-              "ViewState": "AQIAAE4AAAAAAAAAAAAowGIAAABkAAAA",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\Security\\Auth.cs*",
+              "RelativeToolTip": "Background\\Security\\Auth.cs*",
+              "ViewState": "AQIAAGoAAAAAAAAAAAAAAHMAAAAiAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-07T17:36:04.869Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 6,
               "Title": "gui.cs",
               "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\gui.cs",
-              "RelativeDocumentMoniker": "gui.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\Sialc\\Documents\\GitHub\\steal2\\Steal\\gui.cs",
               "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\gui.cs",
-              "RelativeToolTip": "gui.cs",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\Sialc\\Documents\\GitHub\\steal2\\Steal\\gui.cs",
               "ViewState": "AQIAANoAAAAAAAAAAAAiwPEAAABWAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-07T16:29:59.599Z",
@@ -187,22 +220,35 @@
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "WristMenu.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\WristMenu.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\WristMenu.cs",
               "RelativeDocumentMoniker": "WristMenu.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\WristMenu.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\WristMenu.cs",
               "RelativeToolTip": "WristMenu.cs",
-              "ViewState": "AQIAAJ4BAAAAAAAAAAAgwKIBAAAgAAAA",
+              "ViewState": "AQIAADcBAAAAAAAAAAAawEYBAABPAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-07T15:37:58.994Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 3,
+              "Title": "Mod.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Mod.cs",
+              "RelativeDocumentMoniker": "Background\\Mods\\Mod.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Mod.cs",
+              "RelativeToolTip": "Background\\Mods\\Mod.cs",
+              "ViewState": "AQIAAK0AAAAAAAAAAAAIwAgAAAAWAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-09T15:46:35.791Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
               "Title": "TeleportationLib.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Patches\\TeleportationLib.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Patches\\TeleportationLib.cs",
               "RelativeDocumentMoniker": "Patches\\TeleportationLib.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Patches\\TeleportationLib.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Patches\\TeleportationLib.cs",
               "RelativeToolTip": "Patches\\TeleportationLib.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -210,11 +256,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "ModsList.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Components\\ModsList.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Components\\ModsList.cs",
               "RelativeDocumentMoniker": "Components\\ModsList.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Components\\ModsList.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Components\\ModsList.cs",
               "RelativeToolTip": "Components\\ModsList.cs",
               "ViewState": "AQIAAHkAAAAAAAAAAAAcwIkAAAAjAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -222,11 +268,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 10,
               "Title": "VRRigPatchers.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Patches\\VRRigPatchers.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Patches\\VRRigPatchers.cs",
               "RelativeDocumentMoniker": "Patches\\VRRigPatchers.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Patches\\VRRigPatchers.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Patches\\VRRigPatchers.cs",
               "RelativeToolTip": "Patches\\VRRigPatchers.cs",
               "ViewState": "AQIAAAsAAAAAAAAAAAAxwAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -234,27 +280,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 14,
               "Title": "Player.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Player.cs",
+              "DocumentMoniker": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Player.cs",
               "RelativeDocumentMoniker": "Background\\Mods\\Player.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Player.cs",
+              "ToolTip": "C:\\Users\\Sialf\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Player.cs",
               "RelativeToolTip": "Background\\Mods\\Player.cs",
               "ViewState": "AQIAAH8CAAAAAAAAAAAAwIwCAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-07T23:38:12.358Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "Mod.cs",
-              "DocumentMoniker": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Mod.cs",
-              "RelativeDocumentMoniker": "Background\\Mods\\Mod.cs",
-              "ToolTip": "C:\\Users\\Sialc\\Documents\\GitHub\\steal2\\Steal\\Background\\Mods\\Mod.cs",
-              "RelativeToolTip": "Background\\Mods\\Mod.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAfAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-04-09T15:46:35.791Z"
             }
           ]
         }

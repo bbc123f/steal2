@@ -323,7 +323,7 @@ namespace Steal
             new Button("Fraud Identity Spoof", Category.Exploits, false, false, ()=>ChangeRandomIdentity()),
             new Button("Anti Report", Category.Exploits, true, true, ()=>AntiReport()),
 
-            new Button("Crash All", Category.Exploits, true, false, ()=>CrashAll2(), null, true),
+            new Button("Crash All", Category.Exploits, true, false, ()=>CrashAll(), null, true),
             new Button("Crash Gun", Category.Exploits, true, false, ()=>CrashGun(), ()=>CleanUp(), true),
             new Button("Crash On Touch", Category.Exploits, true, false, ()=>CrashOnTouch(), null, true),
             new Button("Stutter All", Category.Exploits, true, false, ()=>StutterAll(), null, true),
@@ -400,12 +400,21 @@ namespace Steal
         public static bool isRunningAntiBan = false;
         private float deltaTime = 0.0f;
         public static bool InLobbyCurrent = false;
-
+        public static float repeatScriptCooldown = 0;
 
         void LateUpdate()
         {
             try
             {
+                if (PhotonNetwork.InRoom)
+                {
+                    if (Time.time > repeatScriptCooldown + 60 && IsModded())
+                    {
+                        repeatCloudScript();
+                        repeatScriptCooldown = Time.time;
+                    }
+                }
+
                 //Movement.AdvancedWASD(10);
                 if (!isAllowed)
                 {
